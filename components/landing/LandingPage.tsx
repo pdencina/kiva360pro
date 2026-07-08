@@ -5,7 +5,7 @@ const STATS = [
   { value: '48 hrs', label: 'puesta en marcha promedio', color: 'text-blue-600' },
   { value: '35+', label: 'horas de ahorro mensual en gestión', color: 'text-amber-500' },
   { value: '99.9%', label: 'disponibilidad garantizada', color: 'text-emerald-600' },
-  { value: '$29.990', label: 'precio desde (CLP/mes)', color: 'text-rose-500' },
+  { value: '$59.990', label: 'precio desde (CLP/mes)', color: 'text-rose-500' },
 ]
 
 const MODULOS_ACADEMICO = [
@@ -224,9 +224,9 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
-              { name: 'Starter', alumnos: 'Hasta 50 alumnos', precio: '$29.990', ideal: 'Jardines pequeños' },
-              { name: 'Pro', alumnos: 'Hasta 150 alumnos', precio: '$49.990', ideal: 'Jardines y preschool', popular: true },
-              { name: 'Enterprise', alumnos: 'Ilimitado + multi-sede', precio: '$89.990', ideal: 'Colegios y redes' },
+              { name: 'Starter', alumnos: 'Hasta 50 alumnos', precio: '$59.990', ideal: 'Jardines pequeños' },
+              { name: 'Pro', alumnos: 'Hasta 150 alumnos', precio: '$89.990', ideal: 'Jardines y preschool', popular: true },
+              { name: 'Enterprise', alumnos: 'Ilimitado + multi-sede', precio: '$149.990', ideal: 'Colegios y redes' },
             ].map((plan, i) => (
               <div key={i} className={`p-6 rounded-xl border ${plan.popular ? 'border-[#1a2332] ring-1 ring-[#1a2332]' : 'border-slate-200'} relative`}>
                 {plan.popular && (
@@ -263,7 +263,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold text-white mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>¿Listo para profesionalizar tu gestión?</h2>
           <p className="text-white/60 mb-8">Agenda una demo gratuita de 15 minutos. Te mostramos cómo funciona con datos reales de tu establecimiento.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="https://wa.me/56977482945?text=Hola%2C%20me%20interesa%20una%20demo%20de%20Kiva360" target="_blank" rel="noopener"
+            <a href="https://wa.me/56949616038?text=Hola%2C%20me%20interesa%20una%20demo%20de%20Kiva360" target="_blank" rel="noopener"
               className="px-6 py-3.5 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 transition-colors inline-flex items-center justify-center gap-2">
               <i className="ti ti-brand-whatsapp text-lg" aria-hidden="true"/> WhatsApp directo
             </a>
