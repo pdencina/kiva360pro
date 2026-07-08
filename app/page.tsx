@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
-import LandingPage from './(landing)/page'
+import LandingPage from '@/components/landing/LandingPage'
 
 export default async function HomePage() {
   const supabase = createClient()

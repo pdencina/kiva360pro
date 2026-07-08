@@ -1,13 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
-export const dynamic = 'force-static'
-
-export const metadata = {
-  title: 'Kiva360 — Plataforma de Gestión para Jardines, Preschool y Colegios',
-  description: 'Sistema integral de gestión escolar. Comunicados, asistencias, calificaciones, cobranzas y reporte diario en un solo lugar.',
-}
-
 const STATS = [
   { value: '48 hrs', label: 'puesta en marcha promedio', color: 'text-blue-600' },
   { value: '35+', label: 'horas de ahorro mensual en gestión', color: 'text-amber-500' },
@@ -214,7 +207,7 @@ export default function LandingPage() {
                 <div className="flex justify-between"><span className="text-slate-500">😊 Ánimo</span><span className="font-medium text-amber-600">Feliz</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">🎨 Actividades</span><span className="font-medium">Arte, Música</span></div>
                 <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
-                  💬 "Sofía participó mucho en la actividad de arte. Compartió materiales con sus compañeros."
+                  💬 &quot;Sofía participó mucho en la actividad de arte. Compartió materiales con sus compañeros.&quot;
                 </div>
               </div>
             </div>
