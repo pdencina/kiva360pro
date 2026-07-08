@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
+export const dynamic = 'force-static'
+
 export const metadata = {
   title: 'Kiva360 — Plataforma de Gestión para Jardines, Preschool y Colegios',
   description: 'Sistema integral de gestión escolar. Comunicados, asistencias, calificaciones, cobranzas y reporte diario en un solo lugar.',
