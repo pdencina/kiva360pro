@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <rect width="40" height="40" rx="10" fill="#1a2332"/>
+  <!-- K letter stylized -->
+  <text x="20" y="26" text-anchor="middle" fill="#b8860b" font-family="sans-serif" font-weight="700" font-size="18">K</text>
+  <!-- 360 arc -->
+  <path d="M8 20a12 12 0 1 1 0 0.01" fill="none" stroke="#b8860b" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
+</svg>
