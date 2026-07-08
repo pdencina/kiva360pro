@@ -41,7 +41,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <Image src="/logo.svg" alt="Kiva360" width={32} height={32} className="rounded-lg"/>
-            <span className="font-bold text-[#1a2332] text-lg tracking-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>Kiva360</span>
+            <span className="font-bold text-[#1a2332] text-lg tracking-[0.2em] uppercase" style={{ fontFamily: 'DM Sans, sans-serif' }}>KIVA360</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm text-slate-600">
             <a href="#sistema" className="hover:text-[#1a2332] transition-colors">Sistema</a>
@@ -280,7 +280,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Image src="/logo.svg" alt="Kiva360" width={24} height={24} className="rounded"/>
-            <span className="text-sm font-semibold text-slate-700">Kiva360</span>
+            <span className="text-sm font-bold text-slate-700 tracking-[0.2em] uppercase">KIVA360</span>
           </div>
           <p className="text-xs text-slate-400">© 2026 Kiva360. Todos los derechos reservados.</p>
           <div className="flex items-center gap-4">
