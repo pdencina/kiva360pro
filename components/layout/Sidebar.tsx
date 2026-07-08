@@ -25,6 +25,7 @@ const NAV_PRINCIPAL: NavItem[] = [
 
 const NAV_GESTION: NavItem[] = [
   { label: 'Cobranzas',          href: '/contable',     icon: 'ti-cash',             roles: ['super_admin','admin'] },
+  { label: 'Horarios',           href: '/horarios',     icon: 'ti-clock',            roles: ['super_admin','admin','tutor'] },
   { label: 'Documentos',         href: '/documentos',   icon: 'ti-folder',           roles: ['super_admin','admin','tutor'] },
   { label: 'Calendario',         href: '/calendario',   icon: 'ti-calendar',         roles: ['super_admin','admin','tutor'] },
   { label: 'Fichas pedagógicas', href: '/fichas',       icon: 'ti-books',            roles: ['super_admin','admin','tutor'] },
@@ -80,6 +81,7 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/libro-clases': 'libro_clases',
   '/reporte-diario': 'reporte_diario',
   '/contable': 'cobranzas',
+  '/horarios': 'horarios',
   '/documentos': 'documentos',
   '/calendario': 'calendario',
   '/fichas': 'fichas',

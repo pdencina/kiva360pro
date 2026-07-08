@@ -8,6 +8,7 @@ export default function NuevoColegioClient() {
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
     nombre: '', rut: '', direccion: '', telefono: '', plan: 'profesional',
+    logo_url: '', color_primario: '#1a2332', color_acento: '#b8860b',
     admin_nombre: '', admin_apellido: '', admin_email: '', admin_password: '',
   })
 
@@ -24,7 +25,7 @@ export default function NuevoColegioClient() {
       const resColegio = await fetch('/api/admin/colegios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: form.nombre, rut: form.rut, direccion: form.direccion, telefono: form.telefono, plan: form.plan }),
+        body: JSON.stringify({ nombre: form.nombre, rut: form.rut, direccion: form.direccion, telefono: form.telefono, plan: form.plan, logo_url: form.logo_url || null, color_primario: form.color_primario, color_acento: form.color_acento }),
       })
       const colegio = await resColegio.json()
       if (!resColegio.ok) throw new Error(colegio.error ?? 'Error al crear colegio')
@@ -96,6 +97,44 @@ export default function NuevoColegioClient() {
                 <option value="enterprise">Enterprise</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        {/* Branding */}
+        <div className="bg-white border border-slate-200 rounded-xl p-5">
+          <h2 className="font-display font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <i className="ti ti-palette text-blue-500" aria-hidden="true"/> Personalización visual
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">URL del logo</label>
+              <input value={form.logo_url} onChange={e => setF('logo_url', e.target.value)} className="input-base" placeholder="https://ejemplo.com/logo.png"/>
+              <p className="text-[11px] text-slate-400 mt-1">Imagen cuadrada recomendada (PNG/SVG, mínimo 100x100px)</p>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Color primario</label>
+              <div className="flex items-center gap-2">
+                <input type="color" value={form.color_primario} onChange={e => setF('color_primario', e.target.value)} className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-0.5"/>
+                <input value={form.color_primario} onChange={e => setF('color_primario', e.target.value)} className="input-base flex-1 font-mono text-sm" placeholder="#1a2332"/>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Color acento</label>
+              <div className="flex items-center gap-2">
+                <input type="color" value={form.color_acento} onChange={e => setF('color_acento', e.target.value)} className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-0.5"/>
+                <input value={form.color_acento} onChange={e => setF('color_acento', e.target.value)} className="input-base flex-1 font-mono text-sm" placeholder="#b8860b"/>
+              </div>
+            </div>
+            {(form.logo_url || form.color_primario !== '#1a2332') && (
+              <div className="col-span-2 p-3 rounded-lg border border-slate-100 bg-slate-50">
+                <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mb-2">Vista previa</p>
+                <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: form.color_primario }}>
+                  {form.logo_url && <img src={form.logo_url} alt="Logo" className="w-8 h-8 rounded"/>}
+                  <span className="text-white text-sm font-semibold">{form.nombre || 'Nombre del colegio'}</span>
+                  <span className="ml-auto text-xs px-2 py-1 rounded font-semibold" style={{ backgroundColor: form.color_acento, color: 'white' }}>Acento</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

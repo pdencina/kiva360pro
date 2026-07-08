@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { formatMonto, formatFecha } from '@/lib/utils'
+import BotonPagarOnline from '@/components/portal/BotonPagarOnline'
 
 export default async function PortalPagosPage() {
   const supabase = createClient()
@@ -63,7 +64,7 @@ export default async function PortalPagosPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#f7f8fa] border-b border-[#e8eaed]">
-              {['Alumno','Concepto','Monto','Vencimiento','Estado'].map(h => (
+              {['Alumno','Concepto','Monto','Vencimiento','Estado',''].map(h => (
                 <th key={h} className="text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider px-4 py-3 text-left">{h}</th>
               ))}
             </tr>
@@ -81,6 +82,9 @@ export default async function PortalPagosPage() {
                 <td className="px-4 py-3.5 text-xs text-[#6b7280]">{formatFecha(c.fecha_vencimiento)}</td>
                 <td className="px-4 py-3.5">
                   <span className={`tag ${c.estado === 'pagado' ? 'tag-ok' : c.estado === 'mora' ? 'tag-mora' : 'tag-pend'}`}>{c.estado}</span>
+                </td>
+                <td className="px-4 py-3.5">
+                  <BotonPagarOnline cobroId={c.id} estado={c.estado} />
                 </td>
               </tr>
             ))}
