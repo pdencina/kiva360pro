@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     titulo,
     contenido,
     tipo: tipo ?? 'general',
-    cursos: cursos ?? null,
+    curso: Array.isArray(cursos) && cursos.length > 0 ? cursos[0] : null,
     creado_por: user.id,
     enviado_at: new Date().toISOString(),
   }).select().single()
