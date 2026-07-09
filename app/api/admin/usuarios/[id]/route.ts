@@ -23,6 +23,16 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 
   const body = await request.json()
+
+  // Cambiar contraseña
+  if (body.password) {
+    const { error: passErr } = await admin.auth.admin.updateUserById(params.id, {
+      password: body.password,
+    })
+    if (passErr) return NextResponse.json({ error: passErr.message }, { status: 500 })
+    if (Object.keys(body).length === 1) return NextResponse.json({ ok: true, message: 'Contraseña actualizada' })
+  }
+
   const updates: any = {}
   if (body.nombre) updates.nombre = body.nombre.trim()
   if (body.apellido !== undefined) updates.apellido = body.apellido.trim()

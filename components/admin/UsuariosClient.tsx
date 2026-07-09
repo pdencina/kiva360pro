@@ -25,6 +25,28 @@ export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Pr
     nombre: '', apellido: '', email: '', password: '',
     rol: 'tutor', colegio_id: colegioFiltro ?? colegios[0]?.id ?? '',
   })
+  const [showPassModal, setShowPassModal] = useState<any>(null)
+  const [newPassword, setNewPassword] = useState('')
+  const [savingPass, setSavingPass] = useState(false)
+
+  async function handleCambiarPassword() {
+    if (newPassword.length < 6) { toast.error('La contraseña debe tener al menos 6 caracteres'); return }
+    setSavingPass(true)
+    const res = await fetch(`/api/admin/usuarios/${showPassModal.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: newPassword }),
+    })
+    if (res.ok) {
+      toast.success(`Contraseña de ${showPassModal.email} actualizada`)
+      setShowPassModal(null)
+      setNewPassword('')
+    } else {
+      const data = await res.json()
+      toast.error(data.error ?? 'Error al cambiar contraseña')
+    }
+    setSavingPass(false)
+  }
 
   const usuariosFiltrados = useMemo(() =>
     usuarios.filter(u => {
@@ -165,8 +187,11 @@ export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Pr
                     </select>
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-500">{new Date(u.created_at).toLocaleDateString('es-CL')}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 flex gap-2">
                     <button onClick={() => openEditar(u)} className="text-xs text-blue-600 hover:underline">Editar</button>
+                    <button onClick={() => setShowPassModal(u)} className="text-xs text-slate-500 hover:text-slate-700 hover:underline">
+                      <i className="ti ti-key text-xs" aria-hidden="true"/> Clave
+                    </button>
                   </td>
                 </tr>
               )
@@ -234,6 +259,41 @@ export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Pr
                 {loading ? 'Guardando...' : editUsuario ? 'Guardar cambios' : 'Crear usuario'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal cambiar contraseña */}
+      {showPassModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowPassModal(null)}>
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-[#1a2332] mb-1">Cambiar contraseña</h3>
+            <p className="text-sm text-[#6b7280] mb-4">
+              Usuario: <strong>{showPassModal.email}</strong>
+            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Nueva contraseña</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="input-base"
+                  placeholder="Mínimo 6 caracteres"
+                  minLength={6}
+                />
+              </div>
+              <button
+                onClick={handleCambiarPassword}
+                disabled={savingPass}
+                className="btn-primary w-full disabled:opacity-60"
+              >
+                {savingPass ? 'Actualizando...' : 'Cambiar contraseña'}
+              </button>
+            </div>
+            <button onClick={() => { setShowPassModal(null); setNewPassword('') }} className="mt-3 text-sm text-[#6b7280] hover:text-[#1a2332] w-full text-center">
+              Cancelar
+            </button>
           </div>
         </div>
       )}
