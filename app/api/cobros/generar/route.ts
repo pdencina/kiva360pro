@@ -66,13 +66,37 @@ export async function POST(request: NextRequest) {
 
   const familiaMap = new Map((familias ?? []).map((f: any) => [f.alumno_id, f.id]))
 
+  // Obtener o crear un concepto de cobro por defecto
+  let conceptoId = null
+  const { data: conceptos } = await admin
+    .from('conceptos_cobro')
+    .select('id')
+    .eq('colegio_id', colegioId)
+    .eq('activo', true)
+    .limit(1)
+
+  if (conceptos && conceptos.length > 0) {
+    conceptoId = conceptos[0].id
+  } else {
+    // Crear concepto por defecto
+    const { data: nuevoConcepto } = await admin.from('conceptos_cobro').insert({
+      colegio_id: colegioId,
+      nombre: 'Mensualidad',
+      descripcion: 'Cobro mensual de colegiatura',
+      monto: Number(monto),
+      periodicidad: 'mensual',
+      activo: true,
+    }).select().single()
+    conceptoId = nuevoConcepto?.id ?? null
+  }
+
   // Generar cobros
   const vencimiento = `${anio}-${String(mes).padStart(2, '0')}-05`
   const cobrosInsert = alumnosSinCobro.map(alumno => ({
     colegio_id: colegioId,
     familia_id: familiaMap.get(alumno.id) ?? null,
     alumno_id: alumno.id,
-    concepto_id: null,
+    concepto_id: conceptoId,
     monto: Number(monto),
     monto_pagado: 0,
     mes: Number(mes),
