@@ -41,7 +41,9 @@ export default function VincularClient() {
 
     setSuccess(true)
     toast.success('Vinculación exitosa')
-    setTimeout(() => router.push('/portal'), 2000)
+    setTimeout(() => {
+      window.location.href = '/portal'
+    }, 2000)
   }
 
   if (success) {
