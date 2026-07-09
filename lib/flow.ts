@@ -37,7 +37,7 @@ export async function crearOrdenPago({
   alumno_nombre,
 }: CrearPagoParams): Promise<{ url: string; token: string } | { error: string }> {
   if (!FLOW_API_KEY || !FLOW_SECRET_KEY) {
-    return { error: 'Flow no está configurado. Contacte al administrador.' }
+    return { error: 'El pago online requiere integración bancaria. Contacte al administrador para configurar su medio de pago.' }
   }
 
   const params: Record<string, string> = {
