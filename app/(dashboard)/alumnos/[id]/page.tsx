@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { formatMonto } from '@/lib/utils'
+import InvitarApoderadoBtn from '@/components/alumnos/InvitarApoderadoBtn'
 
 export const metadata = { title: 'Ficha del Alumno' }
 
@@ -71,6 +72,7 @@ export default async function FichaAlumnoPage({ params }: { params: { id: string
           </div>
         </div>
         <div className="flex gap-2">
+          <InvitarApoderadoBtn alumnoId={params.id} alumnoNombre={`${al.nombre} ${al.apellido}`} />
           {matricula && (
             <a href={`/api/contratos?matricula_id=${(matricula as any).id}`} target="_blank" className="btn-secondary text-xs">
               <i className="ti ti-file-text text-sm" aria-hidden="true"/> Contrato
