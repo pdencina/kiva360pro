@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import ReporteDiarioClient from '@/components/preschool/ReporteDiarioClient'
+import { hoyChile } from '@/lib/utils'
 
 export const metadata = { title: 'Reporte Diario' }
 
@@ -23,7 +24,7 @@ export default async function ReporteDiarioPage() {
   const { data: ur } = await admin.from('usuarios').select('colegio_id, rol').eq('id', user.id).single()
   const colegioId = (ur as any)?.colegio_id ?? ''
 
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = hoyChile()
 
   const [{ data: alumnos }, { data: reportesHoy }] = await Promise.all([
     admin.from('alumnos').select('*').eq('colegio_id', colegioId).eq('activo', true).order('apellido'),

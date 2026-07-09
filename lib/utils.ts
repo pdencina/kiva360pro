@@ -49,3 +49,8 @@ export const ESTADO_CONFIG: Record<string, { label: string; className: string }>
   parcial:  { label: 'Parcial',   className: 'bg-orange-50 text-orange-700' },
   anulado:  { label: 'Anulado',   className: 'bg-slate-100 text-slate-500' },
 }
+
+/** Obtiene la fecha de hoy en formato YYYY-MM-DD en zona horaria de Chile */
+export function hoyChile(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' })
+}

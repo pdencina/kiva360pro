@@ -3,6 +3,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import AsistenciasClient from '@/components/asistencias/AsistenciasClient'
+import { hoyChile } from '@/lib/utils'
 
 function getAdmin() {
   return createAdminClient(
@@ -20,7 +21,7 @@ export default async function AsistenciasPage() {
   const admin = getAdmin()
   const { data: ur } = await admin.from('usuarios').select('colegio_id').eq('id', user.id).single()
   const colegioId = (ur as any)?.colegio_id ?? ''
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = hoyChile()
 
   const [{ data: alumnos }, { data: asistenciasHoy }] = await Promise.all([
     admin.from('alumnos').select('*').eq('colegio_id', colegioId).eq('activo', true).order('apellido'),

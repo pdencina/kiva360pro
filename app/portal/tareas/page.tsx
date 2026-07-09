@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { hoyChile } from '@/lib/utils'
 
 export default async function PortalTareasPage() {
   const supabase = createClient()
@@ -22,7 +23,7 @@ export default async function PortalTareasPage() {
     .eq('curso', curso)
     .order('fecha_entrega', { ascending: true })
 
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = hoyChile()
 
   return (
     <div className="p-6">

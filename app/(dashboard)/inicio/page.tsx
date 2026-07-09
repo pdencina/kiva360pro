@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import DashboardInicio from '@/components/dashboard/DashboardInicio'
-import { getMesNombre } from '@/lib/utils'
+import { getMesNombre, hoyChile } from '@/lib/utils'
 
 export const metadata = { title: 'Inicio' }
 
@@ -56,7 +56,7 @@ export default async function InicioPage() {
     admin.from('alumnos').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId).eq('activo', true),
     admin.from('comunicados').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId),
     admin.from('cobros').select('estado, monto, monto_pagado').eq('colegio_id', colegioId).eq('mes', mes).eq('anio', anio),
-    admin.from('asistencias').select('estado').eq('colegio_id', colegioId).eq('fecha', ahora.toISOString().split('T')[0]),
+    admin.from('asistencias').select('estado').eq('colegio_id', colegioId).eq('fecha', hoyChile()),
     admin.from('notificaciones').select('*').eq('colegio_id', colegioId).eq('leida', false).order('created_at', { ascending: false }).limit(10),
     admin.from('comunicados').select('*').eq('colegio_id', colegioId).order('created_at', { ascending: false }).limit(5),
   ])
