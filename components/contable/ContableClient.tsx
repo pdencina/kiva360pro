@@ -78,7 +78,8 @@ export default function ContableClient({ cobros, kpis, historico, ultimosPagos, 
   }
 
   async function handleGenerarCobros() {
-    if (!generarForm.monto || Number(generarForm.monto) <= 0) { toast.error('Ingresa un monto válido'); return }
+    const montoLimpio = parseInt(generarForm.monto.replace(/\D/g, ''), 10)
+    if (!montoLimpio || montoLimpio <= 0) { toast.error('Ingresa un monto válido'); return }
     setLoadingGenerar(true)
     try {
       const res = await fetch('/api/cobros/generar', {
@@ -87,7 +88,7 @@ export default function ContableClient({ cobros, kpis, historico, ultimosPagos, 
         body: JSON.stringify({
           mes: generarForm.mes,
           anio: generarForm.anio,
-          monto: Number(generarForm.monto),
+          monto: montoLimpio,
           concepto: generarForm.concepto || undefined,
         }),
       })
@@ -507,13 +508,20 @@ export default function ContableClient({ cobros, kpis, historico, ultimosPagos, 
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Monto por alumno (CLP)</label>
-                <input
-                  type="number"
-                  value={generarForm.monto}
-                  onChange={e => setGenerarForm(f => ({ ...f, monto: e.target.value }))}
-                  className="input-base"
-                  placeholder="89990"
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] text-sm">$</span>
+                  <input
+                    type="text"
+                    value={generarForm.monto}
+                    onChange={e => {
+                      const clean = e.target.value.replace(/\D/g, '')
+                      const num = parseInt(clean, 10)
+                      setGenerarForm(f => ({ ...f, monto: isNaN(num) ? '' : num.toLocaleString('es-CL') }))
+                    }}
+                    className="input-base pl-7"
+                    placeholder="89.990"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Concepto (opcional)</label>

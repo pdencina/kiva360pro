@@ -228,7 +228,7 @@ export default function ComunicadosClient({ comunicados, colegioId, cursos }: Pr
 
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Título</label>
-                <input value={form.titulo} onChange={e => setForm(p => ({...p, titulo: e.target.value}))} className="input-base" placeholder="Asunto del comunicado"/>
+                <input value={form.titulo} onChange={e => setForm(p => ({...p, titulo: e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1)}))} className="input-base" placeholder="Asunto del comunicado"/>
               </div>
 
               <div>
