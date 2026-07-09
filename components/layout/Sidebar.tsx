@@ -47,6 +47,7 @@ const NAV_APODERADO: NavItem[] = [
   { label: 'Asistencias',     href: '/portal/asistencias',    icon: 'ti-clipboard-check', roles: ['apoderado'] },
   { label: 'Evaluaciones',   href: '/portal/calificaciones', icon: 'ti-chart-bar',       roles: ['apoderado'] },
   { label: 'Estado de pagos', href: '/portal/pagos',          icon: 'ti-cash',            roles: ['apoderado'] },
+  { label: 'Horario',        href: '/portal/horarios',       icon: 'ti-clock',           roles: ['apoderado'] },
   { label: 'Vincular alumno', href: '/vincular',              icon: 'ti-link',            roles: ['apoderado'] },
   { label: 'Mi perfil',       href: '/portal/perfil',         icon: 'ti-user',            roles: ['apoderado'] },
 ]

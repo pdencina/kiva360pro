@@ -176,6 +176,21 @@ export default function ConfiguracionClient({ usuario, stats }: Props) {
             ))}
           </div>
         </div>
+
+        {/* Plantillas de contrato */}
+        {canEdit && (
+          <div className="bg-white border border-slate-200 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="font-semibold text-slate-800 font-display">Plantillas de contrato</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Gestiona los tipos de contrato para matrícula</p>
+              </div>
+              <a href="/configuracion/contratos" className="btn-primary text-xs">
+                <i className="ti ti-file-text text-sm" aria-hidden="true"/> Gestionar plantillas
+              </a>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal cambiar contraseña */}
