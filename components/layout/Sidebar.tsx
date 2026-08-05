@@ -45,6 +45,7 @@ const NAV_CUENTA: NavItem[] = [
 
 const NAV_APODERADO: NavItem[] = [
   { label: 'Inicio',          href: '/portal',                icon: 'ti-home',            roles: ['apoderado'] },
+  { label: 'Avances',         href: '/portal/intervencion',   icon: 'ti-heart-handshake', roles: ['apoderado'] },
   { label: 'Reporte del día', href: '/portal/reporte-diario', icon: 'ti-clipboard-heart', roles: ['apoderado'] },
   { label: 'Mensajes',        href: '/portal/mensajes',       icon: 'ti-message-2',       roles: ['apoderado'] },
   { label: 'Comunicados',     href: '/portal/comunicados',    icon: 'ti-speakerphone',    roles: ['apoderado'] },
@@ -98,6 +99,7 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/fichas': 'fichas',
   '/reportes': 'reportes',
   '/portal': 'inicio',
+  '/portal/intervencion': 'intervencion',
   '/portal/reporte-diario': 'reporte_diario',
   '/portal/mensajes': 'mensajes',
   '/portal/comunicados': 'comunicados',
