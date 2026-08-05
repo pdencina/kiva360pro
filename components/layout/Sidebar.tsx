@@ -22,6 +22,7 @@ const NAV_PRINCIPAL: NavItem[] = [
   { label: 'Libro de clases', href: '/libro-clases',    icon: 'ti-notebook',         roles: ['pastor_campus','tutor'] },
   { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','pastor_campus','tutor'] },
   { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','pastor_campus','tutor'] },
+  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','pastor_campus','tutor'] },
   { label: 'Tareas',         href: '/tareas',         icon: 'ti-checklist',        roles: ['super_admin','admin','pastor_campus','tutor'] },
 ]
 
@@ -46,6 +47,7 @@ const NAV_CUENTA: NavItem[] = [
 const NAV_APODERADO: NavItem[] = [
   { label: 'Inicio',          href: '/portal',                icon: 'ti-home',            roles: ['apoderado'] },
   { label: 'Avances',         href: '/portal/intervencion',   icon: 'ti-heart-handshake', roles: ['apoderado'] },
+  { label: 'Agenda',          href: '/portal/agenda',         icon: 'ti-calendar-time',   roles: ['apoderado'] },
   { label: 'Reporte del día', href: '/portal/reporte-diario', icon: 'ti-clipboard-heart', roles: ['apoderado'] },
   { label: 'Mensajes',        href: '/portal/mensajes',       icon: 'ti-message-2',       roles: ['apoderado'] },
   { label: 'Comunicados',     href: '/portal/comunicados',    icon: 'ti-speakerphone',    roles: ['apoderado'] },
@@ -89,6 +91,7 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/mensajes': 'mensajes',
   '/libro-clases': 'libro_clases',
   '/intervencion': 'intervencion',
+  '/agenda': 'agenda',
   '/reporte-diario': 'reporte_diario',
   '/tareas': 'tareas',
   '/contable': 'cobranzas',
@@ -100,6 +103,7 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/reportes': 'reportes',
   '/portal': 'inicio',
   '/portal/intervencion': 'intervencion',
+  '/portal/agenda': 'agenda',
   '/portal/reporte-diario': 'reporte_diario',
   '/portal/mensajes': 'mensajes',
   '/portal/comunicados': 'comunicados',
