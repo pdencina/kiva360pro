@@ -9,12 +9,21 @@ export const metadata: Metadata = {
   },
   description: 'Plataforma integral de gestión escolar: matrículas, asistencias, calificaciones, cobranzas y comunicación con familias.',
   keywords: ['gestión escolar', 'Kiva360', 'plataforma educacional', 'colegio', 'software escolar Chile'],
+  icons: {
+    icon: [
+      { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: '/favicon/apple-touch-icon.png',
+    shortcut: '/favicon/favicon.ico',
+  },
+  manifest: '/site.webmanifest',
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#2D1B69',
+  themeColor: '#0d1b2a',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

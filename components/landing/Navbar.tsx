@@ -36,9 +36,7 @@ export default function Navbar() {
       <nav className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-[10px] bg-[#2D1B69] flex items-center justify-center group-hover:scale-105 transition-transform">
-            <span className="text-white font-bold text-sm font-display">K</span>
-          </div>
+          <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="w-9 h-9 rounded-[10px] group-hover:scale-105 transition-transform" />
           <span className={`font-display font-bold text-lg tracking-tight transition-colors ${
             scrolled ? 'text-[#1A1035]' : 'text-white'
           }`}>

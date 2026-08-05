@@ -46,9 +46,7 @@ export default function LoginPage() {
         
         <div className="relative">
           <Link href="/" className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 rounded-[10px] bg-white/10 border border-white/10 flex items-center justify-center backdrop-blur-sm">
-              <span className="text-white font-bold text-lg font-display">K</span>
-            </div>
+            <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="w-10 h-10 rounded-[10px]" />
             <span className="font-display font-bold text-xl text-white tracking-tight">Kiva360</span>
           </Link>
           <h1 className="font-display text-4xl font-bold text-white leading-tight mb-5">
@@ -78,9 +76,7 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2.5 mb-10">
-            <div className="w-9 h-9 rounded-[10px] bg-[#2D1B69] flex items-center justify-center">
-              <span className="text-white font-bold text-sm font-display">K</span>
-            </div>
+            <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="w-9 h-9 rounded-[10px]" />
             <span className="font-display font-bold text-lg text-[#1A1035] tracking-tight">Kiva360</span>
           </div>
 

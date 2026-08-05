@@ -8,9 +8,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-[10px] bg-[#2D1B69] border border-[#5B3E9E]/30 flex items-center justify-center">
-                <span className="text-white font-bold text-sm font-display">K</span>
-              </div>
+              <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="w-9 h-9 rounded-[10px]" />
               <span className="font-display font-bold text-lg text-white tracking-tight">
                 Kiva360
               </span>
