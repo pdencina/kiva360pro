@@ -6,42 +6,38 @@ import { useRef } from 'react'
 const plans = [
   {
     name: 'Starter',
-    description: 'Para colegios pequeños que quieren organizarse',
-    price: '49.990',
-    period: '/mes',
+    description: 'Para centros pequeños que quieren profesionalizarse',
     features: [
-      'Hasta 150 alumnos',
+      'Hasta 80 alumnos',
       'Asistencia y calificaciones',
-      'Comunicados básicos',
-      'Portal apoderados',
-      '1 usuario admin',
+      'Comunicados y mensajería',
+      'Portal para apoderados',
+      'Reportes diarios',
+      'Usuarios ilimitados',
     ],
-    cta: 'Comenzar',
+    cta: 'Agendar demo',
     highlighted: false,
   },
   {
     name: 'Profesional',
-    description: 'Todo lo que necesita un colegio en crecimiento',
-    price: '99.990',
-    period: '/mes',
+    description: 'Todo lo que necesita un centro NEE o colegio en crecimiento',
     features: [
-      'Hasta 500 alumnos',
+      'Hasta 300 alumnos',
       'Todo de Starter +',
+      'Intervención NEE (PII)',
+      'Sesiones terapéuticas',
+      'Bitácora conductual',
+      'Portal de avances para familias',
       'Cobranzas y facturación',
       'Matrícula digital con firma',
-      'Fichas pedagógicas',
-      'Reportes avanzados',
-      'Usuarios ilimitados',
       'Soporte prioritario',
     ],
-    cta: 'Solicitar demo',
+    cta: 'Agendar demo',
     highlighted: true,
   },
   {
     name: 'Enterprise',
-    description: 'Para redes de colegios y fundaciones',
-    price: 'A medida',
-    period: '',
+    description: 'Para redes de centros y fundaciones educacionales',
     features: [
       'Alumnos ilimitados',
       'Todo de Profesional +',
@@ -74,10 +70,10 @@ export default function Pricing() {
             Planes
           </span>
           <h2 className="font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-[#1A1035] leading-tight mb-4">
-            Precios transparentes,<br />sin letra chica
+            Un plan que se adapta<br />a tu centro
           </h2>
           <p className="text-[15px] text-[#5C5470]">
-            Todos los planes incluyen actualizaciones gratuitas y soporte técnico.
+            Planes desde $49.990/mes. Conversemos para encontrar el que se ajusta a tu realidad.
           </p>
         </motion.div>
 
@@ -96,20 +92,13 @@ export default function Pricing() {
             >
               {plan.highlighted && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#5B3E9E] text-white text-[10px] font-semibold tracking-wide">
-                  MÁS POPULAR
+                  RECOMENDADO
                 </div>
               )}
 
               <div className="mb-6">
                 <h3 className="font-display text-[18px] font-bold text-[#1A1035] mb-1">{plan.name}</h3>
-                <p className="text-[12px] text-[#5C5470]">{plan.description}</p>
-              </div>
-
-              <div className="mb-6">
-                <span className="font-display text-[32px] font-bold text-[#1A1035]">
-                  {plan.price.startsWith('A') ? '' : '$'}{plan.price}
-                </span>
-                <span className="text-[13px] text-[#5C5470]">{plan.period}</span>
+                <p className="text-[12px] text-[#5C5470] leading-relaxed">{plan.description}</p>
               </div>
 
               <ul className="space-y-2.5 mb-8">
@@ -137,6 +126,16 @@ export default function Pricing() {
             </motion.div>
           ))}
         </div>
+
+        {/* Trust line */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="text-center text-[12px] text-[#5C5470] mt-10"
+        >
+          Sin contratos de permanencia · Actualizaciones incluidas · Soporte técnico en todos los planes
+        </motion.p>
       </div>
     </section>
   )
