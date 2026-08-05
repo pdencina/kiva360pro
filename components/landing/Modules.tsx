@@ -5,34 +5,70 @@ import { useRef, useState } from 'react'
 
 const modules = [
   {
-    id: 'academico',
-    title: 'Gestión académica',
-    subtitle: 'El corazón de tu colegio, digitalizado',
+    id: 'nee',
+    title: 'Intervención NEE',
+    subtitle: 'El corazón de los centros de educación especial',
     points: [
-      'Libro de clases digital con registro por bloque',
-      'Planificación curricular por asignatura y semestre',
-      'Calificaciones con cálculo automático y ponderaciones',
-      'Reportes de rendimiento por alumno y curso',
-      'Horarios configurables con distribución de bloques',
+      'Plan de Intervención Individual (PII) por alumno',
+      'Objetivos terapéuticos medibles con progreso 0-100%',
+      'Sesiones multidisciplinarias con registro clínico completo',
+      'Bitácora conductual con modelo ABC (antecedente-conducta-consecuencia)',
+      'Evoluciones periódicas compartibles con familias',
+      'Portal de avances: los papás ven el progreso en tiempo real',
     ],
     visual: (
       <div className="bg-white rounded-xl p-5 border border-[#e2dfd9]/60 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-lg bg-[#f3f0f9] flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B3E9E" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B3E9E" strokeWidth="2"><path d="M4.5 12.75l6 6 9-13.5"/></svg>
           </div>
           <div>
-            <div className="text-[12px] font-bold text-[#1A1035]">Libro de clases — 3°B</div>
-            <div className="text-[10px] text-[#5C5470]">Matemáticas · Julio 2026</div>
+            <div className="text-[12px] font-bold text-[#1A1035]">Matías Rojas — PII</div>
+            <div className="text-[10px] text-[#5C5470]">CEA · Nivel intermedio</div>
           </div>
+          <span className="ml-auto text-[18px] font-bold text-[#5B3E9E]">67%</span>
         </div>
-        <div className="space-y-1.5">
-          {['Sofía Contreras', 'Matías Rojas', 'Valentina Torres'].map((n, i) => (
-            <div key={n} className="flex items-center justify-between py-1.5 px-2 rounded-md bg-[#F9F7F5]">
-              <span className="text-[11px] text-[#1A1035] font-medium">{n}</span>
-              <div className="flex gap-1">
-                {[6.5, 5.8, 7.0][i] && <span className="text-[10px] font-bold text-[#5B3E9E]">{[6.5, 5.8, 7.0][i]}</span>}
+        <div className="space-y-2">
+          {[{area: 'Comunicación', p: 80}, {area: 'Socioemocional', p: 55}, {area: 'Autonomía', p: 65}].map(o => (
+            <div key={o.area}>
+              <div className="flex justify-between text-[10px] mb-0.5">
+                <span className="text-[#5C5470]">{o.area}</span><span className="font-bold text-[#1A1035]">{o.p}%</span>
               </div>
+              <div className="h-1.5 bg-[#f0f0f0] rounded-full"><div className="h-full rounded-full bg-[#5B3E9E]" style={{width:`${o.p}%`}}/></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'agenda',
+    title: 'Agenda y sesiones',
+    subtitle: 'Organiza la operación diaria de tu equipo',
+    points: [
+      'Calendario semanal con vista por profesional',
+      'Agendamiento con recurrencia (semanal/quincenal)',
+      'Estado: programada → confirmada → completada',
+      'Cobro automático al completar sesión',
+      'Tarifas configurables por especialidad',
+      'Paquetes de sesiones con descuento',
+    ],
+    visual: (
+      <div className="bg-white rounded-xl p-5 border border-[#e2dfd9]/60 shadow-sm">
+        <div className="text-[10px] font-bold text-[#5C5470] uppercase tracking-wider mb-3">Lunes 21 jul</div>
+        <div className="space-y-2">
+          {[
+            {hora:'09:00', alumno:'Sofía C.', prof:'Dra. Morales', color:'#5B3E9E', tipo:'Fono'},
+            {hora:'10:00', alumno:'Matías R.', prof:'Lic. Torres', color:'#E85D3A', tipo:'T.O.'},
+            {hora:'11:00', alumno:'Valentina T.', prof:'Ps. López', color:'#4A9E7A', tipo:'Psico'},
+          ].map(s => (
+            <div key={s.hora} className="flex items-center gap-2 p-2 rounded-lg bg-[#f9f7f5]">
+              <div className="w-1.5 h-8 rounded-full" style={{background: s.color}} />
+              <div className="flex-1">
+                <div className="text-[11px] font-medium text-[#1A1035]">{s.hora} — {s.alumno}</div>
+                <div className="text-[9px] text-[#5C5470]">{s.prof} · {s.tipo}</div>
+              </div>
+              <span className="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">Confirmada</span>
             </div>
           ))}
         </div>
@@ -41,62 +77,35 @@ const modules = [
   },
   {
     id: 'financiero',
-    title: 'Control financiero',
-    subtitle: 'Cobranzas claras, morosidad bajo control',
+    title: 'Gestión financiera',
+    subtitle: 'Cobranzas mensuales + cobro por sesión',
     points: [
-      'Planes de cobro configurables (mensual, trimestral, anual)',
-      'Emisión automática de cobros con fecha de vencimiento',
-      'Recordatorios por email antes y después del vencimiento',
-      'Dashboard de KPIs: recaudación, mora, familias al día',
-      'Registro de pagos con múltiples medios (transferencia, Webpay, efectivo)',
+      'Cobros mensuales con recordatorios automáticos',
+      'Cobro individual por sesión terapéutica',
+      'Paquetes de sesiones con descuento (ej: 10 sesiones)',
+      'Dashboard de morosidad y recaudación en tiempo real',
+      'Registro de pagos: transferencia, Webpay, efectivo',
+      'Portal de pagos para apoderados',
     ],
     visual: (
       <div className="bg-white rounded-xl p-5 border border-[#e2dfd9]/60 shadow-sm">
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="rounded-lg bg-[#edf7f2] p-3">
             <div className="text-[9px] text-[#5C5470] uppercase tracking-wider">Recaudado</div>
-            <div className="text-[18px] font-bold text-[#4A9E7A] font-display">$8.2M</div>
+            <div className="text-[18px] font-bold text-[#4A9E7A]" style={{fontFamily:'Space Grotesk'}}>$4.2M</div>
           </div>
           <div className="rounded-lg bg-[#fef0ec] p-3">
-            <div className="text-[9px] text-[#5C5470] uppercase tracking-wider">Mora</div>
-            <div className="text-[18px] font-bold text-[#E85D3A] font-display">4.1%</div>
+            <div className="text-[9px] text-[#5C5470] uppercase tracking-wider">Pendiente</div>
+            <div className="text-[18px] font-bold text-[#E85D3A]" style={{fontFamily:'Space Grotesk'}}>$680K</div>
           </div>
         </div>
-        <div className="flex items-end gap-1 h-14">
-          {[30, 45, 38, 62, 55, 70, 68, 82, 78, 90].map((h, i) => (
-            <div key={i} className="flex-1 rounded-t-sm" style={{ height: `${h}%`, background: i >= 8 ? '#4A9E7A' : '#5B3E9E', opacity: 0.2 + i * 0.08 }} />
+        <div className="space-y-1.5 text-[10px]">
+          {[{n:'Pack 10 Fono — Fam. Contreras',s:'pagado'},{n:'Sesión T.O. 15/jul — Fam. Rojas',s:'pendiente'},{n:'Mensualidad Jul — Fam. Torres',s:'pagado'}].map(c=>(
+            <div key={c.n} className="flex items-center justify-between py-1.5 px-2 rounded bg-[#f9f7f5]">
+              <span className="text-[#1A1035]">{c.n}</span>
+              <span className={`font-bold ${c.s==='pagado'?'text-emerald-600':'text-amber-600'}`}>{c.s}</span>
+            </div>
           ))}
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'comunidad',
-    title: 'Comunidad escolar',
-    subtitle: 'Conecta con familias de forma profesional',
-    points: [
-      'Comunicados masivos por curso, nivel o toda la comunidad',
-      'Reportes diarios con fotos y actividades del día',
-      'Portal para apoderados con acceso a notas y asistencia',
-      'Mensajería directa entre docentes y familias',
-      'Admisión online con formulario y proceso de postulación',
-    ],
-    visual: (
-      <div className="bg-white rounded-xl p-5 border border-[#e2dfd9]/60 shadow-sm">
-        <div className="space-y-3">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-[#f3f0f9]/50 border border-[#5B3E9E]/10">
-            <div className="w-7 h-7 rounded-full bg-[#5B3E9E] flex items-center justify-center shrink-0">
-              <span className="text-[9px] text-white font-bold">Dir</span>
-            </div>
-            <div>
-              <div className="text-[11px] font-medium text-[#1A1035]">Reunión de apoderados</div>
-              <div className="text-[10px] text-[#5C5470]">Estimadas familias, les recordamos la reunión del...</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#edf7f2]/50 border border-[#4A9E7A]/10">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4A9E7A]" />
-            <span className="text-[10px] text-[#4A9E7A] font-medium">Leído por 87% de las familias</span>
-          </div>
         </div>
       </div>
     ),
@@ -104,7 +113,7 @@ const modules = [
 ]
 
 export default function Modules() {
-  const [active, setActive] = useState('academico')
+  const [active, setActive] = useState('nee')
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
@@ -124,7 +133,7 @@ export default function Modules() {
             Módulos
           </span>
           <h2 className="font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-[#1A1035] leading-tight mb-4">
-            Tres pilares, una plataforma
+            Todo integrado, sin herramientas dispersas
           </h2>
           <p className="text-[15px] text-[#5C5470]">
             Cada módulo funciona de forma independiente pero se potencian juntos.

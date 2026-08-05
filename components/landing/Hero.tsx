@@ -54,8 +54,8 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="text-[17px] text-white/50 leading-relaxed max-w-xl mb-10"
           >
-            Matrículas, asistencia, calificaciones, cobranzas y comunicación con familias. 
-            Todo integrado en una plataforma que tu equipo realmente quiere usar.
+            Intervención terapéutica, agenda de sesiones, cobro por sesión, programas flexibles
+            y portal de avances para familias. Todo en una plataforma que tu equipo realmente quiere usar.
           </motion.p>
 
           {/* CTAs */}
