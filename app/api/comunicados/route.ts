@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { notificarComunicado } from '@/lib/notificaciones'
 
 function getAdmin() {
   return createAdminClient(
@@ -10,55 +11,56 @@ function getAdmin() {
   )
 }
 
-// POST: Crear comunicado
+// POST: Crear comunicado y notificar apoderados
 export async function POST(request: NextRequest) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const admin = getAdmin()
-  const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
-  const usuario = ur as any
+  const { data: ur } = await admin
+    .from('usuarios')
+    .select('rol, colegio_id, colegio:colegios(nombre)')
+    .eq('id', user.id)
+    .single()
 
-  if (!['super_admin', 'admin', 'tutor'].includes(usuario?.rol)) {
+  const u = ur as any
+  if (!['super_admin', 'admin', 'pastor_campus', 'gestor_admision', 'tutor'].includes(u?.rol)) {
     return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
   }
 
-  const { titulo, contenido, tipo, cursos } = await request.json()
+  const body = await request.json()
+  const { titulo, contenido, tipo, cursos, notificar = true } = body
 
   if (!titulo || !contenido) {
     return NextResponse.json({ error: 'Título y contenido son requeridos' }, { status: 400 })
   }
 
-  const { data, error } = await admin.from('comunicados').insert({
-    colegio_id: usuario.colegio_id,
+  // Insertar comunicado
+  const { data: comunicado, error } = await admin.from('comunicados').insert({
+    colegio_id: u.colegio_id,
     titulo,
     contenido,
     tipo: tipo ?? 'general',
-    curso: Array.isArray(cursos) && cursos.length > 0 ? cursos[0] : null,
-    creado_por: user.id,
+    cursos: cursos && cursos.length > 0 ? cursos : null,
     enviado_at: new Date().toISOString(),
   }).select().single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
-}
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
-// GET: Listar comunicados del colegio
-export async function GET() {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  // Notificar apoderados (fire and forget)
+  if (notificar) {
+    const colegioNombre = u.colegio?.nombre ?? 'AR School'
+    notificarComunicado(
+      u.colegio_id,
+      titulo,
+      contenido,
+      colegioNombre,
+      cursos
+    ).catch(console.error)
+  }
 
-  const admin = getAdmin()
-  const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
-  const usuario = ur as any
-
-  const { data } = await admin
-    .from('comunicados')
-    .select('*, comunicado_recepciones(estado, familia_id)')
-    .eq('colegio_id', usuario.colegio_id)
-    .order('created_at', { ascending: false })
-
-  return NextResponse.json(data ?? [])
+  return NextResponse.json({ ok: true, comunicado }, { status: 201 })
 }

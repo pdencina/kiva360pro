@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
-import { BRANDING } from '@/lib/branding'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -38,34 +37,37 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A1628] flex">
+    <div className="min-h-screen bg-[#1B3A5C] flex">
       {/* Panel izquierdo */}
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-transparent to-blue-900/10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#E8722A]/5 via-transparent to-[#5B8FA8]/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#E8722A]/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#5B8FA8]/5 rounded-full blur-3xl" />
         
         <div className="relative">
           <div className="flex items-center gap-4 mb-16">
             <div className="bg-white rounded-xl p-2">
-              <Image src={BRANDING.logoPath} alt={BRANDING.logoAlt} width={120} height={40} className="h-10 w-auto"/>
+              <Image src="/logo-arschool.png" alt="AR School" width={120} height={40} className="h-10 w-auto"/>
             </div>
           </div>
           <h1 className="text-4xl font-bold text-white leading-tight mb-5" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-            {BRANDING.welcomeTitle}
+            Sistema integral de<br/>gestión escolar
           </h1>
           <p className="text-white/50 text-base leading-relaxed max-w-md">
-            {BRANDING.welcomeSubtitle}
+            Administra comunicados, asistencias, calificaciones y aportes de manera centralizada y profesional.
           </p>
         </div>
 
         <div className="relative">
           <div className="flex items-center gap-6">
             <div className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-4 backdrop-blur-sm">
-              <Image src={BRANDING.logoPath} alt={BRANDING.logoAlt} width={140} height={50} className="h-8 w-auto invert opacity-80"/>
+              <Image src="/logo-arschool.png" alt="AR School" width={140} height={50} className="h-8 w-auto invert opacity-80"/>
+            </div>
+            <div className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-4 backdrop-blur-sm">
+              <Image src="/logo-playgroup.png" alt="Play and Group" width={140} height={50} className="h-8 w-auto invert opacity-80"/>
             </div>
           </div>
-          <div className="mt-4 text-white/30 text-[10px] uppercase tracking-[0.15em]">{BRANDING.orgFooter}</div>
+          <div className="mt-4 text-white/30 text-[10px] uppercase tracking-[0.15em]">Fundación ARM Global</div>
         </div>
       </div>
 
@@ -74,12 +76,12 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-3 mb-10">
             <div className="bg-[#f3f4f6] rounded-lg p-1.5">
-              <Image src={BRANDING.logoPath} alt={BRANDING.logoAlt} width={100} height={36} className="h-7 w-auto"/>
+              <Image src="/logo-arschool.png" alt="AR School" width={100} height={36} className="h-7 w-auto"/>
             </div>
           </div>
 
           <h2 className="font-display text-2xl font-bold text-slate-900 mb-1">Iniciar sesión</h2>
-          <p className="text-slate-400 text-sm mb-8">{BRANDING.loginSubtitle}</p>
+          <p className="text-slate-400 text-sm mb-8">Ingresa con tu cuenta institucional</p>
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
@@ -122,7 +124,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-16 pt-6 border-t border-slate-100 text-center">
-            <p className="text-[10px] text-slate-300 uppercase tracking-widest">{BRANDING.orgFooter}</p>
+            <p className="text-[10px] text-slate-300 uppercase tracking-widest">AR School · Fundación ARM Global</p>
           </div>
         </div>
       </div>

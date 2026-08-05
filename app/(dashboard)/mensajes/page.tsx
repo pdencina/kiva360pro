@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import ChatClient from '@/components/chat/ChatClient'
 
-export const metadata = { title: 'Mensajes' }
+export const metadata = { title: 'Mensajes — AR School' }
 
 function getAdmin() {
   return createAdminClient(

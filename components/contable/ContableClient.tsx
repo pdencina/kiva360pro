@@ -32,9 +32,6 @@ export default function ContableClient({ cobros, kpis, historico, ultimosPagos, 
   const [busqueda, setBusqueda] = useState('')
   const [loadingAvisos, setLoadingAvisos] = useState(false)
   const [planesData, setPlanesData] = useState(planes)
-  const [showGenerarModal, setShowGenerarModal] = useState(false)
-  const [generarForm, setGenerarForm] = useState({ mes: mes ?? new Date().getMonth() + 1, anio: anio ?? new Date().getFullYear(), monto: '', concepto: '' })
-  const [loadingGenerar, setLoadingGenerar] = useState(false)
 
   const cobrosVisibles = cobros
     .filter(c => filtro === 'todos' || c.estado === filtro)
@@ -75,30 +72,7 @@ export default function ContableClient({ cobros, kpis, historico, ultimosPagos, 
     if (!res.ok) { toast.error(data.error ?? 'Error'); return }
     toast.success('Plan creado')
     setPlanesData(p => [...p, data])
-  }
-
-  async function handleGenerarCobros() {
-    const montoLimpio = parseInt(generarForm.monto.replace(/\D/g, ''), 10)
-    if (!montoLimpio || montoLimpio <= 0) { toast.error('Ingresa un monto válido'); return }
-    setLoadingGenerar(true)
-    try {
-      const res = await fetch('/api/cobros/generar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mes: generarForm.mes,
-          anio: generarForm.anio,
-          monto: montoLimpio,
-          concepto: generarForm.concepto || undefined,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) { toast.error(data.error ?? 'Error al generar cobros'); return }
-      toast.success(`${data.cobros_generados} cobros generados correctamente`)
-      setShowGenerarModal(false)
-      router.refresh()
-    } catch { toast.error('Error de conexión') }
-    finally { setLoadingGenerar(false) }
+    setShowPlanModal(false)
   }
 
   const kpiData = [
@@ -153,9 +127,6 @@ export default function ContableClient({ cobros, kpis, historico, ultimosPagos, 
             </button>
             <button onClick={handleExportar} className="inline-flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-medium rounded-lg transition-colors">
               <i className="ti ti-download text-sm" aria-hidden="true"/> Exportar Excel
-            </button>
-            <button onClick={() => setShowGenerarModal(true)} className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-semibold rounded-lg transition-colors">
-              <i className="ti ti-calculator text-sm" aria-hidden="true"/> Generar cobros del mes
             </button>
           </div>
         </div>
@@ -474,80 +445,6 @@ export default function ContableClient({ cobros, kpis, historico, ultimosPagos, 
 
       {cobroModal && <ModalPago cobro={cobroModal} onClose={() => setCobroModal(null)}/>}
       {showPlanModal && <ModalPlan onClose={() => setShowPlanModal(false)} onGuardar={handleNuevoPlan}/>}
-
-      {/* Modal Generar Cobros */}
-      {showGenerarModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowGenerarModal(false)}>
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-[#1a2332] mb-2">Generar cobros del mes</h3>
-            <p className="text-sm text-[#6b7280] mb-5">Genera un cobro mensual para todos los alumnos activos que aún no tienen cobro en el período seleccionado.</p>
-            
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Mes</label>
-                  <select
-                    value={generarForm.mes}
-                    onChange={e => setGenerarForm(f => ({ ...f, mes: Number(e.target.value) }))}
-                    className="input-base"
-                  >
-                    {['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].map((m, i) => (
-                      <option key={i} value={i + 1}>{m}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Año</label>
-                  <input
-                    type="number"
-                    value={generarForm.anio}
-                    onChange={e => setGenerarForm(f => ({ ...f, anio: Number(e.target.value) }))}
-                    className="input-base"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Monto por alumno (CLP)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] text-sm">$</span>
-                  <input
-                    type="text"
-                    value={generarForm.monto}
-                    onChange={e => {
-                      const clean = e.target.value.replace(/\D/g, '')
-                      const num = parseInt(clean, 10)
-                      setGenerarForm(f => ({ ...f, monto: isNaN(num) ? '' : num.toLocaleString('es-CL') }))
-                    }}
-                    className="input-base pl-7"
-                    placeholder="89.990"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Concepto (opcional)</label>
-                <input
-                  type="text"
-                  value={generarForm.concepto}
-                  onChange={e => setGenerarForm(f => ({ ...f, concepto: e.target.value }))}
-                  className="input-base"
-                  placeholder="Mensualidad Julio 2026"
-                />
-              </div>
-              <button
-                onClick={handleGenerarCobros}
-                disabled={loadingGenerar}
-                className="btn-primary w-full disabled:opacity-60"
-              >
-                {loadingGenerar ? 'Generando...' : 'Generar cobros'}
-              </button>
-            </div>
-
-            <button onClick={() => setShowGenerarModal(false)} className="mt-3 text-sm text-[#6b7280] hover:text-[#1a2332] w-full text-center">
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

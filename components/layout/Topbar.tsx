@@ -4,15 +4,16 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { BRANDING } from '@/lib/branding'
 
 interface Props { usuario: any }
 
 const ROL_LABEL: Record<string, string> = {
-  super_admin: 'Administrador General',
-  admin:       'Administración',
-  tutor:       'Docente',
-  apoderado:   'Apoderado',
+  super_admin: 'super_admin',
+  admin:       'admin',
+  pastor_campus: 'pastor_campus',
+  gestor_admision: 'gestor_admision',
+  tutor:       'tutor',
+  apoderado:   'apoderado',
   alumno:      'Alumno',
 }
 
@@ -35,17 +36,25 @@ export default function Topbar({ usuario }: Props) {
       <div className="flex items-center justify-between h-[56px] px-6">
         {/* Logo */}
         <Link href={rol === 'apoderado' || rol === 'alumno' ? '/portal' : '/inicio'} className="flex items-center gap-3 shrink-0 group">
-          <Image src={usuario?.colegio?.logo_url || BRANDING.logoPath} alt={BRANDING.logoAlt} width={34} height={34} className="rounded-lg group-hover:scale-105 transition-transform duration-200"/>
+          <Image src="/logo-arschool.png" alt="AR School" width={34} height={34} className="rounded-lg group-hover:scale-105 transition-transform duration-200"/>
           <div>
-            <div className="font-semibold text-[var(--ar-text)] text-[13px] leading-none tracking-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>{BRANDING.appNameUpper}</div>
+            <div className="font-semibold text-[var(--ar-text)] text-[13px] leading-none tracking-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>AR SCHOOL</div>
             <div className="text-[10px] text-[#b0b7c3] mt-[3px] leading-none tracking-wide">
               {rol === 'super_admin' ? 'Gestión Educacional' : usuario?.colegio?.nombre ?? 'Gestión Educacional'}
             </div>
           </div>
         </Link>
 
-        {/* User */}
+        {/* Search trigger + User */}
         <div className="flex items-center gap-2 shrink-0 relative">
+          <button
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--ar-border)] hover:border-slate-300 hover:bg-slate-50 transition-all text-[12px] text-slate-400"
+          >
+            <i className="ti ti-search text-sm" aria-hidden="true"/>
+            <span>Buscar...</span>
+            <kbd className="ml-2 px-1.5 py-0.5 text-[9px] font-mono bg-slate-100 border border-slate-200 rounded">⌘K</kbd>
+          </button>
           <button onClick={() => setShowMenu(!showMenu)} className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-[#f3f4f6] transition-all duration-200">
             <div className="hidden md:block text-right">
               <div className="text-[var(--ar-text)] text-[13px] font-medium leading-tight">{usuario?.nombre} {usuario?.apellido}</div>

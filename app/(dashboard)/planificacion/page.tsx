@@ -1,41 +1,69 @@
 export const dynamic = 'force-dynamic'
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import PlanificacionClient from '@/components/tutor/PlanificacionClient'
+import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+import PlanificacionClient from '@/components/planificacion/PlanificacionClient'
+import HorarioTutorView from '@/components/planificacion/HorarioTutorView'
 
-export const metadata = { title: 'Planificación' }
+function getAdmin() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export default async function PlanificacionPage() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: ur } = await supabase.from('usuarios').select('colegio_id, rol').eq('id', user.id).single()
-  const u = ur as any
-  if (!['tutor','admin','super_admin'].includes(u?.rol)) redirect('/inicio')
+  const admin = getAdmin()
+  const { data: ur } = await admin.from('usuarios').select('rol, colegio_id, nombre, apellido').eq('id', user.id).single()
+  const usuario = ur as any
+  const colegioId = usuario?.colegio_id
+  const rol = usuario?.rol
 
-  const colegioId = u.colegio_id ?? ''
+  // --- VISTA TUTOR: solo ve su horario personal publicado ---
+  if (rol === 'tutor') {
+    const nombreTutor = `${usuario.nombre} ${usuario.apellido}`
 
-  const [{ data: planificaciones }, { data: alumnos }] = await Promise.all([
-    supabase.from('planificaciones')
+    // Buscar la propuesta publicada más reciente del colegio
+    const { data: publicada } = await admin
+      .from('propuestas_horario')
       .select('*')
       .eq('colegio_id', colegioId)
-      .order('fecha', { ascending: false })
-      .limit(50),
-    supabase.from('alumnos')
-      .select('curso')
-      .eq('colegio_id', colegioId)
-      .eq('activo', true),
-  ])
+      .eq('estado', 'publicado')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
 
-  const cursos = [...new Set((alumnos ?? []).map((a: any) => a.curso))].sort()
+    return (
+      <HorarioTutorView
+        propuesta={(publicada as any)?.propuesta ?? null}
+        nombreTutor={nombreTutor}
+      />
+    )
+  }
+
+  // --- VISTA ADMIN: generador + publicación ---
+  // Obtener propuestas existentes
+  const { data: propuestas } = await admin
+    .from('propuestas_horario')
+    .select('*')
+    .eq('colegio_id', colegioId)
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  // Resumen de alumnos por curso
+  const { data: alumnos } = await admin.from('alumnos').select('curso').eq('colegio_id', colegioId).eq('activo', true)
+  const resumenCursos: Record<string, number> = {}
+  ;(alumnos ?? []).forEach((a: any) => { resumenCursos[a.curso] = (resumenCursos[a.curso] || 0) + 1 })
 
   return (
     <PlanificacionClient
-      planificaciones={(planificaciones as any[]) ?? []}
-      cursos={cursos}
-      colegioId={colegioId}
-      tutorId={user.id}
+      propuestas={(propuestas as any[]) ?? []}
+      resumenCursos={resumenCursos}
     />
   )
 }

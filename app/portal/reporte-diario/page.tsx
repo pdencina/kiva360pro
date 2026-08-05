@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 
-export const metadata = { title: 'Reporte del día' }
+export const metadata = { title: 'Reporte del día — AR School' }
 
 function getAdmin() {
   return createAdminClient(

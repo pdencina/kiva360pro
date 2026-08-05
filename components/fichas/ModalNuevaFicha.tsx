@@ -17,8 +17,8 @@ const MATERIAS = [
   { value: 'educacion_fisica',label: 'Ed. Física' },
   { value: 'otro',          label: 'Otro' },
 ]
-const GRADOS = ['1° Básico','2° Básico','3° Básico','4° Básico','5° Básico','6° Básico',
-                 '7° Básico','8° Básico','I° Medio','II° Medio','III° Medio','IV° Medio']
+const GRADOS = ['Playgroup','Preschool','Elementary 1','Elementary 2','Elementary 3','Elementary 4','Elementary 5','Elementary 6',
+                 'Middle 1','Middle 2','Middle 3','High School 1','High School 2','High School 3','High School 4']
 const TIPOS = [
   { value: 'ejercicio',  label: 'Ejercicio' },
   { value: 'evaluacion', label: 'Evaluación' },
@@ -35,9 +35,9 @@ export default function ModalNuevaFicha({ colegioId, userId, onClose }: Props) {
   const [pdfPreview, setPdfPreview] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [form, setForm] = useState({
-    titulo: '', materia: 'lenguaje', grado: '1° Básico', tipo: 'ejercicio',
+    titulo: '', materia: 'lenguaje', grado: 'Playgroup', tipo: 'ejercicio',
     descripcion: '', duracion_minutos: '',
-    objetivos: [''], es_publica: false,
+    objetivos: [''], es_publica: false, visible_portal: false,
   })
   const supabase = createClient()
   const router = useRouter()
@@ -103,6 +103,7 @@ export default function ModalNuevaFicha({ colegioId, userId, onClose }: Props) {
         duracion_minutos: form.duracion_minutos ? parseInt(form.duracion_minutos) : null,
         objetivos: form.objetivos.filter(Boolean),
         es_publica: form.es_publica,
+        visible_portal: form.visible_portal,
         pdf_url: pdfUrl,
         pdf_nombre: pdfNombre,
         descargas: 0,
@@ -192,6 +193,18 @@ export default function ModalNuevaFicha({ colegioId, userId, onClose }: Props) {
                   </label>
                 </div>
               </div>
+
+              {/* Visible en portal apoderados */}
+              <div className="col-span-2">
+                <label className="flex items-center gap-2 cursor-pointer select-none bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+                  <input type="checkbox" checked={form.visible_portal} onChange={e => setF('visible_portal', e.target.checked)} className="w-4 h-4 accent-amber-600"/>
+                  <div>
+                    <div className="text-sm font-medium text-amber-800">Compartir con apoderados</div>
+                    <div className="text-xs text-amber-600">Los apoderados podrán descargar esta ficha desde su portal</div>
+                  </div>
+                </label>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Descripción</label>
                 <textarea value={form.descripcion} onChange={e => setF('descripcion', e.target.value)} className="input-base resize-none" rows={3} placeholder="Describe brevemente el contenido y cómo usar esta ficha..."/>

@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import CalendarioClient from '@/components/calendario/CalendarioClient'
-export const metadata = { title: 'Calendario' }
+export const metadata = { title: 'Calendario — AR School' }
 
 export default async function CalendarioPage() {
   const supabase = createClient()

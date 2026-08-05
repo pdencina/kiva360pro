@@ -7,14 +7,17 @@ import toast from 'react-hot-toast'
 interface Props { permisos: any[] }
 
 const ROLES = [
-  { key: 'admin', label: 'Administrativo', icon: 'ti-briefcase', color: 'text-[#2c4a6e]' },
-  { key: 'tutor', label: 'Docente', icon: 'ti-school', color: 'text-violet-700' },
-  { key: 'apoderado', label: 'Apoderado', icon: 'ti-heart-handshake', color: 'text-emerald-700' },
+  { key: 'admin', label: 'admin', icon: 'ti-briefcase', color: 'text-[#2c4a6e]' },
+  { key: 'pastor_campus', label: 'pastor_campus', icon: 'ti-building-church', color: 'text-purple-700' },
+  { key: 'gestor_admision', label: 'gestor_admision', icon: 'ti-user-plus', color: 'text-sky-700' },
+  { key: 'tutor', label: 'tutor', icon: 'ti-school', color: 'text-violet-700' },
+  { key: 'apoderado', label: 'apoderado', icon: 'ti-heart-handshake', color: 'text-emerald-700' },
   { key: 'alumno', label: 'Alumno', icon: 'ti-backpack', color: 'text-amber-700' },
 ]
 
 const MODULOS = [
   { key: 'inicio', label: 'Inicio', icon: 'ti-home', grupo: 'Principal' },
+  { key: 'matricula', label: 'Matrícula', icon: 'ti-user-plus', grupo: 'Principal' },
   { key: 'alumnos', label: 'Alumnos', icon: 'ti-users', grupo: 'Principal' },
   { key: 'planificacion', label: 'Planificación', icon: 'ti-layout-board', grupo: 'Principal' },
   { key: 'asistencias', label: 'Asistencias', icon: 'ti-clipboard-check', grupo: 'Principal' },
@@ -23,12 +26,12 @@ const MODULOS = [
   { key: 'mensajes', label: 'Mensajes', icon: 'ti-message-2', grupo: 'Principal' },
   { key: 'libro_clases', label: 'Libro de clases', icon: 'ti-notebook', grupo: 'Principal' },
   { key: 'reporte_diario', label: 'Reporte diario', icon: 'ti-clipboard-heart', grupo: 'Principal' },
+  { key: 'tareas', label: 'Tareas', icon: 'ti-checklist', grupo: 'Principal' },
   { key: 'cobranzas', label: 'Cobranzas', icon: 'ti-cash', grupo: 'Gestión' },
   { key: 'documentos', label: 'Documentos', icon: 'ti-folder', grupo: 'Gestión' },
   { key: 'calendario', label: 'Calendario', icon: 'ti-calendar', grupo: 'Gestión' },
   { key: 'fichas', label: 'Fichas pedagógicas', icon: 'ti-books', grupo: 'Gestión' },
   { key: 'reportes', label: 'Reportes', icon: 'ti-file-analytics', grupo: 'Gestión' },
-  { key: 'tareas', label: 'Tareas', icon: 'ti-checklist', grupo: 'Portal' },
   { key: 'pagos', label: 'Estado de pagos', icon: 'ti-cash', grupo: 'Portal' },
   { key: 'perfil', label: 'Mi perfil', icon: 'ti-user', grupo: 'Portal' },
 ]

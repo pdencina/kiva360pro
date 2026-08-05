@@ -22,22 +22,13 @@ export async function POST(request: NextRequest) {
   const user = await checkSuperAdmin()
   if (!user) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
 
-  const { nombre, rut, direccion, telefono, plan, logo_url, color_primario, color_acento } = await request.json()
+  const { nombre, rut, direccion, telefono, plan } = await request.json()
   if (!nombre) return NextResponse.json({ error: 'El nombre es requerido' }, { status: 400 })
 
   const admin = getAdminClient()
   const { data, error } = await admin
     .from('colegios')
-    .insert({
-      nombre,
-      rut: rut || null,
-      direccion: direccion || null,
-      telefono: telefono || null,
-      plan: plan ?? 'profesional',
-      logo_url: logo_url || null,
-      color_primario: color_primario || '#1a2332',
-      color_acento: color_acento || '#b8860b',
-    })
+    .insert({ nombre, rut: rut || null, direccion: direccion || null, telefono: telefono || null, plan: plan ?? 'profesional' })
     .select()
     .single()
 

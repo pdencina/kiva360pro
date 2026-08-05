@@ -2,6 +2,7 @@
 
 import { formatMonto } from '@/lib/utils'
 import Link from 'next/link'
+import CumpleanosWidget from '@/components/dashboard/CumpleanosWidget'
 
 interface Props {
   usuario: any
@@ -17,6 +18,7 @@ interface Props {
   notificaciones: any[]
   ultimosComunicados: any[]
   mesActual: string
+  pendientes?: { texto: string; href: string; icon: string; tipo: 'warning' | 'info' | 'action' }[]
 }
 
 const HORA = new Date().getHours()
@@ -24,7 +26,7 @@ const SALUDO = HORA < 12 ? 'Buenos días' : HORA < 19 ? 'Buenas tardes' : 'Buena
 
 const ROL_ACCESOS: Record<string, { label: string; href: string; icon: string }[]> = {
   super_admin: [
-    { label: 'Establecimientos', href: '/super-admin',          icon: 'ti-building-school' },
+    { label: 'Campus',           href: '/super-admin',          icon: 'ti-building-school' },
     { label: 'Usuarios',         href: '/super-admin/usuarios', icon: 'ti-users' },
     { label: 'Comunicados',      href: '/comunicados',          icon: 'ti-speakerphone' },
     { label: 'Reportes',         href: '/reportes',             icon: 'ti-file-analytics' },
@@ -47,7 +49,7 @@ const ROL_ACCESOS: Record<string, { label: string; href: string; icon: string }[
   ],
 }
 
-export default function DashboardInicio({ usuario, rol, stats, notificaciones, ultimosComunicados, mesActual }: Props) {
+export default function DashboardInicio({ usuario, rol, stats, notificaciones, ultimosComunicados, mesActual, pendientes = [] }: Props) {
   const notifsNoLeidas = notificaciones.filter(n => !n.leida).length
 
   return (
@@ -58,7 +60,7 @@ export default function DashboardInicio({ usuario, rol, stats, notificaciones, u
           {SALUDO}, {usuario?.nombre}
         </h1>
         <p className="text-[#6b7280] text-sm mt-1">
-          {rol === 'super_admin' ? 'Gestión centralizada de establecimientos' :
+          {rol === 'super_admin' ? 'Gestión centralizada de campus AR School' :
            rol === 'tutor'       ? `Docente · ${usuario?.colegio?.nombre ?? ''}` :
            `${usuario?.colegio?.nombre ?? ''} · Panel de administración`}
         </p>
@@ -100,6 +102,42 @@ export default function DashboardInicio({ usuario, rol, stats, notificaciones, u
       )}
 
       <div className="grid grid-cols-3 gap-6">
+        {/* Acciones pendientes */}
+        {pendientes.length > 0 && (
+          <div className="col-span-3 mb-2">
+            <h2 className="font-semibold text-[#1a2332] text-sm mb-3" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+              <i className="ti ti-alert-circle text-amber-500 mr-1.5" aria-hidden="true"/>
+              Acciones pendientes
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+              {pendientes.map((p, i) => (
+                <Link key={i} href={p.href} className={`flex items-center gap-3 rounded-xl p-3 border transition-all hover:scale-[1.01] ${
+                  p.tipo === 'warning' ? 'bg-amber-50 border-amber-200 hover:border-amber-300' :
+                  p.tipo === 'action'  ? 'bg-blue-50 border-blue-200 hover:border-blue-300' :
+                  'bg-slate-50 border-slate-200 hover:border-slate-300'
+                }`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    p.tipo === 'warning' ? 'bg-amber-100' :
+                    p.tipo === 'action'  ? 'bg-blue-100' :
+                    'bg-slate-100'
+                  }`}>
+                    <i className={`ti ${p.icon} text-sm ${
+                      p.tipo === 'warning' ? 'text-amber-700' :
+                      p.tipo === 'action'  ? 'text-blue-700' :
+                      'text-slate-600'
+                    }`} aria-hidden="true"/>
+                  </div>
+                  <span className={`text-[12px] font-medium ${
+                    p.tipo === 'warning' ? 'text-amber-800' :
+                    p.tipo === 'action'  ? 'text-blue-800' :
+                    'text-slate-700'
+                  }`}>{p.texto}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Últimos comunicados */}
         <div className="col-span-2">
           {ultimosComunicados.length > 0 && (
@@ -167,6 +205,11 @@ export default function DashboardInicio({ usuario, rol, stats, notificaciones, u
               </div>
             </Link>
           )}
+
+          {/* Widget cumpleaños */}
+          <div className="mt-3">
+            <CumpleanosWidget />
+          </div>
         </div>
       </div>
     </div>

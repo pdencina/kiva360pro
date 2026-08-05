@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const NAV_ITEMS = [
-  { label: 'Colegios',  href: '/super-admin',           icon: 'ti-building-school' },
+  { label: 'Campus',    href: '/super-admin',           icon: 'ti-building-school' },
   { label: 'Usuarios',  href: '/super-admin/usuarios',  icon: 'ti-users' },
   { label: 'Permisos',  href: '/super-admin/permisos',  icon: 'ti-lock' },
 ]
@@ -38,7 +38,7 @@ export default function SuperAdminSidebar() {
         })}
       </nav>
       <div className="px-4 py-3 border-t border-[#f3f4f6]">
-        <div className="text-[10px] text-[#d1d5db] tracking-wide">Sistema Educacional v1.0</div>
+        <div className="text-[10px] text-[#d1d5db] tracking-wide">AR School v1.0</div>
       </div>
     </aside>
   )

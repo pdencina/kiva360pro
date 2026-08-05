@@ -6,11 +6,13 @@ import toast from 'react-hot-toast'
 interface Props { usuarios: any[]; colegios: any[]; colegioFiltro?: string }
 
 const ROL_CONFIG: Record<string, { label: string; desc: string; color: string; bg: string; icon: string }> = {
-  super_admin: { label: 'Super Admin',    desc: 'Acceso total al sistema',          color: 'text-red-700',     bg: 'bg-red-50',     icon: 'ti-shield-check' },
-  admin:       { label: 'Administrativo', desc: 'RRHH y gestión del colegio',      color: 'text-blue-700',    bg: 'bg-blue-50',    icon: 'ti-briefcase' },
-  tutor:       { label: 'Profesor',       desc: 'Gestiona cursos y clases',        color: 'text-violet-700',  bg: 'bg-violet-50',  icon: 'ti-school' },
-  apoderado:   { label: 'Apoderado',      desc: 'Portal familiar del alumno',      color: 'text-emerald-700', bg: 'bg-emerald-50', icon: 'ti-heart-handshake' },
-  alumno:      { label: 'Alumno',         desc: 'Portal personal del estudiante',  color: 'text-amber-700',   bg: 'bg-amber-50',   icon: 'ti-backpack' },
+  super_admin:     { label: 'super_admin',              desc: 'Acceso total fundación',              color: 'text-red-700',     bg: 'bg-red-50',     icon: 'ti-shield-check' },
+  admin:           { label: 'admin',                    desc: 'RRHH y gestión del campus',           color: 'text-blue-700',    bg: 'bg-blue-50',    icon: 'ti-briefcase' },
+  pastor_campus:   { label: 'pastor_campus',            desc: 'Acceso total a su sede',              color: 'text-purple-700',  bg: 'bg-purple-50',  icon: 'ti-building-church' },
+  gestor_admision: { label: 'gestor_admision',          desc: 'Matrícula, familias y cobranzas',     color: 'text-sky-700',     bg: 'bg-sky-50',     icon: 'ti-user-plus' },
+  tutor:           { label: 'tutor',                    desc: 'Gestiona cursos y clases',            color: 'text-violet-700',  bg: 'bg-violet-50',  icon: 'ti-school' },
+  apoderado:       { label: 'apoderado',                desc: 'Portal familiar del alumno',          color: 'text-emerald-700', bg: 'bg-emerald-50', icon: 'ti-heart-handshake' },
+  alumno:          { label: 'alumno',                   desc: 'Portal personal del estudiante',      color: 'text-amber-700',   bg: 'bg-amber-50',   icon: 'ti-backpack' },
 }
 
 export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Props) {
@@ -25,28 +27,6 @@ export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Pr
     nombre: '', apellido: '', email: '', password: '',
     rol: 'tutor', colegio_id: colegioFiltro ?? colegios[0]?.id ?? '',
   })
-  const [showPassModal, setShowPassModal] = useState<any>(null)
-  const [newPassword, setNewPassword] = useState('')
-  const [savingPass, setSavingPass] = useState(false)
-
-  async function handleCambiarPassword() {
-    if (newPassword.length < 6) { toast.error('La contraseña debe tener al menos 6 caracteres'); return }
-    setSavingPass(true)
-    const res = await fetch(`/api/admin/usuarios/${showPassModal.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: newPassword }),
-    })
-    if (res.ok) {
-      toast.success(`Contraseña de ${showPassModal.email} actualizada`)
-      setShowPassModal(null)
-      setNewPassword('')
-    } else {
-      const data = await res.json()
-      toast.error(data.error ?? 'Error al cambiar contraseña')
-    }
-    setSavingPass(false)
-  }
 
   const usuariosFiltrados = useMemo(() =>
     usuarios.filter(u => {
@@ -187,11 +167,8 @@ export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Pr
                     </select>
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-500">{new Date(u.created_at).toLocaleDateString('es-CL')}</td>
-                  <td className="px-4 py-3 flex gap-2">
+                  <td className="px-4 py-3">
                     <button onClick={() => openEditar(u)} className="text-xs text-blue-600 hover:underline">Editar</button>
-                    <button onClick={() => setShowPassModal(u)} className="text-xs text-slate-500 hover:text-slate-700 hover:underline">
-                      <i className="ti ti-key text-xs" aria-hidden="true"/> Clave
-                    </button>
                   </td>
                 </tr>
               )
@@ -221,7 +198,7 @@ export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Pr
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Email *</label>
-                <input type="email" value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="input-base" placeholder="correo@institucion.cl" disabled={!!editUsuario}/>
+                <input type="email" value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="input-base" placeholder="correo@arschool.cl" disabled={!!editUsuario}/>
               </div>
               {!editUsuario && (
                 <div>
@@ -259,41 +236,6 @@ export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Pr
                 {loading ? 'Guardando...' : editUsuario ? 'Guardar cambios' : 'Crear usuario'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal cambiar contraseña */}
-      {showPassModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowPassModal(null)}>
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-xl" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-[#1a2332] mb-1">Cambiar contraseña</h3>
-            <p className="text-sm text-[#6b7280] mb-4">
-              Usuario: <strong>{showPassModal.email}</strong>
-            </p>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Nueva contraseña</label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  className="input-base"
-                  placeholder="Mínimo 6 caracteres"
-                  minLength={6}
-                />
-              </div>
-              <button
-                onClick={handleCambiarPassword}
-                disabled={savingPass}
-                className="btn-primary w-full disabled:opacity-60"
-              >
-                {savingPass ? 'Actualizando...' : 'Cambiar contraseña'}
-              </button>
-            </div>
-            <button onClick={() => { setShowPassModal(null); setNewPassword('') }} className="mt-3 text-sm text-[#6b7280] hover:text-[#1a2332] w-full text-center">
-              Cancelar
-            </button>
           </div>
         </div>
       )}

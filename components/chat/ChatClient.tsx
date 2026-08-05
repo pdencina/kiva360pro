@@ -115,10 +115,10 @@ export default function ChatClient({ userId, usuario, apoderados, cursos }: Prop
     return otro ? `${otro.nombre} ${otro.apellido}` : 'Conversación'
   }
 
-  const isStaff = ['super_admin', 'admin', 'tutor'].includes(usuario?.rol)
+  const isStaff = ['super_admin', 'admin', 'gestor_admision', 'tutor'].includes(usuario?.rol)
 
   return (
-    <div className="flex h-[calc(100vh-56px)]">
+    <div className="flex h-[calc(100vh-56px)] overflow-hidden">
       {/* Panel izquierdo: conversaciones */}
       <div className="w-80 border-r border-[var(--ar-border)] bg-white flex flex-col">
         <div className="px-4 py-4 border-b border-[var(--ar-border)] flex items-center justify-between">

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import PermisosClient from '@/components/admin/PermisosClient'
 
-export const metadata = { title: 'Permisos' }
+export const metadata = { title: 'Permisos — AR School' }
 
 function getAdmin() {
   return createAdminClient(

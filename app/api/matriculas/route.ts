@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
   const admin = getAdmin()
   const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
-  if (!['super_admin', 'admin'].includes((ur as any)?.rol)) {
+  if (!['super_admin', 'admin', 'pastor_campus', 'gestor_admision'].includes((ur as any)?.rol)) {
     return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
   }
 
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
   const {
     // Datos alumno
     nombre, apellido, rut, curso, fecha_nacimiento, direccion, nacionalidad, necesidades_especiales,
+    sexo, comuna, prevision_salud, contacto_emergencia, telefono_emergencia, tipo_ingreso, jornada, sede,
     // Datos apoderado
     nombre_apoderado, apellido_apoderado, email_apoderado, telefono_apoderado, rut_apoderado, direccion_apoderado, parentesco,
     // Plan de cobro
@@ -41,6 +42,26 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Verificar duplicado por RUT
+    if (rut) {
+      const { data: existente } = await admin
+        .from('alumnos')
+        .select('id, nombre, apellido, curso, activo')
+        .eq('colegio_id', colegioId)
+        .eq('rut', rut)
+        .limit(1)
+        .single()
+
+      if (existente) {
+        const al = existente as any
+        return NextResponse.json({
+          error: `Ya existe un alumno con RUT ${rut}: ${al.nombre} ${al.apellido} (${al.curso})${!al.activo ? ' [inactivo]' : ''}`,
+          duplicado: true,
+          alumno_existente: { id: al.id, nombre: al.nombre, apellido: al.apellido, curso: al.curso, activo: al.activo },
+        }, { status: 409 })
+      }
+    }
+
     // 1. Crear alumno
     const nivelAuto = curso.toLowerCase().includes('play') || curso.toLowerCase().includes('pre school')
       ? 'PreSchool'
@@ -63,8 +84,28 @@ export async function POST(request: NextRequest) {
       nivel: nivelAuto,
       fecha_nacimiento: fecha_nacimiento || null,
       direccion: direccion || null,
+      comuna: comuna || null,
       nacionalidad: nacionalidad || 'Chilena',
       necesidades_especiales: necesidades_especiales || null,
+      sexo: sexo || null,
+      prevision_salud: prevision_salud || null,
+      contacto_emergencia: contacto_emergencia || null,
+      telefono_emergencia: telefono_emergencia || null,
+      jornada: jornada || 'completa',
+      sede: sede || null,
+      tipo_ingreso: tipo_ingreso || 'nuevo',
+      pais_natal: body.pais_natal || 'Chile',
+      alergia_alimentaria: body.alergia_alimentaria || null,
+      alergia_medicamento: body.alergia_medicamento || null,
+      enfermedad_cronica: body.enfermedad_cronica || null,
+      centro_salud_emergencia: body.centro_salud_emergencia || null,
+      jardin_previo: body.jardin_previo || null,
+      ultimo_anio_aprobado: body.ultimo_anio_aprobado || null,
+      ha_reprobado: body.ha_reprobado || false,
+      curso_reprobado: body.curso_reprobado || null,
+      diagnostico: body.diagnostico || null,
+      contacto_especialista: body.contacto_especialista || null,
+      modalidad: body.modalidad || 'presencial',
       activo: true,
     }).select().single()
 
@@ -82,9 +123,28 @@ export async function POST(request: NextRequest) {
         telefono: telefono_apoderado || null,
         rut: rut_apoderado || null,
         direccion: direccion_apoderado || null,
+        telefono_trabajo_apoderado: body.telefono_trabajo_apoderado || null,
+        nombre_padre: body.nombre_padre || null,
+        apellido_padre: body.apellido_padre || null,
+        rut_padre: body.rut_padre || null,
+        telefono_padre: body.telefono_padre || null,
+        email_padre: body.email_padre || null,
+        direccion_padre: body.direccion_padre || null,
+        telefono_trabajo_padre: body.telefono_trabajo_padre || null,
       }).select().single()
 
       if (!errFam) familiaId = (familia as any).id
+    }
+
+    // 2b. Crear persona autorizada para retiro (si se proporcionó)
+    if ((alumno as any)?.id && body.retiro_nombre) {
+      await admin.from('personas_retiro').insert({
+        alumno_id: (alumno as any).id,
+        nombre: body.retiro_nombre.trim(),
+        parentesco: body.retiro_parentesco || null,
+        rut: body.retiro_rut || null,
+        telefono: body.retiro_telefono || null,
+      })
     }
 
     // 3. Crear cuenta apoderado y enviar invitación por Resend (sin SMTP de Supabase)
@@ -144,9 +204,10 @@ export async function POST(request: NextRequest) {
           const alumnoNombre = `${nombre.trim()} ${apellido.trim()}`
           const emailResult = await enviarEmail({
             to: email_apoderado.trim(),
-            subject: `Bienvenido/a - Cuenta creada para ${alumnoNombre}`,
+            subject: `Bienvenido/a a AR School - Cuenta creada para ${alumnoNombre}`,
             html: templateInvitacionApoderado(nombreCompleto, alumnoNombre, linkAcceso),
           })
+          console.log('Email enviado:', emailResult)
         } else {
           console.error('No se pudo generar link de acceso. linkData:', JSON.stringify(linkData))
         }
@@ -190,7 +251,7 @@ export async function POST(request: NextRequest) {
             const alumnoNombre = `${nombre.trim()} ${apellido.trim()}`
             const emailResult = await enviarEmail({
               to: email_apoderado.trim(),
-              subject: `Bienvenido/a - Cuenta creada para ${alumnoNombre}`,
+              subject: `Bienvenido/a a AR School - Cuenta creada para ${alumnoNombre}`,
               html: templateInvitacionApoderado(nombreCompleto, alumnoNombre, linkAcceso2),
             })
             console.log('Email enviado (usuario existente):', emailResult)
@@ -201,25 +262,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. Generar cobros del año
+    // 4. Generar cobros del año (con beca y descuento contado aplicados)
     const cobrosGenerados = []
+    const porcentaje_beca = body.porcentaje_beca || 0
+    const descuentoContado = body.descuento_contado || 0
+    const factorBeca = 1 - (porcentaje_beca / 100)
+    const factorDescuento = 1 - (descuentoContado / 100)
+    const montoMatFinal = Math.round((monto_matricula || 0) * factorBeca)
+    const montoMensFinal = Math.round((monto_mensual || 0) * factorBeca * factorDescuento)
+
     if (monto_mensual && meses_cobro) {
       const anio = new Date().getFullYear()
       const mesInicio = new Date().getMonth() + 1
 
-      // Cobro de matrícula (si aplica)
-      if (monto_matricula && monto_matricula > 0) {
+      // Cobro de aporte inicial (si aplica)
+      if (montoMatFinal > 0) {
         const { data: cobroMat } = await admin.from('cobros').insert({
           colegio_id: colegioId,
           familia_id: familiaId,
           alumno_id: (alumno as any).id,
           concepto_id: plan_cobro_id || null,
-          monto: monto_matricula,
+          monto: montoMatFinal,
           mes: mesInicio,
           anio,
           fecha_vencimiento: new Date().toISOString().split('T')[0],
           estado: 'pendiente',
-          observaciones: 'Matrícula ' + anio,
+          tipo_concepto: 'aporte_inicial',
+          observaciones: `Aporte inicial ${anio}${porcentaje_beca > 0 ? ` (beca ${porcentaje_beca}%)` : ''}`,
         }).select().single()
         if (cobroMat) cobrosGenerados.push(cobroMat)
       }
@@ -235,12 +304,13 @@ export async function POST(request: NextRequest) {
           familia_id: familiaId,
           alumno_id: (alumno as any).id,
           concepto_id: plan_cobro_id || null,
-          monto: monto_mensual,
+          monto: montoMensFinal,
           mes,
           anio: anioC,
           fecha_vencimiento: vencimiento,
           estado: 'pendiente',
-          observaciones: `Mensualidad ${mes}/${anioC}`,
+          tipo_concepto: 'aporte_mensual',
+          observaciones: `Aporte mensual ${mes}/${anioC}${porcentaje_beca > 0 ? ` (beca ${porcentaje_beca}%)` : ''}${descuentoContado > 0 ? ` (dcto. contado ${descuentoContado}%)` : ''}`,
         }).select().single()
         if (cobro) cobrosGenerados.push(cobro)
       }
@@ -258,7 +328,60 @@ export async function POST(request: NextRequest) {
       registrado_por: user.id,
       firma_apoderado: firma_apoderado || null,
       firmado_at: firma_apoderado ? new Date().toISOString() : null,
+      medio_pago_matricula: body.medio_pago_matricula || null,
+      descuento_contado: body.descuento_contado || 0,
+      monto_mensual_final: body.monto_mensual_final || null,
+      pagare_confirmado: body.pagare_confirmado || false,
     }).select().single()
+
+    // 6. Guardar documentos adjuntos
+    const documentos = body.documentos as Record<string, string> | undefined
+    if (documentos && matricula) {
+      const docsToInsert: any[] = []
+
+      for (const [tipo, docUrl] of Object.entries(documentos)) {
+        if (!docUrl || docUrl.length === 0) continue
+
+        let finalUrl = docUrl
+
+        // Si es base64, subir a Storage
+        if (docUrl.startsWith('data:')) {
+          try {
+            const matches = docUrl.match(/^data:(.+);base64,(.+)$/)
+            if (matches) {
+              const contentType = matches[1]
+              const base64Data = matches[2]
+              const buffer = Buffer.from(base64Data, 'base64')
+              const extension = contentType.includes('png') ? 'png' : contentType.includes('pdf') ? 'pdf' : 'jpg'
+              const fileName = `matriculas/${(alumno as any).id}/${tipo}_${Date.now()}.${extension}`
+
+              const { data: uploadData, error: uploadError } = await admin.storage
+                .from('documentos')
+                .upload(fileName, buffer, { contentType, upsert: true })
+
+              if (!uploadError && uploadData) {
+                const { data: urlData } = admin.storage.from('documentos').getPublicUrl(uploadData.path)
+                finalUrl = urlData.publicUrl
+              }
+            }
+          } catch {
+            // Fallback: guardar base64 si falla
+          }
+        }
+
+        docsToInsert.push({
+          matricula_id: (matricula as any).id,
+          alumno_id: (alumno as any).id,
+          tipo,
+          url: finalUrl,
+          nombre_archivo: `${tipo}_${(alumno as any).nombre}_${(alumno as any).apellido}`,
+        })
+      }
+
+      if (docsToInsert.length > 0) {
+        await admin.from('documentos_matricula').insert(docsToInsert)
+      }
+    }
 
     return NextResponse.json({
       ok: true,
@@ -282,7 +405,7 @@ export async function GET() {
 
   const admin = getAdmin()
   const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
-  if (!['super_admin', 'admin'].includes((ur as any)?.rol)) {
+  if (!['super_admin', 'admin', 'pastor_campus', 'gestor_admision'].includes((ur as any)?.rol)) {
     return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
   }
 
@@ -293,4 +416,56 @@ export async function GET() {
     .order('created_at', { ascending: false })
 
   return NextResponse.json(data ?? [])
+}
+
+// PUT: Actualizar medio de pago de una matrícula (post-firma)
+export async function PUT(request: NextRequest) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
+  const admin = getAdmin()
+  const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
+  if (!['super_admin', 'admin', 'pastor_campus', 'gestor_admision'].includes((ur as any)?.rol)) {
+    return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
+  }
+
+  const body = await request.json()
+  const { matricula_id, medio_pago_matricula, descuento_contado, pagare_confirmado } = body
+
+  if (!matricula_id) {
+    return NextResponse.json({ error: 'matricula_id requerido' }, { status: 400 })
+  }
+
+  if (!medio_pago_matricula) {
+    return NextResponse.json({ error: 'Medio de pago requerido' }, { status: 400 })
+  }
+
+  // Verificar que la matrícula existe y pertenece al colegio
+  const { data: matricula } = await admin
+    .from('matriculas')
+    .select('id, colegio_id, monto_mensual')
+    .eq('id', matricula_id)
+    .single()
+
+  if (!matricula) return NextResponse.json({ error: 'Matrícula no encontrada' }, { status: 404 })
+  if ((matricula as any).colegio_id !== (ur as any).colegio_id && (ur as any).rol !== 'super_admin') {
+    return NextResponse.json({ error: 'Sin permisos sobre esta matrícula' }, { status: 403 })
+  }
+
+  // Calcular monto final con descuento
+  const montoMensual = (matricula as any).monto_mensual || 0
+  const factorDescuento = 1 - ((descuento_contado || 0) / 100)
+  const montoMensualFinal = Math.round(montoMensual * factorDescuento)
+
+  const { error } = await admin.from('matriculas').update({
+    medio_pago_matricula,
+    descuento_contado: descuento_contado || 0,
+    monto_mensual_final: montoMensualFinal,
+    pagare_confirmado: pagare_confirmado || false,
+  }).eq('id', matricula_id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  return NextResponse.json({ ok: true, medio_pago_matricula, monto_mensual_final: montoMensualFinal })
 }

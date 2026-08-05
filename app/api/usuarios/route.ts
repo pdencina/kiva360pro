@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
   const usuario = ur as any
 
-  if (!['super_admin', 'admin'].includes(usuario?.rol)) {
+  if (!['super_admin', 'admin', 'pastor_campus'].includes(usuario?.rol)) {
     return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
   }
 
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
   const usuario = ur as any
 
-  if (!['super_admin', 'admin'].includes(usuario?.rol)) {
+  if (!['super_admin', 'admin', 'pastor_campus'].includes(usuario?.rol)) {
     return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
   }
 
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
   // Un admin de colegio solo puede crear: tutor, apoderado, alumno
   const rolesPermitidos = usuario.rol === 'super_admin'
-    ? ['admin', 'tutor', 'apoderado', 'alumno']
+    ? ['admin', 'gestor_admision', 'tutor', 'apoderado', 'alumno']
     : ['tutor', 'apoderado', 'alumno']
 
   if (!rolesPermitidos.includes(rol)) {

@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import Topbar from '@/components/layout/Topbar'
 import SidebarWrapper from '@/components/layout/SidebarWrapper'
-import ColegioTheme from '@/components/layout/ColegioTheme'
 import { Toaster } from 'react-hot-toast'
 
 function getAdmin() {
@@ -42,10 +41,6 @@ export default async function PortalLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen bg-[var(--ar-bg)]">
-      <ColegioTheme
-        colorPrimario={usuario?.colegio?.color_primario}
-        colorAcento={usuario?.colegio?.color_acento}
-      />
       <Toaster position="top-right"/>
       <Topbar usuario={usuario}/>
       <div className="flex">

@@ -5,7 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import Topbar from '@/components/layout/Topbar'
 import SidebarWrapper from '@/components/layout/SidebarWrapper'
-import ColegioTheme from '@/components/layout/ColegioTheme'
+import CommandPalette from '@/components/layout/CommandPalette'
+import AsistenciaBanner from '@/components/layout/AsistenciaBanner'
 import { Toaster } from 'react-hot-toast'
 
 function getAdmin() {
@@ -50,15 +51,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-[var(--ar-bg)]">
-      <ColegioTheme
-        colorPrimario={usuario.colegio?.color_primario}
-        colorAcento={usuario.colegio?.color_acento}
-      />
       <Toaster position="top-right"/>
+      <CommandPalette/>
       <Topbar usuario={usuario}/>
-      <div className="flex">
+      <AsistenciaBanner rol={usuario.rol} userId={user.id} colegioId={usuario.colegio_id}/>
+      <div className="flex h-[calc(100vh-56px)]">
         <SidebarWrapper rol={usuario.rol} modulosHabilitadosInicial={modulosHabilitados}/>
-        <main className="flex-1 min-h-[calc(100vh-56px)] overflow-auto">
+        <main className="flex-1 h-[calc(100vh-56px)] overflow-auto animate-[fadeIn_0.2s_ease-out]">
           {children}
         </main>
       </div>

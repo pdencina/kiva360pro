@@ -4,7 +4,6 @@ import { useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { capitalizarNombre, formatearRut, formatearTelefono } from '@/lib/validaciones'
 
 interface Props { alumnos: any[]; cursos: string[]; colegioId: string }
 
@@ -57,7 +56,7 @@ export default function AlumnosClient({ alumnos, cursos, colegioId }: Props) {
         nombre_apoderado: form.nombre_apoderado || 'Sin nombre',
         apellido_apoderado: form.apellido_apoderado || '',
         email: form.email_apoderado,
-        telefono: form.telefono ? form.telefono.replace(/\s/g, '') : null,
+        telefono: form.telefono || null,
       })
     }
     toast.success('Alumno registrado correctamente')
@@ -274,30 +273,19 @@ export default function AlumnosClient({ alumnos, cursos, colegioId }: Props) {
                   <i className="ti ti-user text-slate-300" aria-hidden="true"/> Datos del alumno
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Nombre *</label>
-                    <input type="text" value={form.nombre} onChange={e => setForm(p => ({...p, nombre: capitalizarNombre(e.target.value)}))} className="input-base" placeholder="Nombre"/>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Apellido *</label>
-                    <input type="text" value={form.apellido} onChange={e => setForm(p => ({...p, apellido: capitalizarNombre(e.target.value)}))} className="input-base" placeholder="Apellido"/>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">RUT</label>
-                    <input type="text" value={form.rut} onChange={e => setForm(p => ({...p, rut: formatearRut(e.target.value)}))} className="input-base" placeholder="12.345.678-9" maxLength={12}/>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Fecha de nacimiento</label>
-                    <input type="date" value={form.fecha_nacimiento} onChange={e => setForm(p => ({...p, fecha_nacimiento: e.target.value}))} className="input-base"/>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Dirección</label>
-                    <input type="text" value={form.direccion} onChange={e => setForm(p => ({...p, direccion: capitalizarNombre(e.target.value)}))} className="input-base" placeholder="Calle 123, Comuna"/>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Nacionalidad</label>
-                    <input type="text" value={form.nacionalidad} onChange={e => setForm(p => ({...p, nacionalidad: capitalizarNombre(e.target.value)}))} className="input-base" placeholder="Chilena"/>
-                  </div>
+                  {[
+                    { label:'Nombre *', key:'nombre', placeholder:'Nombre' },
+                    { label:'Apellido *', key:'apellido', placeholder:'Apellido' },
+                    { label:'RUT', key:'rut', placeholder:'12.345.678-9' },
+                    { label:'Fecha de nacimiento', key:'fecha_nacimiento', placeholder:'', type:'date' },
+                    { label:'Dirección', key:'direccion', placeholder:'Calle 123, Comuna' },
+                    { label:'Nacionalidad', key:'nacionalidad', placeholder:'Chilena' },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">{f.label}</label>
+                      <input type={f.type ?? 'text'} value={(form as any)[f.key]} onChange={e => setForm(p => ({...p, [f.key]: e.target.value}))} className="input-base" placeholder={f.placeholder}/>
+                    </div>
+                  ))}
                   <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">Curso *</label>
                     <select value={form.curso} onChange={e => setForm(p => ({...p, curso: e.target.value}))} className="select-base w-full">
@@ -306,7 +294,7 @@ export default function AlumnosClient({ alumnos, cursos, colegioId }: Props) {
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">Nec. especiales</label>
-                    <input value={form.necesidades_especiales} onChange={e => setForm(p => ({...p, necesidades_especiales: capitalizarNombre(e.target.value)}))} className="input-base" placeholder="Opcional"/>
+                    <input value={form.necesidades_especiales} onChange={e => setForm(p => ({...p, necesidades_especiales: e.target.value}))} className="input-base" placeholder="Opcional"/>
                   </div>
                 </div>
               </div>
@@ -317,22 +305,17 @@ export default function AlumnosClient({ alumnos, cursos, colegioId }: Props) {
                   <i className="ti ti-heart-handshake text-slate-300" aria-hidden="true"/> Apoderado (opcional)
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Nombre</label>
-                    <input type="text" value={form.nombre_apoderado} onChange={e => setForm(p => ({...p, nombre_apoderado: capitalizarNombre(e.target.value)}))} className="input-base" placeholder="Nombre"/>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Apellido</label>
-                    <input type="text" value={form.apellido_apoderado} onChange={e => setForm(p => ({...p, apellido_apoderado: capitalizarNombre(e.target.value)}))} className="input-base" placeholder="Apellido"/>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Email</label>
-                    <input type="email" value={form.email_apoderado} onChange={e => setForm(p => ({...p, email_apoderado: e.target.value}))} className="input-base" placeholder="correo@email.com"/>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Teléfono</label>
-                    <input type="tel" value={form.telefono} onChange={e => setForm(p => ({...p, telefono: formatearTelefono(e.target.value)}))} className="input-base" placeholder="+56 9 1234 5678"/>
-                  </div>
+                  {[
+                    { label:'Nombre', key:'nombre_apoderado', placeholder:'Nombre' },
+                    { label:'Apellido', key:'apellido_apoderado', placeholder:'Apellido' },
+                    { label:'Email', key:'email_apoderado', placeholder:'correo@email.com', type:'email' },
+                    { label:'Teléfono', key:'telefono', placeholder:'+56 9 1234 5678' },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">{f.label}</label>
+                      <input type={f.type ?? 'text'} value={(form as any)[f.key]} onChange={e => setForm(p => ({...p, [f.key]: e.target.value}))} className="input-base" placeholder={f.placeholder}/>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

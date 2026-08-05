@@ -1,5 +1,4 @@
 import { Resend } from 'resend'
-import { BRANDING } from '@/lib/branding'
 
 let resendInstance: Resend | null = null
 
@@ -10,7 +9,7 @@ function getResend() {
   return resendInstance
 }
 
-const FROM_EMAIL = BRANDING.fromEmail
+const FROM_EMAIL = 'AR School <notificaciones@arschoolglobal.com>'
 
 export async function enviarEmail({
   to,
@@ -45,7 +44,7 @@ export function templateComunicado(titulo: string, contenido: string, colegio: s
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">${BRANDING.appNameUpper}</strong>
+        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">${colegio}</span>
       </div>
       <h2 style="color: #1a2332; font-size: 18px; margin: 0 0 12px;">${titulo}</h2>
@@ -53,7 +52,7 @@ export function templateComunicado(titulo: string, contenido: string, colegio: s
         ${contenido.replace(/\n/g, '<br/>')}
       </div>
       <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8eaed; color: #9ca3af; font-size: 11px;">
-        Este mensaje fue enviado desde la plataforma ${BRANDING.appName}. No responda a este correo.
+        Este mensaje fue enviado desde la plataforma AR School. No responda a este correo.
       </div>
     </div>
   `
@@ -63,7 +62,7 @@ export function templateReporteDiario(alumno: string, curso: string, fecha: stri
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">${BRANDING.appNameUpper}</strong>
+        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">Reporte Diario</span>
       </div>
       <h2 style="color: #1a2332; font-size: 18px; margin: 0 0 4px;">Reporte de ${alumno}</h2>
@@ -82,10 +81,10 @@ export function templateInvitacionApoderado(nombre: string, alumno: string, link
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">${BRANDING.appNameUpper}</strong>
+        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL GLOBAL</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">Bienvenido/a</span>
       </div>
-      <h2 style="color: #1a2332; font-size: 18px; margin: 0 0 12px;">¡Bienvenido/a a ${BRANDING.appName}!</h2>
+      <h2 style="color: #1a2332; font-size: 18px; margin: 0 0 12px;">¡Bienvenido/a a AR School!</h2>
       <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">Estimado/a <strong>${nombre}</strong>,</p>
       <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">Le informamos que <strong>${alumno}</strong> ha sido matriculado exitosamente en nuestro centro educacional.</p>
       <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">Se ha creado una cuenta en nuestra plataforma para que pueda hacer seguimiento del proceso educativo. Para activar su cuenta, haga click en el siguiente botón:</p>
@@ -105,8 +104,8 @@ export function templateInvitacionApoderado(nombre: string, alumno: string, link
         </ul>
       </div>
       <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8eaed; color: #9ca3af; font-size: 11px;">
-        Este enlace expira en 24 horas. Si tiene problemas para acceder, contacte a la administración del establecimiento.<br/>
-        ${BRANDING.orgFooter}
+        Este enlace expira en 24 horas. Si tiene problemas para acceder, contacte a la administración del colegio.<br/>
+        AR School Global · Fundación Educacional AR Ministries
       </div>
     </div>
   `
@@ -116,14 +115,48 @@ export function templatePagoMora(apoderado: string, alumno: string, monto: strin
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">${BRANDING.appNameUpper}</strong>
+        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">Aviso de pago</span>
       </div>
       <p style="color: #4b5563; font-size: 14px;">Estimado/a ${apoderado},</p>
       <p style="color: #4b5563; font-size: 14px;">Le recordamos que tiene un saldo pendiente de <strong style="color: #c53030;">${monto}</strong> correspondiente a ${alumno}.</p>
       <p style="color: #4b5563; font-size: 14px;">Por favor regularice su situación a la brevedad.</p>
       <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8eaed; color: #9ca3af; font-size: 11px;">
-        Este es un mensaje automático. Para consultas contacte a la administración del establecimiento.
+        Este es un mensaje automático. Para consultas contacte a la administración del colegio.
+      </div>
+    </div>
+  `
+}
+
+
+export function templateCumpleanos(nombre: string, apellido: string, edad: number, nombreApoderado: string) {
+  return `
+    <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="border-bottom: 2px solid #1B3A5C; padding-bottom: 16px; margin-bottom: 24px;">
+        <strong style="font-size: 16px; color: #1B3A5C;">AR SCHOOL GLOBAL</strong>
+      </div>
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="font-size: 60px; margin-bottom: 12px;">🎂</div>
+        <h1 style="color: #1B3A5C; font-size: 24px; margin: 0 0 8px;">¡Feliz cumpleaños, ${nombre}!</h1>
+        <p style="color: #E8722A; font-size: 18px; font-weight: bold; margin: 0;">¡Hoy cumple ${edad} años!</p>
+      </div>
+      <div style="background: #FEF3EC; border-radius: 12px; padding: 20px; margin: 20px 0;">
+        <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 0;">
+          Estimado/a <strong>${nombreApoderado}</strong>,
+        </p>
+        <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 12px 0 0;">
+          Desde la familia de AR School queremos enviar un cariñoso saludo a <strong>${nombre} ${apellido}</strong> en este día tan especial. 
+          Que este nuevo año de vida esté lleno de aprendizajes, aventuras y mucho amor.
+        </p>
+        <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 12px 0 0; font-style: italic;">
+          "Que tu meta más alta sea siempre el amor."
+        </p>
+      </div>
+      <p style="color: #4b5563; font-size: 14px; text-align: center; margin-top: 20px;">
+        Con cariño,<br/><strong style="color: #1B3A5C;">Equipo AR School Global</strong>
+      </p>
+      <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8eaed; color: #9ca3af; font-size: 11px; text-align: center;">
+        Fundación Educacional AR Ministries · Modelo Educativo A.M.O.R.
       </div>
     </div>
   `
