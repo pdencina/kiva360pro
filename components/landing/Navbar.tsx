@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import Image from 'next/image'
 
 const navLinks = [
   { label: 'Funcionalidades', href: '#features' },
@@ -100,26 +99,28 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-b border-[#e2dfd9] overflow-hidden"
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="md:hidden bg-white/95 backdrop-blur-xl border-b border-[#e2dfd9] overflow-hidden"
           >
-            <div className="px-6 py-4 space-y-3">
+            <div className="px-6 py-5 space-y-1">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block text-[14px] text-[#1A1035] font-medium py-2"
+                  className="block text-[15px] text-[#1A1035] font-medium py-3 px-3 rounded-lg hover:bg-[#f9f7f5] transition-colors"
                 >
                   {link.label}
                 </a>
               ))}
-              <div className="pt-3 border-t border-[#e2dfd9] flex flex-col gap-2">
-                <Link href="/login" className="text-[14px] text-[#2D1B69] font-medium py-2">
+              <div className="pt-4 mt-3 border-t border-[#e2dfd9] space-y-3">
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="block text-[15px] text-[#2D1B69] font-medium py-3 px-3 rounded-lg hover:bg-[#f3f0f9]">
                   Iniciar sesión
                 </Link>
                 <Link
                   href="#contact"
-                  className="text-center text-[13px] font-semibold px-5 py-2.5 rounded-lg bg-[#E85D3A] text-white"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-center text-[14px] font-semibold px-5 py-3.5 rounded-xl bg-[#E85D3A] text-white active:scale-[0.97] transition-transform"
                 >
                   Solicitar demo
                 </Link>

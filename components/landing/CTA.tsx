@@ -16,7 +16,7 @@ export default function CTA() {
         transition={{ duration: 0.6 }}
         className="max-w-3xl mx-auto text-center"
       >
-        <div className="relative p-12 rounded-3xl overflow-hidden" style={{ background: 'var(--k-gradient-hero)' }}>
+        <div className="relative p-8 sm:p-12 rounded-3xl overflow-hidden" style={{ background: 'var(--k-gradient-hero)' }}>
           <div className="absolute inset-0 bg-hero-pattern" />
           <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-[#5B3E9E]/20 blur-[80px]" />
           <div className="absolute bottom-0 left-0 w-[200px] h-[200px] rounded-full bg-[#E85D3A]/10 blur-[60px]" />
@@ -29,7 +29,7 @@ export default function CTA() {
               Agenda una demo personalizada de 30 minutos. Te mostramos cómo Kiva360 se adapta a la realidad de tu institución.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">>
               <a
                 href="https://wa.me/56936902642?text=Hola%2C%20me%20interesa%20una%20demo%20de%20Kiva360"
                 target="_blank"

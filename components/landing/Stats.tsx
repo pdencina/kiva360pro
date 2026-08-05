@@ -20,7 +20,7 @@ export default function Stats() {
       <div className="absolute top-0 left-1/4 w-[400px] h-[400px] rounded-full bg-[#5B3E9E]/10 blur-[100px]" />
       
       <div ref={ref} className="relative max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -29,7 +29,7 @@ export default function Stats() {
               transition={{ duration: 0.5, delay: i * 0.12 }}
               className="text-center"
             >
-              <div className="font-display text-[clamp(2rem,4vw,3rem)] font-bold text-white mb-1">
+              <div className="font-display text-[clamp(1.5rem,4vw,3rem)] font-bold text-white mb-1">
                 {stat.value}{stat.suffix}
               </div>
               <div className="text-[12px] text-white/50 font-medium">

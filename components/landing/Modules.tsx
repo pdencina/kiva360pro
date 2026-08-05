@@ -141,13 +141,13 @@ export default function Modules() {
         </motion.div>
 
         {/* Tab selector */}
-        <div className="flex justify-center mb-12">
-          <div className="inline-flex rounded-xl bg-[#F9F7F5] border border-[#e2dfd9]/60 p-1.5 gap-1">
+        <div className="flex justify-center mb-12 px-2">
+          <div className="inline-flex rounded-xl bg-[#F9F7F5] border border-[#e2dfd9]/60 p-1.5 gap-1 overflow-x-auto max-w-full">
             {modules.map(m => (
               <button
                 key={m.id}
                 onClick={() => setActive(m.id)}
-                className={`px-5 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
+                className={`px-4 sm:px-5 py-2.5 rounded-lg text-[12px] sm:text-[13px] font-medium transition-all whitespace-nowrap ${
                   active === m.id
                     ? 'bg-white text-[#1A1035] shadow-sm font-semibold'
                     : 'text-[#5C5470] hover:text-[#1A1035]'
@@ -165,11 +165,11 @@ export default function Modules() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="grid lg:grid-cols-2 gap-12 items-center"
+          className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center"
         >
           <div>
-            <h3 className="font-display text-[24px] font-bold text-[#1A1035] mb-2">{current.title}</h3>
-            <p className="text-[14px] text-[#5C5470] mb-6">{current.subtitle}</p>
+            <h3 className="font-display text-[20px] sm:text-[24px] font-bold text-[#1A1035] mb-2">{current.title}</h3>
+            <p className="text-[13px] sm:text-[14px] text-[#5C5470] mb-6">{current.subtitle}</p>
             <ul className="space-y-3">
               {current.points.map((point, i) => (
                 <motion.li

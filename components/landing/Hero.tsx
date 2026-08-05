@@ -20,7 +20,7 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-6 pt-32 pb-20 w-full">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 pt-28 sm:pt-32 pb-16 sm:pb-20 w-full">
         <div className="max-w-3xl">
           {/* Badge */}
           <motion.div
@@ -52,7 +52,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-[17px] text-white/50 leading-relaxed max-w-xl mb-10"
+            className="text-[15px] sm:text-[17px] text-white/50 leading-relaxed max-w-xl mb-8 sm:mb-10"
           >
             Intervención terapéutica, agenda de sesiones, cobro por sesión, programas flexibles
             y portal de avances para familias. Todo en una plataforma que tu equipo realmente quiere usar.
@@ -63,7 +63,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.7 }}
-            className="flex flex-wrap gap-4"
+            className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4"
           >
             <Link
               href="#contact"
@@ -88,7 +88,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="mt-16 flex items-center gap-6"
+            className="mt-10 sm:mt-16 flex items-center gap-4 sm:gap-6"
           >
             <div className="flex -space-x-2">
               {[0,1,2,3].map(i => (

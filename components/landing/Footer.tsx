@@ -3,10 +3,10 @@ import Link from 'next/link'
 export default function Footer() {
   return (
     <footer className="bg-[#1A1035] border-t border-white/[0.05]">
-      <div className="max-w-7xl mx-auto px-6 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+      <div className="max-w-7xl mx-auto px-6 py-10 sm:py-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-12">
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
               <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="w-9 h-9 rounded-[10px]" />
               <span className="font-display font-bold text-lg text-white tracking-tight">
