@@ -231,8 +231,8 @@ export default function PortalPagosClient({ cobros }: Props) {
                       <div className="bg-[#f0f4f8] rounded-lg p-3 mb-3 text-[10px] text-[#4b5563]">
                         <strong>Datos para transferir:</strong><br/>
                         Banco: BancoEstado · Cta. Cte. 291-0-008051-4<br/>
-                        RUT: 65.168.392-0 · Fundación Educacional AR Ministries<br/>
-                        Correo: adm@arschoolglobal.com
+                        RUT: 65.168.392-0<br/>
+                        Correo: contacto@kiva360.cl
                       </div>
 
                       {comprobante ? (
@@ -306,7 +306,7 @@ export default function PortalPagosClient({ cobros }: Props) {
           <div className="flex flex-col items-center gap-2 p-4 border border-[var(--ar-border)] rounded-lg">
             <i className="ti ti-building-bank text-[#5B8FA8] text-xl" aria-hidden="true"/>
             <span className="text-[11px] font-semibold text-[#1B3A5C]">Transferencia bancaria</span>
-            <span className="text-[9px] text-[#9ca3af] text-center">BancoEstado · Cta. Cte. 291-0-008051-4<br/>RUT: 65.168.392-0 · adm@arschoolglobal.com</span>
+            <span className="text-[9px] text-[#9ca3af] text-center">BancoEstado · Cta. Cte. 291-0-008051-4<br/>RUT: 65.168.392-0 · contacto@kiva360.cl</span>
           </div>
         </div>
       </div>

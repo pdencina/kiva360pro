@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { formatMonto } from '@/lib/utils'
 import EditarDatosMedicos from '@/components/alumnos/EditarDatosMedicos'
 
-export const metadata = { title: 'Ficha del Alumno — AR School' }
+export const metadata = { title: 'Ficha del Alumno' }
 
 function getAdmin() {
   return createAdminClient(

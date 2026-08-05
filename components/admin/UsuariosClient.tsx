@@ -198,7 +198,7 @@ export default function UsuariosClient({ usuarios, colegios, colegioFiltro }: Pr
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Email *</label>
-                <input type="email" value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="input-base" placeholder="correo@arschool.cl" disabled={!!editUsuario}/>
+                <input type="email" value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} className="input-base" placeholder="correo@kiva360.cl" disabled={!!editUsuario}/>
               </div>
               {!editUsuario && (
                 <div>

@@ -137,7 +137,9 @@ export default function CapturaMovilPage() {
       <div className="bg-white border-b border-[#e8eaed] px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/logo-arschool.png" alt="AR School" width={28} height={28} className="rounded-md"/>
+            <div className="w-7 h-7 rounded-md bg-[#2D1B69] flex items-center justify-center">
+              <span className="text-white font-bold text-[10px]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>K</span>
+            </div>
             <div>
               <div className="text-[12px] font-bold text-[#1a2332]">Captura de documentos</div>
               <div className="text-[10px] text-[#9ca3af]">Código: {codigo}</div>

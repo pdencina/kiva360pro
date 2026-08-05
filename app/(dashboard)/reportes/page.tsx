@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { getMesNombre } from '@/lib/utils'
 import ReportesClient from '@/components/reportes/ReportesClient'
 
-export const metadata = { title: 'Reportes — AR School' }
+export const metadata = { title: 'Reportes — Kiva360' }
 
 function getAdmin() {
   return createAdminClient(

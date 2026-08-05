@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import DashboardInicio from '@/components/dashboard/DashboardInicio'
 import { getMesNombre } from '@/lib/utils'
 
-export const metadata = { title: 'Inicio — AR School' }
+export const metadata = { title: 'Inicio — Kiva360' }
 
 function getAdminClient() {
   return createAdminClient(

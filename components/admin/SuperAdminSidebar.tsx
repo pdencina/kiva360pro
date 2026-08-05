@@ -38,7 +38,7 @@ export default function SuperAdminSidebar() {
         })}
       </nav>
       <div className="px-4 py-3 border-t border-[#f3f4f6]">
-        <div className="text-[10px] text-[#d1d5db] tracking-wide">AR School v1.0</div>
+        <div className="text-[10px] text-[#d1d5db] tracking-wide">Kiva360 v1.0</div>
       </div>
     </aside>
   )

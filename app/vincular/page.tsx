@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import toast from 'react-hot-toast'
 
 export default function VincularPage() {
@@ -62,8 +61,10 @@ export default function VincularPage() {
     <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center p-8">
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-3 mb-10 justify-center">
-          <Image src="/logo-arschool.png" alt="AR School" width={38} height={38} className="rounded-lg"/>
-          <span className="font-semibold text-[#1a2332] text-lg tracking-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>AR SCHOOL</span>
+          <div className="w-[38px] h-[38px] rounded-[10px] bg-[#2D1B69] flex items-center justify-center">
+            <span className="text-white font-bold text-[16px]" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>K</span>
+          </div>
+          <span className="font-semibold text-[#1a2332] text-lg tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Kiva360</span>
         </div>
 
         <div className="bg-white border border-[#eceef1] rounded-xl p-6 shadow-sm">

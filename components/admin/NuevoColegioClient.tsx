@@ -61,7 +61,7 @@ export default function NuevoColegioClient() {
         </a>
         <div>
           <h1 className="text-2xl font-bold text-slate-900 font-display">Nuevo colegio</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Registrar un nuevo campus AR School Global</p>
+          <p className="text-sm text-slate-500 mt-0.5">Registrar un nuevo campus Kiva360</p>
         </div>
       </div>
 
@@ -74,7 +74,7 @@ export default function NuevoColegioClient() {
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nombre *</label>
-              <input value={form.nombre} onChange={e => setF('nombre', e.target.value)} className="input-base" placeholder="AR School Campus [Ciudad]"/>
+              <input value={form.nombre} onChange={e => setF('nombre', e.target.value)} className="input-base" placeholder="Nombre del colegio"/>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">RUT</label>
@@ -115,7 +115,7 @@ export default function NuevoColegioClient() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Email *</label>
-              <input type="email" value={form.admin_email} onChange={e => setF('admin_email', e.target.value)} className="input-base" placeholder="admin@arschool.cl"/>
+              <input type="email" value={form.admin_email} onChange={e => setF('admin_email', e.target.value)} className="input-base" placeholder="admin@kiva360.cl"/>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Contraseña *</label>

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
-export const metadata = { title: 'Campus — AR School Global' }
+export const metadata = { title: 'Campus — Kiva360' }
 
 function getAdminClient() {
   return createAdminClient(
@@ -46,7 +46,7 @@ export default async function SuperAdminPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 font-display">Campus</h1>
-          <p className="text-sm text-slate-400 mt-0.5">Gestión centralizada de sedes AR School</p>
+          <p className="text-sm text-slate-400 mt-0.5">Gestión centralizada de sedes Kiva360</p>
         </div>
         <Link href="/super-admin/colegios/nuevo" className="btn-primary">
           <i className="ti ti-plus text-sm" aria-hidden="true"/> Nuevo campus

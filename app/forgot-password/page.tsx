@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center font-display font-bold text-white text-sm">AR</div>
-          <span className="font-display font-semibold text-slate-900 text-lg">AR School</span>
+          <span className="font-display font-semibold text-slate-900 text-lg">Kiva360</span>
         </div>
 
         <h2 className="font-display text-2xl font-bold text-slate-900 mb-1">Recuperar contraseña</h2>

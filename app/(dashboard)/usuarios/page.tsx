@@ -4,7 +4,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import UsuariosColegioClient from '@/components/usuarios/UsuariosColegioClient'
 
-export const metadata = { title: 'Usuarios — AR School' }
+export const metadata = { title: 'Usuarios — Kiva360' }
 
 function getAdmin() {
   return createAdminClient(

@@ -100,9 +100,9 @@ export default function PagoLinkPage({ params }: { params: { token: string } }) 
       {/* Header */}
       <div className="bg-white border-b border-[#e8eaed] py-4 px-6">
         <div className="max-w-md mx-auto flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#1a2332] rounded-lg flex items-center justify-center text-white font-bold text-sm">AR</div>
+          <div className="w-10 h-10 bg-[#2D1B69] rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>K</div>
           <div>
-            <div className="font-bold text-[#1a2332] text-[14px]">AR SCHOOL GLOBAL</div>
+            <div className="font-bold text-[#1a2332] text-[14px]">Kiva360</div>
             <div className="text-[10px] text-[#9ca3af]">Pago en línea seguro</div>
           </div>
         </div>
