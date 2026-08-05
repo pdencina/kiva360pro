@@ -7,6 +7,7 @@ import Topbar from '@/components/layout/Topbar'
 import SidebarWrapper from '@/components/layout/SidebarWrapper'
 import CommandPalette from '@/components/layout/CommandPalette'
 import AsistenciaBanner from '@/components/layout/AsistenciaBanner'
+import WelcomeSplash from '@/components/layout/WelcomeSplash'
 import { Toaster } from 'react-hot-toast'
 
 function getAdmin() {
@@ -51,6 +52,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-[var(--ar-bg)]">
+      <WelcomeSplash nombre={usuario.nombre} colegio={usuario.colegio?.nombre} />
       <Toaster position="top-right"/>
       <CommandPalette/>
       <Topbar usuario={usuario}/>
