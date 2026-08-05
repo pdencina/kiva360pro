@@ -21,6 +21,7 @@ const NAV_PRINCIPAL: NavItem[] = [
   { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','pastor_campus','gestor_admision','tutor'] },
   { label: 'Libro de clases', href: '/libro-clases',    icon: 'ti-notebook',         roles: ['pastor_campus','tutor'] },
   { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','pastor_campus','tutor'] },
+  { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','pastor_campus','tutor'] },
   { label: 'Tareas',         href: '/tareas',         icon: 'ti-checklist',        roles: ['super_admin','admin','pastor_campus','tutor'] },
 ]
 
@@ -86,6 +87,7 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/comunicados': 'comunicados',
   '/mensajes': 'mensajes',
   '/libro-clases': 'libro_clases',
+  '/intervencion': 'intervencion',
   '/reporte-diario': 'reporte_diario',
   '/tareas': 'tareas',
   '/contable': 'cobranzas',
@@ -204,7 +206,7 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null }: Pr
         )}
       </nav>
       <div className="px-4 py-3 border-t border-[#f3f4f6]">
-        <div className="text-[10px] text-[var(--ar-muted)] tracking-wide">AR School v1.0</div>
+        <div className="text-[10px] text-[var(--ar-muted)] tracking-wide">Kiva360 v1.0</div>
       </div>
     </aside>
   )
