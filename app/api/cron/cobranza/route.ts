@@ -104,20 +104,20 @@ export async function POST(request: NextRequest) {
       try {
         await enviarEmail({
           to: email,
-          subject: `AR School — Recordatorio: aporte vence el ${new Date(c.fecha_vencimiento + 'T12:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })}`,
+          subject: `Kiva360 — Recordatorio: aporte vence el ${new Date(c.fecha_vencimiento + 'T12:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })}`,
           html: `
             <div style="font-family:-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
               <h2 style="color:#1a2332;">Recordatorio de pago</h2>
               <p>Estimado/a ${c.familia?.nombre_apoderado ?? 'Apoderado'},</p>
               <p>Le recordamos que su aporte mensual de <strong>$${c.monto.toLocaleString('es-CL')}</strong> vence en <strong>${diasAntes} día${diasAntes > 1 ? 's' : ''}</strong> (${new Date(c.fecha_vencimiento + 'T12:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })}).</p>
-              <p>Puede realizar el pago desde la plataforma AR School o mediante transferencia bancaria.</p>
+              <p>Puede realizar el pago desde la plataforma Kiva360 o mediante transferencia bancaria.</p>
               <div style="background:#f8f9fb;border-radius:8px;padding:12px;margin:16px 0;font-size:13px;">
                 <strong>Datos para transferencia:</strong><br/>
                 Banco: BancoEstado · Cta. Cte. 291-0-008051-4<br/>
-                RUT: 65.168.392-0 · Fund. Educacional AR Ministries<br/>
-                Email: adm@arschoolglobal.com
+                RUT: 65.168.392-0<br/>
+                Email: contacto@kiva360.cl
               </div>
-              <p style="font-size:12px;color:#9ca3af;">Este es un recordatorio automático de AR School Global.</p>
+              <p style="font-size:12px;color:#9ca3af;">Este es un recordatorio automático de Kiva360.</p>
             </div>
           `,
         })

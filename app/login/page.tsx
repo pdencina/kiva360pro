@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import Link from 'next/link'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
@@ -37,55 +37,59 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1B3A5C] flex">
+    <div className="min-h-screen flex" style={{ background: 'var(--k-gradient-hero)' }}>
       {/* Panel izquierdo */}
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#E8722A]/5 via-transparent to-[#5B8FA8]/10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#E8722A]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#5B8FA8]/5 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-hero-pattern" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#5B3E9E]/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#E85D3A]/5 rounded-full blur-[100px]" />
         
         <div className="relative">
-          <div className="flex items-center gap-4 mb-16">
-            <div className="bg-white rounded-xl p-2">
-              <Image src="/logo-arschool.png" alt="AR School" width={120} height={40} className="h-10 w-auto"/>
+          <Link href="/" className="flex items-center gap-3 mb-16">
+            <div className="w-10 h-10 rounded-[10px] bg-white/10 border border-white/10 flex items-center justify-center backdrop-blur-sm">
+              <span className="text-white font-bold text-lg font-display">K</span>
             </div>
-          </div>
-          <h1 className="text-4xl font-bold text-white leading-tight mb-5" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-            Sistema integral de<br/>gestión escolar
+            <span className="font-display font-bold text-xl text-white tracking-tight">Kiva360</span>
+          </Link>
+          <h1 className="font-display text-4xl font-bold text-white leading-tight mb-5">
+            Gestión escolar<br/>
+            <span className="text-gradient-brand">sin fricción</span>
           </h1>
-          <p className="text-white/50 text-base leading-relaxed max-w-md">
-            Administra comunicados, asistencias, calificaciones y aportes de manera centralizada y profesional.
+          <p className="text-white/40 text-[15px] leading-relaxed max-w-md">
+            Administra matrículas, asistencia, calificaciones y cobranzas de manera centralizada y profesional.
           </p>
         </div>
 
         <div className="relative">
-          <div className="flex items-center gap-6">
-            <div className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-4 backdrop-blur-sm">
-              <Image src="/logo-arschool.png" alt="AR School" width={140} height={50} className="h-8 w-auto invert opacity-80"/>
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-[#5B3E9E] to-[#E85D3A] border-2 border-[#1A1035] flex items-center justify-center text-[9px] text-white font-bold">
+                  {['M','C','J'][i]}
+                </div>
+              ))}
             </div>
-            <div className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-4 backdrop-blur-sm">
-              <Image src="/logo-playgroup.png" alt="Play and Group" width={140} height={50} className="h-8 w-auto invert opacity-80"/>
-            </div>
+            <span className="text-[12px] text-white/30">+15 colegios activos</span>
           </div>
-          <div className="mt-4 text-white/30 text-[10px] uppercase tracking-[0.15em]">Fundación ARM Global</div>
         </div>
       </div>
 
       {/* Panel derecho - formulario */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-3 mb-10">
-            <div className="bg-[#f3f4f6] rounded-lg p-1.5">
-              <Image src="/logo-arschool.png" alt="AR School" width={100} height={36} className="h-7 w-auto"/>
+          <div className="lg:hidden flex items-center gap-2.5 mb-10">
+            <div className="w-9 h-9 rounded-[10px] bg-[#2D1B69] flex items-center justify-center">
+              <span className="text-white font-bold text-sm font-display">K</span>
             </div>
+            <span className="font-display font-bold text-lg text-[#1A1035] tracking-tight">Kiva360</span>
           </div>
 
-          <h2 className="font-display text-2xl font-bold text-slate-900 mb-1">Iniciar sesión</h2>
-          <p className="text-slate-400 text-sm mb-8">Ingresa con tu cuenta institucional</p>
+          <h2 className="font-display text-2xl font-bold text-[#1A1035] mb-1">Iniciar sesión</h2>
+          <p className="text-[#5C5470] text-sm mb-8">Ingresa con tu cuenta institucional</p>
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-[#5C5470] uppercase tracking-wider mb-2">
                 Correo electrónico
               </label>
               <input
@@ -98,7 +102,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-[#5C5470] uppercase tracking-wider mb-2">
                 Contraseña
               </label>
               <input
@@ -113,18 +117,19 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 bg-[#0F1B2D] hover:bg-[#1a2d47] text-white font-semibold rounded-lg transition-colors disabled:opacity-60 text-sm tracking-wide"
+              className="w-full h-11 text-white font-semibold rounded-lg transition-all disabled:opacity-60 text-sm tracking-wide hover:scale-[1.01] active:scale-[0.99]"
+              style={{ background: 'var(--k-gradient-cta)' }}
             >
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/forgot-password" className="text-xs text-slate-400 hover:text-blue-600 transition-colors">¿Olvidaste tu contraseña?</a>
+            <a href="/forgot-password" className="text-xs text-[#5C5470] hover:text-[#5B3E9E] transition-colors">¿Olvidaste tu contraseña?</a>
           </div>
 
-          <div className="mt-16 pt-6 border-t border-slate-100 text-center">
-            <p className="text-[10px] text-slate-300 uppercase tracking-widest">AR School · Fundación ARM Global</p>
+          <div className="mt-16 pt-6 border-t border-[#e2dfd9] text-center">
+            <p className="text-[10px] text-[#5C5470]/50 uppercase tracking-widest">Kiva360 · Gestión Educacional</p>
           </div>
         </div>
       </div>

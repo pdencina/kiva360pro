@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,33 +6,54 @@
 
 @layer base {
   :root {
-    /* WCAG AA compliant palette — all text colors meet 4.5:1 on their intended backgrounds */
-    --ar-navy:    #1B3A5C;        /* 8.2:1 on white */
-    --ar-primary: #1B3A5C;
-    --ar-primary-l: #f0f4f8;
-    --ar-accent:  #C45A1A;        /* 4.8:1 on white (was #E8722A @ 3.5:1) */
-    --ar-accent-l: #FEF3EC;
-    --ar-success: #2D5A3F;        /* 7.3:1 on white (was #3D6B4F @ 5.4:1) */
-    --ar-danger:  #A8432B;        /* 5.5:1 on white (was #C15A3B @ 3.9:1) */
-    --ar-warn:    #9A5B00;        /* 5.1:1 on white — golden amber for better contrast */
+    /* ═══════════════════════════════════════════════════════════
+       KIVA360 BRAND SYSTEM
+       Distinctive palette: Deep indigo + warm coral + soft sage
+       ═══════════════════════════════════════════════════════════ */
+
+    /* Brand primaries */
+    --k-indigo:     #2D1B69;      /* deep indigo — primary brand */
+    --k-violet:     #5B3E9E;      /* vibrant violet — interactive */
+    --k-coral:      #E85D3A;      /* warm coral — accent/CTA */
+    --k-sage:       #4A9E7A;      /* soft sage — success/positive */
+    --k-sand:       #F5F0EB;      /* warm sand — background */
+    --k-midnight:   #1A1035;      /* near-black — text */
+
+    /* Gradients */
+    --k-gradient-hero: linear-gradient(135deg, #2D1B69 0%, #1A1035 40%, #0D0A1A 100%);
+    --k-gradient-card: linear-gradient(145deg, rgba(91,62,158,0.04) 0%, rgba(232,93,58,0.02) 100%);
+    --k-gradient-accent: linear-gradient(135deg, #E85D3A 0%, #D94A27 100%);
+    --k-gradient-cta: linear-gradient(135deg, #5B3E9E 0%, #2D1B69 100%);
+    --k-glow-violet: 0 0 60px rgba(91,62,158,0.3);
+    --k-glow-coral: 0 0 40px rgba(232,93,58,0.2);
+
+    /* ═══ Dashboard vars (legacy compat — mapped to Kiva360 palette) ═══ */
+    --ar-navy:    #2D1B69;
+    --ar-primary: #2D1B69;
+    --ar-primary-l: #f3f0f9;
+    --ar-accent:  #E85D3A;
+    --ar-accent-l: #FEF0EC;
+    --ar-success: #2D7A54;
+    --ar-danger:  #C43B2B;
+    --ar-warn:    #B86E00;
     --ar-surface: #ffffff;
-    --ar-bg:      #FDF8F3;
-    --ar-border:  #dfe2e6;        /* slightly darker for visibility */
-    --ar-text:    #1B3A5C;        /* 8.2:1 on white */
-    --ar-muted:   #556270;        /* 5.6:1 on white (was #6b7280 @ 4.6:1) */
-    --ar-green:   #2D5A3F;        /* 7.3:1 on white */
-    --ar-blue:    #3D7A94;        /* 4.7:1 on white (was #5B8FA8 @ 3.3:1) */
+    --ar-bg:      #F9F7F5;
+    --ar-border:  #e2dfd9;
+    --ar-text:    #1A1035;
+    --ar-muted:   #5C5470;
+    --ar-green:   #2D7A54;
+    --ar-blue:    #5B3E9E;
     --shadow-sm:  0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03);
     --shadow-md:  0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03);
     --shadow-lg:  0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
 
-    /* Role accent colors — all meet 4.5:1 on white */
-    --ar-role-admin:     #C45A1A;   /* warm orange — admin/super_admin */
-    --ar-role-pastor:    #4A3080;   /* deep purple — pastor campus */
-    --ar-role-gestor:    #1B3A5C;   /* navy — gestor admisión */
-    --ar-role-tutor:     #2D5A3F;   /* forest green — tutor */
-    --ar-role-apoderado: #3D7A94;   /* teal — apoderado */
-    --ar-role-alumno:    #6B4C9A;   /* violet — alumno */
+    /* Role accent colors */
+    --ar-role-admin:     #E85D3A;
+    --ar-role-pastor:    #4A3080;
+    --ar-role-gestor:    #2D1B69;
+    --ar-role-tutor:     #2D7A54;
+    --ar-role-apoderado: #5B3E9E;
+    --ar-role-alumno:    #6B4C9A;
   }
   body {
     @apply bg-[var(--ar-bg)] text-[var(--ar-text)];
@@ -43,8 +64,42 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
   h1,h2,h3 {
-    font-family: 'DM Sans', 'Inter', sans-serif;
-    letter-spacing: -0.025em;
+    font-family: 'Space Grotesk', 'DM Sans', sans-serif;
+    letter-spacing: -0.03em;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   KIVA360 LANDING-SPECIFIC UTILITIES
+   ═══════════════════════════════════════════════ */
+@layer utilities {
+  .font-display {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.03em;
+  }
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #5B3E9E 0%, #E85D3A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .bg-hero-pattern {
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(91,62,158,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 80% 50%, rgba(232,93,58,0.08) 0%, transparent 50%);
+  }
+  .glass {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .glass-light {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.8);
   }
 }
 
@@ -52,7 +107,7 @@
   /* Buttons */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--ar-navy)] text-white text-[13px] font-semibold rounded-lg border-0 cursor-pointer;
-    @apply hover:bg-[#143050] active:scale-[0.97] transition-all duration-200;
+    @apply hover:bg-[#221455] active:scale-[0.97] transition-all duration-200;
     box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.04);
   }
   .btn-primary:hover { box-shadow: var(--shadow-md); }

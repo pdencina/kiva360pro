@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       const { enviarEmail } = await import('@/lib/email')
       await enviarEmail({
         to: (usuario as any).email,
-        subject: `🎂 ¡Feliz cumpleaños ${alumno.nombre}! — AR School`,
+        subject: `🎂 ¡Feliz cumpleaños ${alumno.nombre}! — Kiva360`,
         html: templateCumpleanos(alumno.nombre, alumno.apellido, edad, (usuario as any).nombre),
       })
       enviados++

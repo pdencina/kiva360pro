@@ -35,8 +35,8 @@ table th { background: #f5f5f5; font-weight: bold; }
 
 export const HEADER_FUNDACION = `
 <div class="header">
-<h2>FUNDACIÓN</h2>
-<h3>arm global</h3>
+<h2 style="font-family: sans-serif; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: #2D1B69;">Kiva360</h2>
+<h3 style="font-family: sans-serif; font-size: 12px; color: #5C5470; letter-spacing: 0.1em; text-transform: uppercase;">Gestión Educacional</h3>
 </div>`
 
 export const FOOTER_SEDES = `
@@ -44,26 +44,25 @@ export const FOOTER_SEDES = `
 <strong>Sede Santiago:</strong> Victoria 52, Santiago, Chile<br/>
 <strong>Sede Puente Alto:</strong> Av. José Manuel Irarrázaval 0565, Puente Alto, Santiago, Chile.<br/>
 <strong>Sede Punta Arenas:</strong> Chiloé 862, Punta Arenas, Chile.<br/>
-e-mail: contacto@arschoolglobal.com · www.arschoolglobal.com
+e-mail: contacto@kiva360.cl · www.kiva360.cl
 </div>`
 
 export const DATOS_BANCARIOS = `
 <div class="datos-bancarios">
 <p class="titulo">Datos bancarios para transferencia:</p>
 <p>
-Nombre: Fundación Educacional AR Ministries<br/>
 RUT: 65.168.392-0<br/>
 Banco: BancoEstado · Cuenta Corriente N° 291-0-008051-4<br/>
-Correo: adm@arschoolglobal.com
+Correo: contacto@kiva360.cl
 </p>
 </div>`
 
 export function botonImprimir(fecha: string) {
   return `
 <div class="no-print" style="margin-top:50px;text-align:center;padding:20px 0;border-top:1px solid #e8eaed;">
-<p style="font-size:11px;color:#9ca3af;margin-bottom:12px;">Documento generado por AR School Global · ${fecha}</p>
-<button onclick="window.print()" style="background:#1B3A5C;color:white;border:none;padding:12px 36px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button>
-<button onclick="window.close()" style="background:white;color:#1B3A5C;border:1.5px solid #e8eaed;padding:12px 36px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-left:10px;">Cerrar</button>
+<p style="font-size:11px;color:#9ca3af;margin-bottom:12px;">Documento generado por Kiva360 · ${fecha}</p>
+<button onclick="window.print()" style="background:#2D1B69;color:white;border:none;padding:12px 36px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button>
+<button onclick="window.close()" style="background:white;color:#2D1B69;border:1.5px solid #e8eaed;padding:12px 36px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-left:10px;">Cerrar</button>
 </div>`
 }
 
@@ -76,7 +75,7 @@ export function seccionFirmas(firmaApoderado: string | null, firmadoAt: string |
 <div class="firma-linea"></div>
 <div class="firma-nombre">PATRICIO FERNANDO BURGOS PÉREZ</div>
 <div class="firma-detalle">RUT N° 12.274.490-6</div>
-<div class="firma-rol">Representante Legal<br/>Fundación Educacional AR Ministries</div>
+<div class="firma-rol">Representante Legal</div>
 </div>
 <div class="firma-box">
 <div class="firma-espacio">

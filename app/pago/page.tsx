@@ -1,7 +1,5 @@
 'use client'
 
-import Image from 'next/image'
-
 export default function PagoFacilPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f8f9fb] to-white">
@@ -9,10 +7,12 @@ export default function PagoFacilPage() {
       <div className="bg-white border-b border-[#e8eaed] py-4 px-6">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/logo-arschool.png" alt="AR School" width={40} height={40} className="rounded-lg"/>
+            <div className="w-10 h-10 rounded-[10px] bg-[#2D1B69] flex items-center justify-center">
+              <span className="text-white font-bold text-lg" style={{ fontFamily: 'Space Grotesk' }}>K</span>
+            </div>
             <div>
-              <div className="font-bold text-[#1a2332] text-[15px]" style={{ fontFamily: 'DM Sans' }}>AR SCHOOL GLOBAL</div>
-              <div className="text-[11px] text-[#9ca3af]">Fundación Educacional AR Ministries</div>
+              <div className="font-bold text-[#1a2332] text-[15px]" style={{ fontFamily: 'Space Grotesk' }}>Kiva360</div>
+              <div className="text-[11px] text-[#9ca3af]">Gestión Educacional</div>
             </div>
           </div>
         </div>
@@ -70,10 +70,10 @@ export default function PagoFacilPage() {
               <div><strong>Banco:</strong> BancoEstado</div>
               <div><strong>Cuenta Corriente:</strong> 291-0-008051-4</div>
               <div><strong>RUT:</strong> 65.168.392-0</div>
-              <div><strong>Nombre:</strong> Fundación Educacional AR Ministries</div>
-              <div><strong>Email:</strong> adm@arschoolglobal.com</div>
+              <div><strong>Nombre:</strong> Kiva360</div>
+              <div><strong>Email:</strong> contacto@kiva360.cl</div>
             </div>
-            <p className="text-[10px] text-[#9ca3af] mt-2">Envía el comprobante a adm@arschoolglobal.com indicando nombre del alumno.</p>
+            <p className="text-[10px] text-[#9ca3af] mt-2">Envía el comprobante a contacto@kiva360.cl indicando nombre del alumno.</p>
           </div>
 
           {/* Pago presencial */}
@@ -104,7 +104,7 @@ export default function PagoFacilPage() {
 
       {/* Footer */}
       <div className="border-t border-[#e8eaed] py-4 text-center">
-        <p className="text-[10px] text-[#d1d5db]">AR School Global · Fundación Educacional AR Ministries · RUT 65.168.392-0</p>
+        <p className="text-[10px] text-[#d1d5db]">Kiva360 · Gestión Educacional · kiva360.cl</p>
       </div>
     </div>
   )

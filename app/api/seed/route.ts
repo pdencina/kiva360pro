@@ -28,11 +28,11 @@ export async function POST() {
 
   // Tutores a crear
   const tutores = [
-    { nombre: 'María', apellido: 'Fernández', email: 'maria.fernandez@arschoolglobal.com' },
-    { nombre: 'Carlos', apellido: 'Sánchez', email: 'carlos.sanchez@arschoolglobal.com' },
-    { nombre: 'Andrea', apellido: 'Morales', email: 'andrea.morales@arschoolglobal.com' },
-    { nombre: 'Roberto', apellido: 'Silva', email: 'roberto.silva@arschoolglobal.com' },
-    { nombre: 'Patricia', apellido: 'Vásquez', email: 'patricia.vasquez@arschoolglobal.com' },
+    { nombre: 'María', apellido: 'Fernández', email: 'maria.fernandez@kiva360.cl' },
+    { nombre: 'Carlos', apellido: 'Sánchez', email: 'carlos.sanchez@kiva360.cl' },
+    { nombre: 'Andrea', apellido: 'Morales', email: 'andrea.morales@kiva360.cl' },
+    { nombre: 'Roberto', apellido: 'Silva', email: 'roberto.silva@kiva360.cl' },
+    { nombre: 'Patricia', apellido: 'Vásquez', email: 'patricia.vasquez@kiva360.cl' },
   ]
 
   for (const tutor of tutores) {

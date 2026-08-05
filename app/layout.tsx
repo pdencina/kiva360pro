@@ -4,17 +4,17 @@ import NavigationProgress from '@/components/layout/NavigationProgress'
 
 export const metadata: Metadata = {
   title: {
-    default: 'AR School — Gestión Educacional',
-    template: '%s | AR School',
+    default: 'Kiva360 — Gestión Educacional Integral',
+    template: '%s | Kiva360',
   },
-  description: 'Sistema integral de gestión escolar: comunicados, asistencias, calificaciones y cobranzas.',
-  keywords: ['gestión escolar', 'AR School', 'plataforma educacional', 'colegio'],
+  description: 'Plataforma integral de gestión escolar: matrículas, asistencias, calificaciones, cobranzas y comunicación con familias.',
+  keywords: ['gestión escolar', 'Kiva360', 'plataforma educacional', 'colegio', 'software escolar Chile'],
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#1a2332',
+  themeColor: '#2D1B69',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

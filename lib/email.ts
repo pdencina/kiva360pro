@@ -9,7 +9,7 @@ function getResend() {
   return resendInstance
 }
 
-const FROM_EMAIL = 'AR School <notificaciones@arschoolglobal.com>'
+const FROM_EMAIL = 'Kiva360 <notificaciones@kiva360.cl>'
 
 export async function enviarEmail({
   to,
@@ -43,16 +43,16 @@ export async function enviarEmail({
 export function templateComunicado(titulo: string, contenido: string, colegio: string) {
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL</strong>
+      <div style="border-bottom: 2px solid #2D1B69; padding-bottom: 16px; margin-bottom: 24px;">
+        <strong style="font-size: 16px; color: #2D1B69;">Kiva360</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">${colegio}</span>
       </div>
-      <h2 style="color: #1a2332; font-size: 18px; margin: 0 0 12px;">${titulo}</h2>
+      <h2 style="color: #1A1035; font-size: 18px; margin: 0 0 12px;">${titulo}</h2>
       <div style="color: #4b5563; font-size: 14px; line-height: 1.6;">
         ${contenido.replace(/\n/g, '<br/>')}
       </div>
       <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8eaed; color: #9ca3af; font-size: 11px;">
-        Este mensaje fue enviado desde la plataforma AR School. No responda a este correo.
+        Este mensaje fue enviado desde la plataforma Kiva360. No responda a este correo.
       </div>
     </div>
   `
@@ -61,11 +61,11 @@ export function templateComunicado(titulo: string, contenido: string, colegio: s
 export function templateReporteDiario(alumno: string, curso: string, fecha: string, resumen: string) {
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL</strong>
+      <div style="border-bottom: 2px solid #2D1B69; padding-bottom: 16px; margin-bottom: 24px;">
+        <strong style="font-size: 16px; color: #2D1B69;">Kiva360</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">Reporte Diario</span>
       </div>
-      <h2 style="color: #1a2332; font-size: 18px; margin: 0 0 4px;">Reporte de ${alumno}</h2>
+      <h2 style="color: #1A1035; font-size: 18px; margin: 0 0 4px;">Reporte de ${alumno}</h2>
       <p style="color: #9ca3af; font-size: 13px; margin: 0 0 20px;">${curso} · ${fecha}</p>
       <div style="background: #f8f9fb; border-radius: 8px; padding: 16px; color: #4b5563; font-size: 14px; line-height: 1.6;">
         ${resumen}
@@ -80,16 +80,16 @@ export function templateReporteDiario(alumno: string, curso: string, fecha: stri
 export function templateInvitacionApoderado(nombre: string, alumno: string, linkAcceso: string) {
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL GLOBAL</strong>
+      <div style="border-bottom: 2px solid #2D1B69; padding-bottom: 16px; margin-bottom: 24px;">
+        <strong style="font-size: 16px; color: #2D1B69;">Kiva360</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">Bienvenido/a</span>
       </div>
-      <h2 style="color: #1a2332; font-size: 18px; margin: 0 0 12px;">¡Bienvenido/a a AR School!</h2>
+      <h2 style="color: #1A1035; font-size: 18px; margin: 0 0 12px;">¡Bienvenido/a a Kiva360!</h2>
       <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">Estimado/a <strong>${nombre}</strong>,</p>
-      <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">Le informamos que <strong>${alumno}</strong> ha sido matriculado exitosamente en nuestro centro educacional.</p>
+      <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">Le informamos que <strong>${alumno}</strong> ha sido matriculado exitosamente.</p>
       <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">Se ha creado una cuenta en nuestra plataforma para que pueda hacer seguimiento del proceso educativo. Para activar su cuenta, haga click en el siguiente botón:</p>
       <div style="text-align: center; margin: 28px 0;">
-        <a href="${linkAcceso}" style="background: #1a2332; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-block;">Crear mi contraseña</a>
+        <a href="${linkAcceso}" style="background: #2D1B69; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-block;">Crear mi contraseña</a>
       </div>
       <p style="color: #9ca3af; font-size: 12px; line-height: 1.5;">Si el botón no funciona, copie y pegue este enlace en su navegador:</p>
       <p style="color: #6b7280; font-size: 12px; word-break: break-all;">${linkAcceso}</p>
@@ -105,7 +105,7 @@ export function templateInvitacionApoderado(nombre: string, alumno: string, link
       </div>
       <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8eaed; color: #9ca3af; font-size: 11px;">
         Este enlace expira en 24 horas. Si tiene problemas para acceder, contacte a la administración del colegio.<br/>
-        AR School Global · Fundación Educacional AR Ministries
+        Kiva360 · Gestión Educacional
       </div>
     </div>
   `
@@ -114,8 +114,8 @@ export function templateInvitacionApoderado(nombre: string, alumno: string, link
 export function templatePagoMora(apoderado: string, alumno: string, monto: string) {
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL</strong>
+      <div style="border-bottom: 2px solid #2D1B69; padding-bottom: 16px; margin-bottom: 24px;">
+        <strong style="font-size: 16px; color: #2D1B69;">Kiva360</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">Aviso de pago</span>
       </div>
       <p style="color: #4b5563; font-size: 14px;">Estimado/a ${apoderado},</p>
@@ -132,20 +132,20 @@ export function templatePagoMora(apoderado: string, alumno: string, monto: strin
 export function templateCumpleanos(nombre: string, apellido: string, edad: number, nombreApoderado: string) {
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="border-bottom: 2px solid #1B3A5C; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1B3A5C;">AR SCHOOL GLOBAL</strong>
+      <div style="border-bottom: 2px solid #2D1B69; padding-bottom: 16px; margin-bottom: 24px;">
+        <strong style="font-size: 16px; color: #2D1B69;">Kiva360</strong>
       </div>
       <div style="text-align: center; margin: 30px 0;">
         <div style="font-size: 60px; margin-bottom: 12px;">🎂</div>
-        <h1 style="color: #1B3A5C; font-size: 24px; margin: 0 0 8px;">¡Feliz cumpleaños, ${nombre}!</h1>
-        <p style="color: #E8722A; font-size: 18px; font-weight: bold; margin: 0;">¡Hoy cumple ${edad} años!</p>
+        <h1 style="color: #2D1B69; font-size: 24px; margin: 0 0 8px;">¡Feliz cumpleaños, ${nombre}!</h1>
+        <p style="color: #E85D3A; font-size: 18px; font-weight: bold; margin: 0;">¡Hoy cumple ${edad} años!</p>
       </div>
-      <div style="background: #FEF3EC; border-radius: 12px; padding: 20px; margin: 20px 0;">
+      <div style="background: #fef0ec; border-radius: 12px; padding: 20px; margin: 20px 0;">
         <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 0;">
           Estimado/a <strong>${nombreApoderado}</strong>,
         </p>
         <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 12px 0 0;">
-          Desde la familia de AR School queremos enviar un cariñoso saludo a <strong>${nombre} ${apellido}</strong> en este día tan especial. 
+          Queremos enviar un cariñoso saludo a <strong>${nombre} ${apellido}</strong> en este día tan especial. 
           Que este nuevo año de vida esté lleno de aprendizajes, aventuras y mucho amor.
         </p>
         <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 12px 0 0; font-style: italic;">
@@ -153,10 +153,10 @@ export function templateCumpleanos(nombre: string, apellido: string, edad: numbe
         </p>
       </div>
       <p style="color: #4b5563; font-size: 14px; text-align: center; margin-top: 20px;">
-        Con cariño,<br/><strong style="color: #1B3A5C;">Equipo AR School Global</strong>
+        Con cariño,<br/><strong style="color: #2D1B69;">Equipo Kiva360</strong>
       </p>
       <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e8eaed; color: #9ca3af; font-size: 11px; text-align: center;">
-        Fundación Educacional AR Ministries · Modelo Educativo A.M.O.R.
+        Kiva360 · Gestión Educacional
       </div>
     </div>
   `
