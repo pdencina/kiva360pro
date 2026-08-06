@@ -14,6 +14,58 @@ interface Props {
 
 export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usuarios, prospectos }: Props) {
   const [tab, setTab] = useState<'overview' | 'colegios' | 'propuestas'>('overview')
+  const [editando, setEditando] = useState<any>(null)
+  const [editForm, setEditForm] = useState({ nombre_cliente: '', email_cliente: '', plan: '', monto_mensual: '', descuento_anual: '', representante: '', estado: '', condiciones_especiales: '' })
+  const [guardando, setGuardando] = useState(false)
+
+  function abrirEditar(p: any) {
+    setEditando(p)
+    setEditForm({
+      nombre_cliente: p.nombre_cliente || '',
+      email_cliente: p.email_cliente || '',
+      plan: p.plan || 'Profesional',
+      monto_mensual: String(p.monto_mensual || ''),
+      descuento_anual: String(p.descuento_anual || '10'),
+      representante: p.representante || '',
+      estado: p.estado || 'enviada',
+      condiciones_especiales: p.condiciones_especiales || '',
+    })
+  }
+
+  async function handleGuardarEdicion() {
+    if (!editando) return
+    setGuardando(true)
+    try {
+      const monto = parseInt(editForm.monto_mensual)
+      const descuento = parseInt(editForm.descuento_anual)
+      const res = await fetch('/api/propuestas', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editando.id,
+          ...editForm,
+          monto_mensual: monto,
+          monto_anual: Math.round(monto * 12 * (1 - descuento / 100)),
+          descuento_anual: descuento,
+        }),
+      })
+      if (!res.ok) throw new Error((await res.json()).error)
+      toast.success('Propuesta actualizada')
+      setEditando(null)
+      window.location.reload()
+    } catch (err: any) { toast.error(err.message) }
+    finally { setGuardando(false) }
+  }
+
+  async function handleEliminar(id: string, nombre: string) {
+    if (!confirm(`¿Eliminar la propuesta de "${nombre}"?`)) return
+    const res = await fetch('/api/propuestas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, estado: 'vencida' }),
+    })
+    if (res.ok) { toast.success('Propuesta eliminada'); window.location.reload() }
+  }
 
   // KPIs
   const totalAlumnos = alumnos.filter(a => a.activo).length
@@ -197,7 +249,7 @@ export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usu
             <table className="w-full text-[12px]">
               <thead>
                 <tr className="table-head">
-                  <th>Cliente</th><th>Plan</th><th>Monto</th><th>Modalidad</th><th>Estado</th><th>Fecha</th><th>Link</th>
+                  <th>Cliente</th><th>Plan</th><th>Monto</th><th>Modalidad</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -214,14 +266,80 @@ export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usu
                     </td>
                     <td className="text-[var(--ar-muted)]">{new Date(p.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}</td>
                     <td>
-                      <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/propuesta/${p.slug}`); toast.success('Link copiado') }}
-                        className="text-[10px] text-[var(--ar-accent)] font-medium hover:underline">Copiar</button>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/propuesta/${p.slug}`); toast.success('Link copiado') }}
+                          className="text-[10px] text-[var(--ar-accent)] font-medium hover:underline">Copiar</button>
+                        <button onClick={() => abrirEditar(p)}
+                          className="text-[10px] text-[#5B3E9E] font-medium hover:underline">Editar</button>
+                        <button onClick={() => handleEliminar(p.id, p.nombre_cliente)}
+                          className="text-[10px] text-red-500 font-medium hover:underline">Eliminar</button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+
+          {/* Modal Editar Propuesta */}
+          {editando && (
+            <div className="modal-overlay" onClick={() => setEditando(null)}>
+              <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
+                <div className="px-6 py-4 border-b border-[var(--ar-border)] flex items-center justify-between">
+                  <h3 className="text-[15px] font-bold text-[var(--ar-text)]">Editar propuesta</h3>
+                  <button onClick={() => setEditando(null)} className="text-[var(--ar-muted)] hover:text-[var(--ar-text)]"><i className="ti ti-x text-[16px]" aria-hidden="true"/></button>
+                </div>
+                <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Nombre cliente</label>
+                      <input value={editForm.nombre_cliente} onChange={e => setEditForm({...editForm, nombre_cliente: e.target.value})} className="input-base text-[12px]" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Email</label>
+                      <input type="email" value={editForm.email_cliente} onChange={e => setEditForm({...editForm, email_cliente: e.target.value})} className="input-base text-[12px]" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Plan</label>
+                      <select value={editForm.plan} onChange={e => setEditForm({...editForm, plan: e.target.value})} className="select-base w-full text-[12px]">
+                        <option value="Starter">Starter</option><option value="Profesional">Profesional</option><option value="Enterprise">Enterprise</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Monto mensual</label>
+                      <input type="number" value={editForm.monto_mensual} onChange={e => setEditForm({...editForm, monto_mensual: e.target.value})} className="input-base text-[12px]" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Desc. anual %</label>
+                      <input type="number" value={editForm.descuento_anual} onChange={e => setEditForm({...editForm, descuento_anual: e.target.value})} className="input-base text-[12px]" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Representante</label>
+                      <input value={editForm.representante} onChange={e => setEditForm({...editForm, representante: e.target.value})} className="input-base text-[12px]" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Estado</label>
+                      <select value={editForm.estado} onChange={e => setEditForm({...editForm, estado: e.target.value})} className="select-base w-full text-[12px]">
+                        <option value="borrador">Borrador</option><option value="enviada">Enviada</option><option value="aceptada">Aceptada</option><option value="rechazada">Rechazada</option><option value="vencida">Vencida</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Condiciones especiales</label>
+                    <textarea value={editForm.condiciones_especiales} onChange={e => setEditForm({...editForm, condiciones_especiales: e.target.value})} className="input-base text-[12px] min-h-[60px]" placeholder="Notas o condiciones adicionales..." />
+                  </div>
+                </div>
+                <div className="px-6 py-4 border-t border-[var(--ar-border)] flex justify-end gap-2">
+                  <button onClick={() => setEditando(null)} className="btn-secondary text-[12px]">Cancelar</button>
+                  <button onClick={handleGuardarEdicion} disabled={guardando} className="btn-primary text-[12px]">{guardando ? 'Guardando...' : 'Guardar cambios'}</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

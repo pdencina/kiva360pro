@@ -172,15 +172,17 @@ export default function PropuestaClient({ propuesta: p }: Props) {
           <div className="space-y-4 text-[13px] text-[#1A1035] leading-relaxed">
             <p><strong>Prestador:</strong> Flexio Technologies SPA, RUT 78.479.402-4, representada por Pablo David Encina Acevedo, RUT 17.339.278-8.</p>
             <p><strong>Duración:</strong> {p.duracion_meses} meses, renovable automáticamente.</p>
-            <p><strong>Sin permanencia obligatoria:</strong> puede dar término con 30 días de aviso, sin multas.</p>
+            <p><strong>Terminación anticipada por el cliente:</strong> puede dar término con 30 días de aviso escrito, sin multas ni penalidades.</p>
+            <p><strong>Terminación por incumplimiento de pago:</strong> en caso de mora superior a 30 días, el Prestador podrá suspender el acceso a la plataforma hasta la regularización del pago. Si la mora supera los 60 días, el Prestador podrá dar término unilateral al contrato.</p>
             <p><strong>Propiedad de datos:</strong> todos los datos son del cliente. Exportación disponible en cualquier momento (JSON/CSV).</p>
             <p><strong>Respaldos:</strong> backups automáticos diarios con retención de 30 días.</p>
             <p><strong>Disponibilidad:</strong> SLA 99.5%. Recuperación ante desastres en máximo 4 horas.</p>
             <p><strong>Soporte:</strong> email y WhatsApp, lunes a viernes 9:00-18:00. Respuesta máxima 4 horas hábiles.</p>
-            <p><strong>Actualizaciones:</strong> incluidas sin costo adicional.</p>
+            <p><strong>Desarrollos a medida:</strong> solicitudes de funcionalidades adicionales o personalizaciones serán cotizadas por separado.</p>
             <p><strong>Confidencialidad:</strong> datos protegidos bajo Ley 19.628. No se comparten con terceros.</p>
-            <p><strong>Post-contrato:</strong> datos entregados en 5 días hábiles y eliminados en 30 días.</p>
-            <p><strong>Facturación:</strong> mensual o anual según modalidad elegida, mediante transferencia bancaria o medio electrónico. El prestador emitirá boleta o factura según corresponda.</p>
+            <p><strong>Post-contrato:</strong> datos entregados en 5 días hábiles y eliminados en 30 días posteriores al término.</p>
+            <p><strong>Facturación:</strong> mensual o anual según modalidad elegida, mediante transferencia bancaria o medio electrónico. El prestador emitirá boleta o factura según corresponda. Los precios pueden ser ajustados anualmente con 60 días de aviso previo.</p>
+            <p><strong>Uso aceptable:</strong> el cliente se compromete a no compartir sus credenciales de acceso con terceros no autorizados ni utilizar la plataforma para fines distintos a la gestión educacional de su centro.</p>
             {p.condiciones_especiales && <p><strong>Condiciones especiales:</strong> {p.condiciones_especiales}</p>}
           </div>
         </div>
