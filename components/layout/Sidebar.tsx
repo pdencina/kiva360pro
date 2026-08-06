@@ -12,6 +12,7 @@ interface NavItem {
 const NAV_PRINCIPAL: NavItem[] = [
   { label: 'Inicio',          href: '/inicio',          icon: 'ti-home',             roles: ['super_admin','admin','pastor_campus','gestor_admision','tutor'] },
   { label: 'Matrícula',       href: '/matricula',       icon: 'ti-user-plus',        roles: ['super_admin','admin','pastor_campus','gestor_admision'] },
+  { label: 'Admisión',        href: '/admision',        icon: 'ti-inbox',            roles: ['super_admin','admin','gestor_admision'] },
   { label: 'Mis alumnos',     href: '/alumnos',         icon: 'ti-users',            roles: ['tutor'] },
   { label: 'Alumnos',         href: '/alumnos',         icon: 'ti-users',            roles: ['super_admin','admin','pastor_campus','gestor_admision'] },
   { label: 'Planificación',   href: '/planificacion',   icon: 'ti-layout-board',     roles: ['super_admin','admin','pastor_campus','tutor'] },
@@ -88,6 +89,7 @@ interface Props { rol?: string; modulosHabilitados?: string[] | null }
 const HREF_TO_MODULO: Record<string, string> = {
   '/inicio': 'inicio',
   '/matricula': 'matricula',
+  '/admision': 'matricula',
   '/alumnos': 'alumnos',
   '/planificacion': 'planificacion',
   '/programas': 'programas',
