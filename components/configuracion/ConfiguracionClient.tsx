@@ -310,6 +310,24 @@ export default function ConfiguracionClient({ usuario, stats, horariosJornada }:
         )}
       </div>
 
+      {/* ═══ EXPORTAR DATOS ═══ */}
+      <div className="bg-white border border-[var(--ar-border)] rounded-xl p-5 mt-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1">Exportar datos</div>
+            <p className="text-[12px] text-[var(--ar-muted)]">Descarga toda la información de tu centro en un archivo. Tus datos siempre son tuyos.</p>
+          </div>
+          <div className="flex gap-2">
+            <a href="/api/exportar?formato=json" className="btn-primary text-[11px] py-2 px-3">
+              <i className="ti ti-file-code text-[12px]" aria-hidden="true"/> Exportar JSON
+            </a>
+            <a href="/api/exportar?formato=csv" className="btn-secondary text-[11px] py-2 px-3">
+              <i className="ti ti-table-export text-[12px]" aria-hidden="true"/> Exportar CSV
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Modal cambiar contraseña */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
