@@ -80,6 +80,17 @@ export default function Topbar({ usuario }: Props) {
                 <button onClick={logout} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[12px] text-[var(--ar-danger)] hover:bg-red-50/50 transition-colors">
                   <i className="ti ti-logout text-[14px]" aria-hidden="true"/> Cerrar sesión
                 </button>
+                {rol === 'super_admin' && usuario?.colegio_id && (
+                  <button
+                    onClick={async () => {
+                      await fetch('/api/super-admin/impersonate', { method: 'DELETE' })
+                      window.location.href = '/super-admin'
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[12px] text-[#5B3E9E] hover:bg-[#f3f0f9] transition-colors border-t border-[#f5f6f7]"
+                  >
+                    <i className="ti ti-arrow-back text-[14px]" aria-hidden="true"/> Volver a Super Admin
+                  </button>
+                )}
               </div>
             </>
           )}
