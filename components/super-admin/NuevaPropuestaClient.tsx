@@ -13,6 +13,7 @@ const MODULOS_DISPONIBLES = [
 export default function NuevaPropuestaClient() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
   const [form, setForm] = useState({
     nombre_cliente: '', slug: '', representante: '', email_cliente: '',
     telefono_cliente: '', rut_cliente: '', direccion_cliente: '',
@@ -31,6 +32,11 @@ export default function NuevaPropuestaClient() {
     if (!form.nombre_cliente || !form.slug || !form.monto_mensual) {
       toast.error('Completa nombre, slug y monto'); return
     }
+    // Show preview first
+    setShowPreview(true)
+  }
+
+  async function confirmarEnvio() {
     setSaving(true)
     try {
       const monto = parseInt(form.monto_mensual)
@@ -133,9 +139,75 @@ export default function NuevaPropuestaClient() {
 
         <div className="flex justify-end gap-3">
           <button type="button" onClick={() => router.back()} className="btn-secondary">Cancelar</button>
-          <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Creando...' : 'Crear y enviar'}</button>
+          <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Creando...' : 'Vista previa'}</button>
         </div>
       </form>
+
+      {/* Modal Preview */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl my-8">
+            <div className="px-6 py-4 border-b border-[var(--ar-border)] flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
+              <h3 className="text-[16px] font-bold text-[var(--ar-text)]">Vista previa de la propuesta</h3>
+              <button onClick={() => setShowPreview(false)} className="text-[var(--ar-muted)] hover:text-[var(--ar-text)]"><i className="ti ti-x text-[18px]" aria-hidden="true"/></button>
+            </div>
+            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+              {/* Header preview */}
+              <div className="bg-[#0d1b2a] rounded-xl p-6 text-center">
+                <img src="/icono-solo/kiva360-icon.svg" className="w-10 h-10 mx-auto mb-2 rounded-lg" alt=""/>
+                <div className="text-white font-bold text-[16px]">Kiva360</div>
+                <div className="text-white/40 text-[11px] mt-1">Propuesta comercial</div>
+              </div>
+
+              {/* Client info */}
+              <div className="bg-[#f9f7f5] rounded-xl p-5">
+                <div className="text-[10px] font-bold text-[#E85D3A] uppercase tracking-wider mb-2">Propuesta para</div>
+                <div className="text-[20px] font-bold text-[#1A1035]" style={{ fontFamily: 'Space Grotesk' }}>{form.nombre_cliente}</div>
+                <div className="text-[12px] text-[#5C5470] mt-1">
+                  {form.representante && <span>{form.representante} · </span>}
+                  {form.email_cliente}
+                  {form.telefono_cliente && <span> · {form.telefono_cliente}</span>}
+                </div>
+                {form.rut_cliente && <div className="text-[11px] text-[#5C5470] mt-0.5">RUT: {form.rut_cliente}</div>}
+                {form.direccion_cliente && <div className="text-[11px] text-[#5C5470] mt-0.5">{form.direccion_cliente}</div>}
+              </div>
+
+              {/* Pricing */}
+              <div className="text-center p-5 border border-[#e2dfd9] rounded-xl">
+                <div className="text-[11px] text-[#5C5470] uppercase tracking-wider mb-1">Plan {form.plan}</div>
+                <div className="text-[32px] font-bold text-[#1A1035]" style={{ fontFamily: 'Space Grotesk' }}>
+                  ${parseInt(form.monto_mensual || '0').toLocaleString('es-CL')}<span className="text-[14px] font-normal text-[#5C5470]">/mes</span>
+                </div>
+                <div className="text-[12px] text-[#5C5470] mt-1">
+                  Anual: ${Math.round(parseInt(form.monto_mensual || '0') * 12 * (1 - parseInt(form.descuento_anual || '0') / 100)).toLocaleString('es-CL')}/año ({form.descuento_anual}% desc.)
+                </div>
+              </div>
+
+              {/* Conditions */}
+              {form.condiciones_especiales && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">Condiciones especiales</div>
+                  <div className="text-[12px] text-amber-900">{form.condiciones_especiales}</div>
+                </div>
+              )}
+
+              {/* Link */}
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl text-center">
+                <div className="text-[11px] text-blue-700 font-medium">Link público de la propuesta:</div>
+                <div className="text-[13px] font-bold text-blue-900 mt-1">kiva360.cl/propuesta/{form.slug}</div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="px-6 py-4 border-t border-[var(--ar-border)] flex justify-between sticky bottom-0 bg-white rounded-b-2xl">
+              <button onClick={() => setShowPreview(false)} className="btn-secondary">Volver a editar</button>
+              <button onClick={confirmarEnvio} disabled={saving} className="btn-primary">
+                {saving ? 'Enviando...' : 'Confirmar y crear propuesta'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
