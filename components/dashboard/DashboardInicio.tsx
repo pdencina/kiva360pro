@@ -26,7 +26,7 @@ const SALUDO = HORA < 12 ? 'Buenos días' : HORA < 19 ? 'Buenas tardes' : 'Buena
 
 const ROL_ACCESOS: Record<string, { label: string; href: string; icon: string }[]> = {
   super_admin: [
-    { label: 'Campus',           href: '/super-admin',          icon: 'ti-building-school' },
+    { label: 'Panel Kiva360',    href: '/super-admin',          icon: 'ti-dashboard' },
     { label: 'Usuarios',         href: '/super-admin/usuarios', icon: 'ti-users' },
     { label: 'Comunicados',      href: '/comunicados',          icon: 'ti-speakerphone' },
     { label: 'Reportes',         href: '/reportes',             icon: 'ti-file-analytics' },
@@ -60,7 +60,7 @@ export default function DashboardInicio({ usuario, rol, stats, notificaciones, u
           {SALUDO}, {usuario?.nombre}
         </h1>
         <p className="text-[#6b7280] text-sm mt-1">
-          {rol === 'super_admin' ? 'Gestión centralizada de campus Kiva360' :
+          {rol === 'super_admin' ? 'Panel de gestión Kiva360' :
            rol === 'tutor'       ? `Docente · ${usuario?.colegio?.nombre ?? ''}` :
            `${usuario?.colegio?.nombre ?? ''} · Panel de administración`}
         </p>

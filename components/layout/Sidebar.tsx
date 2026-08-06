@@ -3,50 +3,49 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-type Rol = 'super_admin' | 'admin' | 'pastor_campus' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno'
+type Rol = 'super_admin' | 'admin' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno'
 
 interface NavItem {
   label: string; href: string; icon: string; badge?: number; roles: Rol[]
 }
 
 const NAV_PRINCIPAL: NavItem[] = [
-  { label: 'Inicio',          href: '/inicio',          icon: 'ti-home',             roles: ['super_admin','admin','pastor_campus','gestor_admision','tutor'] },
-  { label: 'Matrícula',       href: '/matricula',       icon: 'ti-user-plus',        roles: ['super_admin','admin','pastor_campus','gestor_admision'] },
+  { label: 'Inicio',          href: '/inicio',          icon: 'ti-home',             roles: ['super_admin','admin','gestor_admision','tutor'] },
+  { label: 'Matrícula',       href: '/matricula',       icon: 'ti-user-plus',        roles: ['super_admin','admin','gestor_admision'] },
   { label: 'Admisión',        href: '/admision',        icon: 'ti-inbox',            roles: ['super_admin','admin','gestor_admision'] },
   { label: 'Mis alumnos',     href: '/alumnos',         icon: 'ti-users',            roles: ['tutor'] },
-  { label: 'Alumnos',         href: '/alumnos',         icon: 'ti-users',            roles: ['super_admin','admin','pastor_campus','gestor_admision'] },
-  { label: 'Planificación',   href: '/planificacion',   icon: 'ti-layout-board',     roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Programas',       href: '/programas',       icon: 'ti-category',         roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Horario alumno',  href: '/horario-alumno',  icon: 'ti-calendar-time',    roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Asistencias',     href: '/asistencias',     icon: 'ti-clipboard-check',  roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Evaluaciones',   href: '/calificaciones',  icon: 'ti-chart-bar',        roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Comunicados',     href: '/comunicados',     icon: 'ti-speakerphone',     roles: ['super_admin','admin','pastor_campus','gestor_admision','tutor'] },
-  { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','pastor_campus','gestor_admision','tutor'] },
-  { label: 'Libro de clases', href: '/libro-clases',    icon: 'ti-notebook',         roles: ['pastor_campus','tutor'] },
-  { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Tareas',         href: '/tareas',         icon: 'ti-checklist',        roles: ['super_admin','admin','pastor_campus','tutor'] },
+  { label: 'Alumnos',         href: '/alumnos',         icon: 'ti-users',            roles: ['super_admin','admin','gestor_admision'] },
+  { label: 'Planificación',   href: '/planificacion',   icon: 'ti-layout-board',     roles: ['super_admin','admin','tutor'] },
+  { label: 'Programas',       href: '/programas',       icon: 'ti-category',         roles: ['super_admin','admin','tutor'] },
+  { label: 'Horario alumno',  href: '/horario-alumno',  icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor'] },
+  { label: 'Asistencias',     href: '/asistencias',     icon: 'ti-clipboard-check',  roles: ['super_admin','admin','tutor'] },
+  { label: 'Evaluaciones',   href: '/calificaciones',  icon: 'ti-chart-bar',        roles: ['super_admin','admin','tutor'] },
+  { label: 'Comunicados',     href: '/comunicados',     icon: 'ti-speakerphone',     roles: ['super_admin','admin','gestor_admision','tutor'] },
+  { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','gestor_admision','tutor'] },
+  { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','tutor'] },
+  { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','tutor'] },
+  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor'] },
+  { label: 'Tareas',         href: '/tareas',         icon: 'ti-checklist',        roles: ['super_admin','admin','tutor'] },
 ]
 
 const NAV_GESTION: NavItem[] = [
-  { label: 'Aportes',             href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','pastor_campus','gestor_admision'] },
-  { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin','pastor_campus'] },
-  { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin','pastor_campus'] },
-  { label: 'Documentos',         href: '/documentos',   icon: 'ti-folder',           roles: ['super_admin','admin','pastor_campus','gestor_admision','tutor'] },
-  { label: 'Becas',              href: '/becas',          icon: 'ti-school',           roles: ['super_admin','admin','pastor_campus','gestor_admision'] },
-  { label: 'Calendario',         href: '/calendario',   icon: 'ti-calendar',         roles: ['super_admin','admin','pastor_campus','gestor_admision','tutor'] },
-  { label: 'Fichas pedagógicas', href: '/fichas',       icon: 'ti-books',            roles: ['super_admin','admin','pastor_campus','tutor'] },
-  { label: 'Reportes',           href: '/reportes',     icon: 'ti-file-analytics',   roles: ['super_admin','admin','pastor_campus'] },
+  { label: 'Aportes',             href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision'] },
+  { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin'] },
+  { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin'] },
+  { label: 'Documentos',         href: '/documentos',   icon: 'ti-folder',           roles: ['super_admin','admin','gestor_admision','tutor'] },
+  { label: 'Becas',              href: '/becas',          icon: 'ti-school',           roles: ['super_admin','admin','gestor_admision'] },
+  { label: 'Calendario',         href: '/calendario',   icon: 'ti-calendar',         roles: ['super_admin','admin','gestor_admision','tutor'] },
+  { label: 'Fichas pedagógicas', href: '/fichas',       icon: 'ti-books',            roles: ['super_admin','admin','tutor'] },
+  { label: 'Reportes',           href: '/reportes',     icon: 'ti-file-analytics',   roles: ['super_admin','admin'] },
 ]
 
 const NAV_CUENTA: NavItem[] = [
-  { label: 'Campus',          href: '/super-admin',          icon: 'ti-building-school', roles: ['super_admin'] },
-  { label: 'Propuestas',     href: '/super-admin/propuestas/nueva', icon: 'ti-file-invoice', roles: ['super_admin'] },
-  { label: 'Usuarios',        href: '/usuarios',             icon: 'ti-user-cog',        roles: ['admin', 'pastor_campus'] },
+  { label: 'Panel Kiva360',   href: '/super-admin',          icon: 'ti-dashboard', roles: ['super_admin'] },
+  { label: 'Propuestas',      href: '/super-admin/propuestas/nueva', icon: 'ti-file-invoice', roles: ['super_admin'] },
+  { label: 'Usuarios',        href: '/usuarios',             icon: 'ti-user-cog',        roles: ['admin'] },
   { label: 'Usuarios',        href: '/super-admin/usuarios', icon: 'ti-user-cog',        roles: ['super_admin'] },
   { label: 'Tabla de aportes', href: '/super-admin/aportes', icon: 'ti-table',           roles: ['super_admin'] },
-  { label: 'Configuración',   href: '/configuracion',        icon: 'ti-settings',        roles: ['super_admin','admin','pastor_campus'] },
+  { label: 'Configuración',   href: '/configuracion',        icon: 'ti-settings',        roles: ['super_admin','admin'] },
 ]
 
 const NAV_APODERADO: NavItem[] = [
@@ -77,9 +76,8 @@ const NAV_ALUMNO: NavItem[] = [
 const ROL_BADGE: Record<string, { label: string; color: string; icon: string; accent: string; activeBg: string; activeIndicator: string }> = {
   super_admin:     { label: 'Super Admin',     color: 'bg-[#FEF3EC] text-[#C45A1A] border border-[#C45A1A]/20', icon: 'ti-shield-check',      accent: '#C45A1A', activeBg: 'bg-[#C45A1A]', activeIndicator: '#C45A1A' },
   admin:           { label: 'Administrador',   color: 'bg-[#FEF3EC] text-[#C45A1A] border border-[#C45A1A]/20', icon: 'ti-briefcase',         accent: '#C45A1A', activeBg: 'bg-[#C45A1A]', activeIndicator: '#C45A1A' },
-  pastor_campus:   { label: 'Pastor Campus',   color: 'bg-[#F0EDF8] text-[#4A3080] border border-[#4A3080]/15', icon: 'ti-building-church',   accent: '#4A3080', activeBg: 'bg-[#4A3080]', activeIndicator: '#4A3080' },
   gestor_admision: { label: 'Gestión Admisión', color: 'bg-[#EDF6FA] text-[#1B3A5C] border border-[#1B3A5C]/15', icon: 'ti-user-plus',        accent: '#1B3A5C', activeBg: 'bg-[#1B3A5C]', activeIndicator: '#1B3A5C' },
-  tutor:           { label: 'Tutor',           color: 'bg-[#EDF5F0] text-[#2D5A3F] border border-[#2D5A3F]/20', icon: 'ti-school',            accent: '#2D5A3F', activeBg: 'bg-[#2D5A3F]', activeIndicator: '#2D5A3F' },
+  tutor:           { label: 'Profesional',     color: 'bg-[#EDF5F0] text-[#2D5A3F] border border-[#2D5A3F]/20', icon: 'ti-stethoscope',       accent: '#2D5A3F', activeBg: 'bg-[#2D5A3F]', activeIndicator: '#2D5A3F' },
   apoderado:       { label: 'Apoderado',       color: 'bg-[#EDF6FA] text-[#3D7A94] border border-[#3D7A94]/15', icon: 'ti-heart-handshake',   accent: '#3D7A94', activeBg: 'bg-[#3D7A94]', activeIndicator: '#3D7A94' },
   alumno:          { label: 'Alumno',          color: 'bg-[#F3EFFE] text-[#6B4C9A] border border-[#6B4C9A]/20', icon: 'ti-backpack',          accent: '#6B4C9A', activeBg: 'bg-[#6B4C9A]', activeIndicator: '#6B4C9A' },
 }
