@@ -36,8 +36,14 @@ export async function GET(request: NextRequest) {
     .order('fecha', { ascending: false })
     .order('hora_inicio', { ascending: false })
 
+  // Tutor solo ve sus propias sesiones
+  let resultado = data ?? []
+  if (usuario.rol === 'tutor') {
+    resultado = resultado.filter((s: any) => s.profesional_id === user.id)
+  }
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data ?? [])
+  return NextResponse.json(resultado)
 }
 
 // POST: Registrar una sesión terapéutica

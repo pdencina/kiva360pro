@@ -42,6 +42,11 @@ export async function GET(request: NextRequest) {
   if (estado) query = query.eq('estado', estado)
   if (alumnoId) query = query.eq('alumno_id', alumnoId)
   if (profesionalId) query = query.eq('profesional_id', profesionalId)
+
+  // Tutor solo ve sus propios cobros de sesión
+  if (usuario.rol === 'tutor' && !profesionalId) {
+    query = query.eq('profesional_id', user.id)
+  }
   if (mes && anio) {
     const desde = `${anio}-${mes.padStart(2, '0')}-01`
     const hasta = `${anio}-${mes.padStart(2, '0')}-31`

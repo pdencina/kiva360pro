@@ -33,12 +33,17 @@ export async function GET(request: NextRequest) {
   }
   const { data: documentos } = await docQuery
 
-  // Load therapeutic reports
-  const { data: informes } = await admin
-    .from('informes_terapeuticos')
-    .select('*, profesional:usuarios(nombre, apellido)')
-    .eq('alumno_id', alumnoId)
-    .order('fecha', { ascending: false })
+  // Load therapeutic reports (only visible to family for non-admin)
+  let informeQuery = admin.from('informes_terapeuticos').select('*, profesional:usuarios(nombre, apellido)').eq('alumno_id', alumnoId).order('fecha', { ascending: false })
+
+  // Non-admin roles only see informes marked visible_familia or their own
+  if (usuario.rol === 'tutor') {
+    informeQuery = informeQuery.or(`profesional_id.eq.${user.id},visible_familia.eq.true`)
+  } else if (['apoderado', 'alumno'].includes(usuario.rol)) {
+    informeQuery = informeQuery.eq('visible_familia', true)
+  }
+
+  const { data: informes } = await informeQuery
 
   return NextResponse.json({
     documentos: documentos ?? [],

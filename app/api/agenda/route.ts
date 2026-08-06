@@ -43,6 +43,11 @@ export async function GET(request: NextRequest) {
   if (profesionalId) query = query.eq('profesional_id', profesionalId)
   if (alumnoId) query = query.eq('alumno_id', alumnoId)
 
+  // Tutor solo ve sus propias sesiones agendadas
+  if (usuario.rol === 'tutor' && !profesionalId) {
+    query = query.eq('profesional_id', user.id)
+  }
+
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data ?? [])
