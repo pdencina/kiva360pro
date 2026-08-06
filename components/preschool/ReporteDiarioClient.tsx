@@ -201,10 +201,29 @@ export default function ReporteDiarioClient({ alumnos, reportesHoy, cursos, cole
                     Guardar borrador
                   </button>
                   <button onClick={() => handleGuardar(true)} disabled={saving} className="btn-primary text-xs disabled:opacity-60">
-                    Publicar reporte
+                    {reportesPorAlumno[alumnoSel.id]?.publicado ? 'Actualizar reporte' : 'Publicar reporte'}
                   </button>
                 </div>
               </div>
+
+              {/* Banner de estado del reporte */}
+              {reportesPorAlumno[alumnoSel.id]?.publicado && (
+                <div className="px-5 py-2.5 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"/>
+                  <span className="text-[11px] font-medium text-emerald-700">Reporte publicado</span>
+                  <span className="text-[10px] text-emerald-600">
+                    — enviado {reportesPorAlumno[alumnoSel.id].publicado_at ? new Date(reportesPorAlumno[alumnoSel.id].publicado_at).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }) : 'hoy'}
+                  </span>
+                  <span className="ml-auto text-[10px] text-emerald-600 font-medium">Puedes editar y actualizar</span>
+                </div>
+              )}
+              {reportesPorAlumno[alumnoSel.id] && !reportesPorAlumno[alumnoSel.id].publicado && (
+                <div className="px-5 py-2.5 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-400"/>
+                  <span className="text-[11px] font-medium text-amber-700">Borrador guardado</span>
+                  <span className="ml-auto text-[10px] text-amber-600 font-medium">Pendiente de publicar</span>
+                </div>
+              )}
 
               <div className="p-5 space-y-6 max-h-[60vh] overflow-y-auto">
                 {/* Alimentación */}
