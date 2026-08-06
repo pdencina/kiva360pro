@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await admin.from('propuestas').update(updates).eq('slug', slug).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    // Send confirmation email
+    // Send confirmation email to client
     if (p.email_cliente) {
       await enviarEmail({
         to: p.email_cliente,
@@ -94,6 +94,13 @@ export async function POST(request: NextRequest) {
         html: emailPropuestaFirmada(p.nombre_cliente, nombre_firma, p.plan, modalidad || p.modalidad_pago, ip),
       })
     }
+
+    // Send notification to Pablo
+    await enviarEmail({
+      to: 'pablo@kiva360.cl',
+      subject: `🎉 Propuesta FIRMADA — ${p.nombre_cliente}`,
+      html: emailPropuestaFirmada(p.nombre_cliente, nombre_firma, p.plan, modalidad || p.modalidad_pago, ip),
+    })
 
     return NextResponse.json(data)
   }
