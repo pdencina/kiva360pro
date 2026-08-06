@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
             <div style="border-top:1px solid #e2dfd9;margin-top:30px;padding-top:16px;text-align:center;">
               <p style="color:#9ca3af;font-size:11px;">
                 Este documento tiene validez legal como firma electrónica simple según la Ley 19.799.<br/>
-                Kiva360 · contacto@kiva360.cl · kiva360.cl
+                Flexio Technologies SPA · RUT 78.479.402-4 · kiva360.cl
               </p>
             </div>
           </div>

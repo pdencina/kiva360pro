@@ -170,6 +170,7 @@ export default function PropuestaClient({ propuesta: p }: Props) {
         <div className="bg-white rounded-2xl border border-[#e2dfd9] p-8 mb-8">
           <h2 className="text-[11px] font-bold text-[#5C5470] uppercase tracking-wider mb-5">Condiciones del servicio</h2>
           <div className="space-y-4 text-[13px] text-[#1A1035] leading-relaxed">
+            <p><strong>Prestador:</strong> Flexio Technologies SPA, RUT 78.479.402-4, representada por Pablo David Encina Acevedo, RUT 17.339.278-8.</p>
             <p><strong>Duración:</strong> {p.duracion_meses} meses, renovable automáticamente.</p>
             <p><strong>Sin permanencia obligatoria:</strong> puede dar término con 30 días de aviso, sin multas.</p>
             <p><strong>Propiedad de datos:</strong> todos los datos son del cliente. Exportación disponible en cualquier momento (JSON/CSV).</p>
@@ -179,6 +180,7 @@ export default function PropuestaClient({ propuesta: p }: Props) {
             <p><strong>Actualizaciones:</strong> incluidas sin costo adicional.</p>
             <p><strong>Confidencialidad:</strong> datos protegidos bajo Ley 19.628. No se comparten con terceros.</p>
             <p><strong>Post-contrato:</strong> datos entregados en 5 días hábiles y eliminados en 30 días.</p>
+            <p><strong>Facturación:</strong> mensual o anual según modalidad elegida, mediante transferencia bancaria o medio electrónico. El prestador emitirá boleta o factura según corresponda.</p>
             {p.condiciones_especiales && <p><strong>Condiciones especiales:</strong> {p.condiciones_especiales}</p>}
           </div>
         </div>
@@ -267,7 +269,8 @@ export default function PropuestaClient({ propuesta: p }: Props) {
             <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="w-5 h-5 rounded" />
             <span className="text-[12px] font-semibold text-[#5C5470]">Kiva360</span>
           </div>
-          <p className="text-[11px] text-[#5C5470]">contacto@kiva360.cl · +56 9 3690 2642 · kiva360.cl</p>
+          <p className="text-[11px] text-[#5C5470]">Flexio Technologies SPA · RUT 78.479.402-4</p>
+          <p className="text-[10px] text-[#9ca3af] mt-1">contacto@kiva360.cl · +56 9 3690 2642 · kiva360.cl</p>
         </div>
       </div>
     </div>

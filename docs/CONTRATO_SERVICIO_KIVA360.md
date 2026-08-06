@@ -6,7 +6,7 @@
 
 En Santiago de Chile, a ______ de ____________ de 2026, entre:
 
-**EL PRESTADOR:** Pablo Encina, RUT ____________, domiciliado en ________________, en adelante "Kiva360" o "El Prestador".
+**EL PRESTADOR:** Flexio Technologies SPA, RUT 78.479.402-4, representada por Pablo David Encina Acevedo, RUT 17.339.278-8, domiciliado en ________________, en adelante "Kiva360" o "El Prestador".
 
 **EL CLIENTE:** ________________________________, RUT ____________, representado por ________________________________, RUT ____________, domiciliado en ________________, en adelante "El Cliente" o "El Centro".
 
@@ -135,9 +135,9 @@ El Cliente pagará al Prestador la suma de **$____________ CLP mensuales** (+ IV
 | **EL PRESTADOR** | **EL CLIENTE** |
 | | |
 | _________________________ | _________________________ |
-| Pablo Encina | _________________________ |
-| Kiva360 | RUT: ____________ |
-| RUT: ____________ | |
+| Pablo David Encina Acevedo | _________________________ |
+| Flexio Technologies SPA | RUT: ____________ |
+| RUT: 78.479.402-4 | |
 | | |
 | Fecha: ____________ | Fecha: ____________ |
 
