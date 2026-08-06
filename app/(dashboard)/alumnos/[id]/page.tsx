@@ -5,6 +5,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { formatMonto } from '@/lib/utils'
 import EditarDatosMedicos from '@/components/alumnos/EditarDatosMedicos'
+import FichaTabsClient from '@/components/alumnos/FichaTabsClient'
 
 export const metadata = { title: 'Ficha del Alumno' }
 
@@ -22,6 +23,8 @@ export default async function FichaAlumnoPage({ params }: { params: { id: string
   if (!user) redirect('/login')
 
   const admin = getAdmin()
+  const { data: currentUser } = await admin.from('usuarios').select('rol').eq('id', user.id).single()
+  const userRol = (currentUser as any)?.rol ?? 'tutor'
 
   // Cargar todo del alumno
   const [
@@ -226,6 +229,9 @@ export default async function FichaAlumnoPage({ params }: { params: { id: string
           )}
         </div>
       </div>
+
+      {/* Ficha separada: Terapéutica + Pedagógica + Documentos */}
+      <FichaTabsClient alumnoId={params.id} rol={userRol} />
     </div>
   )
 }
