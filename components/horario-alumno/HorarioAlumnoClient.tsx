@@ -16,17 +16,39 @@ interface Props {
 }
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
-const HORAS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00']
+const HORAS: string[] = []
+for (let h = 8; h <= 17; h++) {
+  HORAS.push(`${h.toString().padStart(2, '0')}:00`)
+  HORAS.push(`${h.toString().padStart(2, '0')}:30`)
+}
 
-const COLOR_PEDAGOGICO = '#3b6ea5'
-const COLOR_TERAPEUTICO = '#5B3E9E'
+const HOUR_HEIGHT = 48 // px per 30min slot
+const START_HOUR = 8
+const COLOR_PED = '#3b6ea5'
+const COLOR_TER = '#5B3E9E'
+
+const ASIGNATURAS_PED = ['Matemática', 'Lenguaje', 'Ciencias', 'Historia', 'Inglés', 'Arte', 'Música', 'Ed. Física', 'Tecnología']
+const ASIGNATURAS_TER = ['Fonoaudiología', 'Terapia Ocupacional', 'Psicología', 'Psicopedagogía', 'Kinesiología', 'Musicoterapia']
 
 export default function HorarioAlumnoClient({ alumnos, profesionales, rol }: Props) {
   const [alumnoId, setAlumnoId] = useState('')
   const [bloques, setBloques] = useState<Bloque[]>([])
   const [loading, setLoading] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const printRef = useRef<HTMLDivElement>(null)
+
+  // Drag-to-create state
+  const [dragging, setDragging] = useState(false)
+  const [dragDia, setDragDia] = useState(0)
+  const [dragStartY, setDragStartY] = useState(0)
+  const [dragEndY, setDragEndY] = useState(0)
+
+  // Popup state
+  const [showPopup, setShowPopup] = useState(false)
+  const [popupData, setPopupData] = useState({ dia: 0, startTime: '', endTime: '' })
+  const [popupForm, setPopupForm] = useState({ tipo: 'pedagogico', asignatura: '', profesional_id: '', sala: '' })
+  const [creating, setCreating] = useState(false)
+
+  // Drop indicator
+  const [dropIndicator, setDropIndicator] = useState<{ dia: number; y: number } | null>(null)
 
   const isAdmin = ['super_admin', 'admin', 'pastor_campus'].includes(rol)
   const alumnoSeleccionado = alumnos.find(a => a.id === alumnoId)
@@ -42,310 +64,346 @@ export default function HorarioAlumnoClient({ alumnos, profesionales, rol }: Pro
 
   useEffect(() => { fetchHorario() }, [fetchHorario])
 
-  function handlePrint() {
-    window.print()
+  // Y position → time string
+  const yToTime = (y: number): string => {
+    const totalSlots = Math.round(y / HOUR_HEIGHT)
+    const totalMinutes = START_HOUR * 60 + totalSlots * 30
+    const hours = Math.floor(totalMinutes / 60)
+    const mins = totalMinutes % 60
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este bloque?')) return
-    const res = await fetch(`/api/horario-alumno?id=${id}`, { method: 'DELETE' })
-    if (res.ok) { toast.success('Bloque eliminado'); fetchHorario() }
-    else toast.error('Error al eliminar')
+  // Time string → Y position
+  const timeToY = (time: string): number => {
+    const [h, m] = time.split(':').map(Number)
+    const totalMinutes = h * 60 + m
+    return ((totalMinutes - START_HOUR * 60) / 30) * HOUR_HEIGHT
   }
+
+  // Mouse handlers for drag-to-create
+  const handleMouseDown = (e: React.MouseEvent, dia: number) => {
+    if ((e.target as HTMLElement).closest('[data-bloque]')) return
+    if (e.button !== 0 || !isAdmin) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const y = e.clientY - rect.top
+    setDragging(true)
+    setDragDia(dia)
+    setDragStartY(y)
+    setDragEndY(y)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragging) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    setDragEndY(Math.max(0, e.clientY - rect.top))
+  }
+
+  const handleMouseUp = () => {
+    if (!dragging) { setDragging(false); return }
+    const minY = Math.min(dragStartY, dragEndY)
+    const maxY = Math.max(dragStartY, dragEndY)
+    if (maxY - minY < 20) { setDragging(false); return }
+
+    const startTime = yToTime(minY)
+    const endTime = yToTime(maxY)
+
+    setPopupData({ dia: dragDia, startTime, endTime })
+    setPopupForm({ tipo: 'pedagogico', asignatura: '', profesional_id: '', sala: '' })
+    setShowPopup(true)
+    setDragging(false)
+  }
+
+  // Create block from popup
+  const handleCreate = async () => {
+    if (!popupForm.asignatura) { toast.error('Selecciona una asignatura'); return }
+    setCreating(true)
+    try {
+      const res = await fetch('/api/horario-alumno', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alumno_id: alumnoId,
+          dia_semana: popupData.dia,
+          hora_inicio: popupData.startTime,
+          hora_fin: popupData.endTime,
+          tipo: popupForm.tipo,
+          asignatura: popupForm.asignatura,
+          profesional_id: popupForm.profesional_id || null,
+          sala: popupForm.sala || null,
+        }),
+      })
+      if (!res.ok) throw new Error((await res.json()).error)
+      toast.success('Bloque creado')
+      setShowPopup(false)
+      fetchHorario()
+    } catch (err: any) { toast.error(err.message) } finally { setCreating(false) }
+  }
+
+  // Delete block
+  const handleDelete = async (id: string) => {
+    const res = await fetch(`/api/horario-alumno?id=${id}`, { method: 'DELETE' })
+    if (res.ok) { toast.success('Eliminado'); fetchHorario() }
+  }
+
+  // Drag-to-move block
+  const handleDrop = async (e: React.DragEvent, dia: number) => {
+    e.preventDefault()
+    setDropIndicator(null)
+    const bloqueId = e.dataTransfer.getData('bloqueId')
+    if (!bloqueId) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const y = e.clientY - rect.top
+    const newStart = yToTime(Math.round(y / HOUR_HEIGHT) * HOUR_HEIGHT)
+    // Keep same duration
+    const bloque = bloques.find(b => b.id === bloqueId)
+    if (!bloque) return
+    const [sh, sm] = bloque.hora_inicio.split(':').map(Number)
+    const [eh, em] = bloque.hora_fin.split(':').map(Number)
+    const durMin = (eh * 60 + em) - (sh * 60 + sm)
+    const [nh, nm] = newStart.split(':').map(Number)
+    const endMin = nh * 60 + nm + durMin
+    const newEnd = `${Math.floor(endMin / 60).toString().padStart(2, '0')}:${(endMin % 60).toString().padStart(2, '0')}`
+
+    const res = await fetch('/api/horario-alumno', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: bloqueId, dia_semana: dia, hora_inicio: newStart, hora_fin: newEnd }),
+    })
+    if (res.ok) { toast.success('Bloque movido'); fetchHorario() }
+  }
+
+  const asignaturas = popupForm.tipo === 'terapeutico' ? ASIGNATURAS_TER : ASIGNATURAS_PED
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* Header — no print */}
-      <div className="page-header print:hidden">
+    <div className="p-6 max-w-full mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3 print:hidden">
         <div>
           <h1 className="page-title">Horario Individual</h1>
           <p className="page-subtitle">Horario semanal pedagógico y terapéutico por alumno</p>
         </div>
         <div className="flex items-center gap-3">
-          <select
-            value={alumnoId}
-            onChange={e => setAlumnoId(e.target.value)}
-            className="select-base w-64"
-          >
+          <select value={alumnoId} onChange={e => setAlumnoId(e.target.value)} className="select-base w-72">
             <option value="">Seleccionar alumno...</option>
-            {alumnos.map(a => (
-              <option key={a.id} value={a.id}>{a.apellido}, {a.nombre} — {a.curso}</option>
-            ))}
+            {alumnos.map(a => <option key={a.id} value={a.id}>{a.apellido}, {a.nombre} — {a.curso}</option>)}
           </select>
           {alumnoId && (
-            <>
-              {isAdmin && (
-                <button onClick={() => setShowModal(true)} className="btn-primary">
-                  <i className="ti ti-plus text-[14px]" aria-hidden="true"/> Agregar bloque
-                </button>
-              )}
-              <button onClick={handlePrint} className="btn-secondary">
-                <i className="ti ti-printer text-[14px]" aria-hidden="true"/> Imprimir
-              </button>
-            </>
+            <button onClick={() => window.print()} className="btn-secondary">
+              <i className="ti ti-printer text-[14px]" aria-hidden="true"/> Imprimir
+            </button>
           )}
         </div>
       </div>
 
       {!alumnoId ? (
-        <div className="card p-12 text-center print:hidden">
+        <div className="card p-12 text-center">
           <i className="ti ti-calendar-time text-4xl text-[var(--ar-muted)] opacity-30 mb-3" aria-hidden="true"/>
           <p className="text-[13px] text-[var(--ar-muted)]">Selecciona un alumno para ver o editar su horario</p>
         </div>
       ) : (
-        <div ref={printRef}>
+        <>
           {/* Print header */}
-          <div className="hidden print:block mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="w-8 h-8 rounded"/>
-              <span className="font-bold text-[16px]" style={{ fontFamily: 'Space Grotesk' }}>Kiva360</span>
-            </div>
-            <h2 className="text-[20px] font-bold" style={{ fontFamily: 'Space Grotesk' }}>
-              Horario Semanal — {alumnoSeleccionado?.nombre} {alumnoSeleccionado?.apellido}
+          <div className="hidden print:block mb-4">
+            <h2 className="text-[18px] font-bold" style={{ fontFamily: 'Space Grotesk' }}>
+              Horario — {alumnoSeleccionado?.nombre} {alumnoSeleccionado?.apellido}
             </h2>
-            <p className="text-[12px] text-[#5C5470]">{alumnoSeleccionado?.curso} · Vigente desde {new Date().toLocaleDateString('es-CL', { month: 'long', year: 'numeric' })}</p>
+            <p className="text-[11px] text-[#5C5470]">{alumnoSeleccionado?.curso}</p>
           </div>
 
-          {/* Leyenda */}
-          <div className="flex items-center gap-4 mb-4 print:mb-3">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded" style={{ background: COLOR_PEDAGOGICO }}/>
-              <span className="text-[11px] font-medium text-[var(--ar-text)]">Pedagógico</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded" style={{ background: COLOR_TERAPEUTICO }}/>
-              <span className="text-[11px] font-medium text-[var(--ar-text)]">Terapéutico</span>
-            </div>
+          {/* Legend */}
+          <div className="flex items-center gap-4 mb-3">
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{ background: COLOR_PED }}/><span className="text-[11px] font-medium">Pedagógico</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded" style={{ background: COLOR_TER }}/><span className="text-[11px] font-medium">Terapéutico</span></div>
+            {isAdmin && <span className="text-[10px] text-[var(--ar-muted)] ml-4">Click y arrastra para crear · Arrastra bloques para mover</span>}
           </div>
 
-          {/* Grilla semanal */}
-          <div className="card overflow-hidden print:border print:border-[#e0e0e0] print:shadow-none">
+          {/* Calendar grid */}
+          <div className="card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[12px]">
-                <thead>
-                  <tr>
-                    <th className="w-16 px-3 py-3 text-left text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider bg-[#f9fafb] border-b border-[var(--ar-border)]">
-                      Hora
-                    </th>
-                    {DIAS.map((dia, i) => (
-                      <th key={dia} className="px-3 py-3 text-center text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider bg-[#f9fafb] border-b border-l border-[var(--ar-border)]">
-                        {dia}
-                      </th>
+              <div className="min-w-[800px]">
+                {/* Day headers */}
+                <div className="flex border-b border-[var(--ar-border)] sticky top-0 bg-white z-10">
+                  <div className="w-14 flex-shrink-0 border-r border-[var(--ar-border)] px-2 py-3">
+                    <span className="text-[9px] font-bold text-[var(--ar-muted)] uppercase">Hora</span>
+                  </div>
+                  {DIAS.map((dia, i) => (
+                    <div key={dia} className="flex-1 p-3 text-center border-r border-[var(--ar-border)]/50 min-w-[130px]">
+                      <span className="text-[11px] font-bold text-[var(--ar-text)] uppercase tracking-wider">{dia}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Time grid */}
+                <div className="relative flex">
+                  {/* Time labels */}
+                  <div className="w-14 flex-shrink-0 border-r border-[var(--ar-border)]">
+                    {HORAS.map(h => (
+                      <div key={h} className="flex items-start justify-end pr-2" style={{ height: HOUR_HEIGHT }}>
+                        <span className="text-[9px] text-[var(--ar-muted)] -mt-1.5">{h}</span>
+                      </div>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {HORAS.slice(0, -1).map((hora, hi) => {
-                    const horaFin = HORAS[hi + 1]
+                  </div>
+
+                  {/* Day columns */}
+                  {DIAS.map((_, di) => {
+                    const dia = di + 1
+                    const diaBloques = bloques.filter(b => b.dia_semana === dia)
+                    const isDragTarget = dragging && dragDia === dia
+
                     return (
-                      <tr key={hora} className="border-b border-[var(--ar-border)]/30">
-                        <td className="px-3 py-2 text-[10px] text-[var(--ar-muted)] font-medium border-r border-[var(--ar-border)]/30 bg-[#f9fafb]/50">
-                          {hora}
-                        </td>
-                        {DIAS.map((_, di) => {
-                          const dia = di + 1
-                          const bloque = bloques.find(b => {
-                            return b.dia_semana === dia && b.hora_inicio <= hora && b.hora_fin > hora
-                          })
+                      <div
+                        key={dia}
+                        className="flex-1 relative border-r border-[var(--ar-border)]/30 min-w-[130px] select-none"
+                        onMouseDown={e => handleMouseDown(e, dia)}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={() => { if (dragging) handleMouseUp() }}
+                        onDragOver={e => {
+                          e.preventDefault()
+                          e.dataTransfer.dropEffect = 'move'
+                          const rect = e.currentTarget.getBoundingClientRect()
+                          setDropIndicator({ dia, y: e.clientY - rect.top })
+                        }}
+                        onDragLeave={() => setDropIndicator(null)}
+                        onDrop={e => handleDrop(e, dia)}
+                      >
+                        {/* Grid lines */}
+                        {HORAS.map(h => (
+                          <div key={h} className="border-b border-[var(--ar-border)]/20 hover:bg-[#f9f7f5]/50" style={{ height: HOUR_HEIGHT }} />
+                        ))}
 
-                          // Only render on the first row of a multi-row block
-                          if (bloque) {
-                            const bloqueStart = HORAS.indexOf(bloque.hora_inicio)
-                            if (bloqueStart !== hi) return <td key={`${dia}-${hora}`} className="border-l border-[var(--ar-border)]/30" />
+                        {/* Drop indicator */}
+                        {dropIndicator && dropIndicator.dia === dia && (
+                          <div
+                            className="absolute left-1 right-1 h-10 bg-blue-500/20 border-2 border-blue-500 rounded-md pointer-events-none z-30 flex items-center justify-center"
+                            style={{ top: `${Math.round(dropIndicator.y / HOUR_HEIGHT) * HOUR_HEIGHT}px` }}
+                          >
+                            <span className="text-[9px] text-blue-600 font-bold">{yToTime(Math.round(dropIndicator.y / HOUR_HEIGHT) * HOUR_HEIGHT)}</span>
+                          </div>
+                        )}
 
-                            const bloqueEnd = HORAS.indexOf(bloque.hora_fin)
-                            const span = bloqueEnd - bloqueStart
-                            const bgColor = bloque.color || (bloque.tipo === 'terapeutico' ? COLOR_TERAPEUTICO : COLOR_PEDAGOGICO)
+                        {/* Drag selection preview */}
+                        {isDragTarget && !showPopup && (
+                          <div
+                            className="absolute left-1 right-1 bg-blue-500/20 border-2 border-blue-500 border-dashed rounded-md pointer-events-none z-20"
+                            style={{ top: `${Math.min(dragStartY, dragEndY)}px`, height: `${Math.abs(dragEndY - dragStartY)}px` }}
+                          >
+                            <span className="text-[9px] text-blue-600 font-medium p-1">
+                              {yToTime(Math.min(dragStartY, dragEndY))} – {yToTime(Math.max(dragStartY, dragEndY))}
+                            </span>
+                          </div>
+                        )}
 
-                            return (
-                              <td
-                                key={`${dia}-${hora}`}
-                                rowSpan={span}
-                                className="border-l border-[var(--ar-border)]/30 p-1 align-top relative group"
-                              >
-                                <div
-                                  className="rounded-lg p-2 h-full text-white relative overflow-hidden"
-                                  style={{ background: bgColor }}
-                                >
-                                  <div className="text-[11px] font-bold leading-tight">{bloque.asignatura}</div>
-                                  {bloque.profesional && (
-                                    <div className="text-[9px] opacity-80 mt-0.5">{bloque.profesional.nombre} {bloque.profesional.apellido[0]}.</div>
-                                  )}
-                                  {bloque.sala && <div className="text-[9px] opacity-60 mt-0.5">{bloque.sala}</div>}
-                                  <div className="text-[9px] opacity-60">{bloque.hora_inicio.slice(0,5)}-{bloque.hora_fin.slice(0,5)}</div>
-                                  {/* Delete button (hover, not in print) */}
-                                  {isAdmin && (
-                                    <button
-                                      onClick={() => handleDelete(bloque.id)}
-                                      className="absolute top-1 right-1 w-5 h-5 rounded bg-black/20 text-white text-[10px] opacity-0 group-hover:opacity-100 transition-opacity print:hidden flex items-center justify-center"
-                                    >✕</button>
-                                  )}
-                                </div>
-                              </td>
-                            )
-                          }
-
-                          // Check if this cell is "consumed" by a rowSpan from above
-                          const consumed = bloques.some(b => {
-                            return b.dia_semana === dia && b.hora_inicio < hora && b.hora_fin > hora
-                          })
-                          if (consumed) return null
+                        {/* Bloque cards */}
+                        {diaBloques.map(bloque => {
+                          const top = timeToY(bloque.hora_inicio)
+                          const height = timeToY(bloque.hora_fin) - top
+                          const bg = bloque.color || (bloque.tipo === 'terapeutico' ? COLOR_TER : COLOR_PED)
 
                           return (
-                            <td key={`${dia}-${hora}`} className="border-l border-[var(--ar-border)]/30 p-1 h-8" />
+                            <div
+                              key={bloque.id}
+                              data-bloque="true"
+                              draggable={isAdmin}
+                              onDragStart={e => {
+                                e.stopPropagation()
+                                e.dataTransfer.setData('bloqueId', bloque.id)
+                                e.dataTransfer.effectAllowed = 'move'
+                              }}
+                              className="absolute left-1 right-1 rounded-md px-2 py-1 overflow-hidden cursor-grab active:cursor-grabbing hover:shadow-md hover:brightness-95 transition-all z-10 group"
+                              style={{ top: `${top}px`, height: `${Math.max(height, 24)}px`, background: bg }}
+                            >
+                              <p className="text-[11px] font-bold text-white truncate">{bloque.asignatura}</p>
+                              {bloque.profesional && <p className="text-[9px] text-white/80 truncate">{bloque.profesional.nombre} {bloque.profesional.apellido[0]}.</p>}
+                              {bloque.sala && <p className="text-[9px] text-white/60 truncate">{bloque.sala}</p>}
+                              <p className="text-[8px] text-white/50">{bloque.hora_inicio.slice(0,5)}-{bloque.hora_fin.slice(0,5)}</p>
+                              {/* Delete button */}
+                              {isAdmin && (
+                                <button
+                                  onClick={e => { e.stopPropagation(); handleDelete(bloque.id) }}
+                                  className="absolute top-1 right-1 w-4 h-4 rounded bg-black/20 text-white text-[8px] opacity-0 group-hover:opacity-100 transition-opacity print:hidden flex items-center justify-center"
+                                >✕</button>
+                              )}
+                            </div>
                           )
                         })}
-                      </tr>
+                      </div>
                     )
                   })}
-                </tbody>
-              </table>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Print footer */}
-          <div className="hidden print:block mt-6 pt-4 border-t border-[#e0e0e0] text-[10px] text-[#9ca3af] text-center">
-            Generado por Kiva360 · {new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })}
-          </div>
-        </div>
+        </>
       )}
 
-      {/* Modal crear bloque */}
-      {showModal && (
-        <ModalCrearBloque
-          alumnoId={alumnoId}
-          profesionales={profesionales}
-          onClose={() => setShowModal(false)}
-          onCreated={() => { setShowModal(false); fetchHorario() }}
-        />
-      )}
-    </div>
-  )
-}
-
-// ─── MODAL: CREAR BLOQUE ───
-function ModalCrearBloque({ alumnoId, profesionales, onClose, onCreated }: {
-  alumnoId: string; profesionales: Props['profesionales']; onClose: () => void; onCreated: () => void
-}) {
-  const [form, setForm] = useState({
-    dia_semana: '1', hora_inicio: '09:00', hora_fin: '09:45',
-    tipo: 'pedagogico', asignatura: '', profesional_id: '', sala: '',
-  })
-  const [saving, setSaving] = useState(false)
-
-  const ASIGNATURAS_PEDAGOGICAS = ['Matemática', 'Lenguaje', 'Ciencias', 'Historia', 'Inglés', 'Arte', 'Música', 'Ed. Física', 'Tecnología']
-  const ASIGNATURAS_TERAPEUTICAS = ['Fonoaudiología', 'Terapia Ocupacional', 'Psicología', 'Psicopedagogía', 'Kinesiología', 'Musicoterapia', 'Trabajo Social']
-  const asignaturas = form.tipo === 'terapeutico' ? ASIGNATURAS_TERAPEUTICAS : ASIGNATURAS_PEDAGOGICAS
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!form.asignatura) { toast.error('Selecciona una asignatura'); return }
-    setSaving(true)
-    try {
-      const res = await fetch('/api/horario-alumno', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          alumno_id: alumnoId,
-          dia_semana: parseInt(form.dia_semana),
-          hora_inicio: form.hora_inicio,
-          hora_fin: form.hora_fin,
-          tipo: form.tipo,
-          asignatura: form.asignatura,
-          profesional_id: form.profesional_id || null,
-          sala: form.sala || null,
-        }),
-      })
-      if (!res.ok) throw new Error((await res.json()).error)
-      toast.success('Bloque agregado')
-      onCreated()
-    } catch (err: any) { toast.error(err.message) } finally { setSaving(false) }
-  }
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content max-w-md" onClick={e => e.stopPropagation()}>
-        <div className="px-6 py-4 border-b border-[var(--ar-border)]">
-          <h3 className="text-[15px] font-bold text-[var(--ar-text)]">Agregar bloque al horario</h3>
-        </div>
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-          {/* Tipo */}
-          <div>
-            <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-2">Tipo *</label>
-            <div className="flex gap-2">
-              <button type="button" onClick={() => setForm({...form, tipo: 'pedagogico', asignatura: ''})}
-                className={`flex-1 py-2.5 rounded-lg text-[12px] font-semibold border transition-all ${
-                  form.tipo === 'pedagogico' ? 'text-white border-transparent' : 'text-[var(--ar-muted)] border-[var(--ar-border)]'
-                }`}
-                style={form.tipo === 'pedagogico' ? { background: COLOR_PEDAGOGICO } : {}}>
-                Pedagógico
-              </button>
-              <button type="button" onClick={() => setForm({...form, tipo: 'terapeutico', asignatura: ''})}
-                className={`flex-1 py-2.5 rounded-lg text-[12px] font-semibold border transition-all ${
-                  form.tipo === 'terapeutico' ? 'text-white border-transparent' : 'text-[var(--ar-muted)] border-[var(--ar-border)]'
-                }`}
-                style={form.tipo === 'terapeutico' ? { background: COLOR_TERAPEUTICO } : {}}>
-                Terapéutico
-              </button>
+      {/* Popup for creating block */}
+      {showPopup && (
+        <div className="fixed inset-0 z-50" onClick={() => setShowPopup(false)}>
+          <div
+            className="fixed top-20 right-4 md:right-8 bg-white rounded-2xl shadow-2xl border border-[var(--ar-border)] w-[90vw] md:w-96 animate-fade-in-scale max-h-[80vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-[var(--ar-border)]">
+              <h3 className="font-bold text-[15px] text-[var(--ar-text)]">Nuevo bloque</h3>
+              <button onClick={() => setShowPopup(false)} className="text-[var(--ar-muted)] hover:text-[var(--ar-text)] text-xl">×</button>
             </div>
-          </div>
 
-          {/* Asignatura */}
-          <div>
-            <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Asignatura / Sesión *</label>
-            <select value={form.asignatura} onChange={e => setForm({...form, asignatura: e.target.value})} className="select-base w-full text-[12px]" required>
-              <option value="">Seleccionar...</option>
-              {asignaturas.map(a => <option key={a} value={a}>{a}</option>)}
-              <option value="__custom">Otra (escribir)</option>
-            </select>
-            {form.asignatura === '__custom' && (
-              <input className="input-base text-[12px] mt-2" placeholder="Nombre de la asignatura..."
-                onChange={e => setForm({...form, asignatura: e.target.value})} autoFocus />
-            )}
-          </div>
+            <div className="p-4 space-y-4">
+              {/* Time display */}
+              <div className="flex items-center gap-3 text-[12px] text-[var(--ar-muted)]">
+                <i className="ti ti-clock text-[14px]" aria-hidden="true"/>
+                <span className="font-medium text-[var(--ar-text)]">{DIAS[popupData.dia - 1]}</span>
+                <input type="time" value={popupData.startTime}
+                  onChange={e => setPopupData({...popupData, startTime: e.target.value})}
+                  className="border border-[var(--ar-border)] rounded-lg px-2 py-1 text-[12px] font-bold w-24" />
+                <span>–</span>
+                <input type="time" value={popupData.endTime}
+                  onChange={e => setPopupData({...popupData, endTime: e.target.value})}
+                  className="border border-[var(--ar-border)] rounded-lg px-2 py-1 text-[12px] font-bold w-24" />
+              </div>
 
-          {/* Día y horarios */}
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Día *</label>
-              <select value={form.dia_semana} onChange={e => setForm({...form, dia_semana: e.target.value})} className="select-base w-full text-[12px]">
-                {DIAS.map((d, i) => <option key={d} value={i+1}>{d}</option>)}
+              {/* Tipo */}
+              <div className="flex gap-2">
+                <button onClick={() => setPopupForm({...popupForm, tipo: 'pedagogico', asignatura: ''})}
+                  className={`flex-1 py-2.5 rounded-lg text-[12px] font-semibold border transition-all ${popupForm.tipo === 'pedagogico' ? 'text-white border-transparent' : 'text-[var(--ar-muted)] border-[var(--ar-border)]'}`}
+                  style={popupForm.tipo === 'pedagogico' ? { background: COLOR_PED } : {}}>
+                  Pedagógico
+                </button>
+                <button onClick={() => setPopupForm({...popupForm, tipo: 'terapeutico', asignatura: ''})}
+                  className={`flex-1 py-2.5 rounded-lg text-[12px] font-semibold border transition-all ${popupForm.tipo === 'terapeutico' ? 'text-white border-transparent' : 'text-[var(--ar-muted)] border-[var(--ar-border)]'}`}
+                  style={popupForm.tipo === 'terapeutico' ? { background: COLOR_TER } : {}}>
+                  Terapéutico
+                </button>
+              </div>
+
+              {/* Asignatura */}
+              <select value={popupForm.asignatura} onChange={e => setPopupForm({...popupForm, asignatura: e.target.value})} className="select-base w-full text-[12px]">
+                <option value="">Seleccionar asignatura/sesión...</option>
+                {asignaturas.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Desde *</label>
-              <select value={form.hora_inicio} onChange={e => setForm({...form, hora_inicio: e.target.value})} className="select-base w-full text-[12px]">
-                {HORAS.map(h => <option key={h} value={h}>{h}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Hasta *</label>
-              <select value={form.hora_fin} onChange={e => setForm({...form, hora_fin: e.target.value})} className="select-base w-full text-[12px]">
-                {HORAS.filter(h => h > form.hora_inicio).map(h => <option key={h} value={h}>{h}</option>)}
-              </select>
-            </div>
-          </div>
 
-          {/* Profesional y sala */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Profesional</label>
-              <select value={form.profesional_id} onChange={e => setForm({...form, profesional_id: e.target.value})} className="select-base w-full text-[12px]">
-                <option value="">Sin asignar</option>
+              {/* Profesional */}
+              <select value={popupForm.profesional_id} onChange={e => setPopupForm({...popupForm, profesional_id: e.target.value})} className="select-base w-full text-[12px]">
+                <option value="">Profesional (opcional)</option>
                 {profesionales.map(p => <option key={p.id} value={p.id}>{p.nombre} {p.apellido}</option>)}
               </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Sala / Espacio</label>
-              <input value={form.sala} onChange={e => setForm({...form, sala: e.target.value})} className="input-base text-[12px]" placeholder="Ej: Box Fono" />
-            </div>
-          </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-[var(--ar-border)]">
-            <button type="button" onClick={onClose} className="btn-secondary text-[12px]">Cancelar</button>
-            <button type="submit" disabled={saving} className="btn-primary text-[12px]">{saving ? 'Guardando...' : 'Agregar bloque'}</button>
+              {/* Sala */}
+              <input value={popupForm.sala} onChange={e => setPopupForm({...popupForm, sala: e.target.value})} className="input-base text-[12px]" placeholder="Sala / espacio (opcional)" />
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end p-4 border-t border-[var(--ar-border)]">
+              <button onClick={handleCreate} disabled={creating || !popupForm.asignatura}
+                className="btn-primary text-[12px] disabled:opacity-50">
+                {creating ? 'Creando...' : 'Crear bloque'}
+              </button>
+            </div>
           </div>
-        </form>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
