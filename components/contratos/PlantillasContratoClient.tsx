@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+
+const EditorContrato = dynamic(() => import('./EditorContrato'), { ssr: false })
 
 interface Plantilla {
   id: string; nombre: string; descripcion: string | null
@@ -14,24 +17,6 @@ interface Plantilla {
 }
 
 interface Props { plantillas: Plantilla[] }
-
-const VARIABLES_DISPONIBLES = [
-  { key: 'nombre_alumno', desc: 'Nombre del alumno' },
-  { key: 'apellido_alumno', desc: 'Apellido del alumno' },
-  { key: 'rut_alumno', desc: 'RUT del alumno' },
-  { key: 'curso_alumno', desc: 'Curso/programa' },
-  { key: 'fecha_nacimiento_alumno', desc: 'Fecha nacimiento' },
-  { key: 'nombre_apoderado', desc: 'Nombre apoderado' },
-  { key: 'apellido_apoderado', desc: 'Apellido apoderado' },
-  { key: 'rut_apoderado', desc: 'RUT apoderado' },
-  { key: 'email_apoderado', desc: 'Email apoderado' },
-  { key: 'telefono_apoderado', desc: 'Teléfono apoderado' },
-  { key: 'direccion_apoderado', desc: 'Dirección apoderado' },
-  { key: 'fecha_hoy', desc: 'Fecha actual' },
-  { key: 'anio', desc: 'Año actual' },
-  { key: 'nombre_institucion', desc: 'Nombre institución' },
-  { key: 'representante_nombre', desc: 'Representante legal' },
-]
 
 const PLANTILLA_DEFAULT = `<h1>CONTRATO DE PRESTACIÓN DE SERVICIOS EDUCACIONALES</h1>
 
@@ -118,10 +103,6 @@ export default function PlantillasContratoClient({ plantillas }: Props) {
     if (!confirm('¿Eliminar esta plantilla?')) return
     const res = await fetch(`/api/plantillas-contrato?id=${id}`, { method: 'DELETE' })
     if (res.ok) { toast.success('Eliminada'); window.location.reload() }
-  }
-
-  function insertarVariable(varKey: string) {
-    setForm(f => ({ ...f, contenido: f.contenido + `{{${varKey}}}` }))
   }
 
   return (
@@ -227,29 +208,12 @@ export default function PlantillasContratoClient({ plantillas }: Props) {
                 </div>
               </div>
 
-              {/* Variables helper */}
-              <div className="p-3 rounded-xl bg-[#f9f7f5] border border-[var(--ar-border)]">
-                <div className="text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-2">Variables disponibles (click para insertar)</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {VARIABLES_DISPONIBLES.map(v => (
-                    <button key={v.key} type="button" onClick={() => insertarVariable(v.key)}
-                      className="text-[9px] px-2 py-1 rounded bg-white border border-[var(--ar-border)] text-[var(--ar-text)] hover:border-[#5B3E9E] hover:text-[#5B3E9E] transition-all font-mono"
-                      title={v.desc}
-                    >
-                      {`{{${v.key}}}`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Content editor */}
+              {/* Content editor - WYSIWYG */}
               <div>
-                <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Contenido del contrato (HTML) *</label>
-                <textarea
-                  value={form.contenido}
-                  onChange={e => setForm({...form, contenido: e.target.value})}
-                  className="input-base text-[11px] font-mono min-h-[400px] resize-y leading-relaxed"
-                  placeholder="Escribe el contenido del contrato en HTML..."
+                <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-2">Contenido del contrato *</label>
+                <EditorContrato
+                  contenido={form.contenido}
+                  onChange={(html) => setForm({...form, contenido: html})}
                 />
               </div>
             </div>

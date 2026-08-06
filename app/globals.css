@@ -277,3 +277,30 @@
   .card { box-shadow: none !important; border: 1px solid #e0e0e0 !important; }
   .page-header { margin-bottom: 16px !important; }
 }
+
+/* ═══ TIPTAP EDITOR STYLES ═══ */
+.tiptap.ProseMirror {
+  min-height: 400px;
+  padding: 24px;
+  font-family: 'Times New Roman', Georgia, serif;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #1a1a1a;
+}
+.tiptap.ProseMirror:focus { outline: none; }
+.tiptap.ProseMirror h1 { font-size: 18px; font-weight: bold; text-align: center; margin: 20px 0; text-transform: uppercase; letter-spacing: 0.03em; }
+.tiptap.ProseMirror h2 { font-size: 15px; font-weight: bold; margin: 16px 0 8px; text-transform: uppercase; }
+.tiptap.ProseMirror p { margin-bottom: 10px; text-align: justify; }
+.tiptap.ProseMirror strong { font-weight: bold; }
+.tiptap.ProseMirror em { font-style: italic; }
+.tiptap.ProseMirror u { text-decoration: underline; }
+.tiptap.ProseMirror ul, .tiptap.ProseMirror ol { margin-left: 20px; margin-bottom: 12px; }
+.tiptap.ProseMirror li { margin-bottom: 4px; }
+.tiptap.ProseMirror hr { border: none; border-top: 1px solid #e0e0e0; margin: 20px 0; }
+.tiptap.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #aaa;
+  pointer-events: none;
+  height: 0;
+}
