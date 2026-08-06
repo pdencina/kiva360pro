@@ -15,7 +15,8 @@ export default function NuevaPropuestaClient() {
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
     nombre_cliente: '', slug: '', representante: '', email_cliente: '',
-    telefono_cliente: '', plan: 'Profesional', monto_mensual: '79990',
+    telefono_cliente: '', rut_cliente: '', direccion_cliente: '',
+    plan: 'Profesional', monto_mensual: '79990',
     descuento_anual: '10', duracion_meses: '12',
     modulos_incluidos: [...MODULOS_DISPONIBLES],
     condiciones_especiales: '',
@@ -79,6 +80,18 @@ export default function NuevaPropuestaClient() {
             <div>
               <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Email *</label>
               <input type="email" value={form.email_cliente} onChange={e => setForm({...form, email_cliente: e.target.value})} className="input-base text-[12px]" placeholder="carolina@email.com" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">RUT empresa</label>
+              <input value={form.rut_cliente} onChange={e => setForm({...form, rut_cliente: e.target.value})} className="input-base text-[12px]" placeholder="77.xxx.xxx-x" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Teléfono</label>
+              <input value={form.telefono_cliente} onChange={e => setForm({...form, telefono_cliente: e.target.value})} className="input-base text-[12px]" placeholder="+56 9 xxxx xxxx" />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-[10px] font-semibold text-[var(--ar-muted)] uppercase tracking-wider mb-1">Dirección</label>
+              <input value={form.direccion_cliente} onChange={e => setForm({...form, direccion_cliente: e.target.value})} className="input-base text-[12px]" placeholder="Calle, comuna, ciudad" />
             </div>
           </div>
         </div>
