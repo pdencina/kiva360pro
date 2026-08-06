@@ -90,8 +90,35 @@ export default function PropuestaClient({ propuesta: p }: Props) {
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
           <h1 className="text-[24px] font-bold text-[#1A1035] mb-3" style={{ fontFamily: 'Space Grotesk' }}>Propuesta aceptada</h1>
-          <p className="text-[14px] text-[#5C5470] mb-4">Gracias por confiar en Kiva360. Nos pondremos en contacto para iniciar la implementación.</p>
-          <p className="text-[12px] text-[#5C5470]">Aceptada por: <strong>{p.aceptada_por || nombre}</strong></p>
+          <p className="text-[14px] text-[#5C5470] mb-6">Gracias por confiar en Kiva360. Ya puedes acceder a tu plataforma.</p>
+
+          {/* Credenciales de acceso */}
+          <div className="bg-white rounded-2xl border border-[#e2dfd9] p-6 text-left mb-6">
+            <h3 className="text-[13px] font-bold text-[#1A1035] mb-3 flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b6ea5" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Tus credenciales de acceso
+            </h3>
+            <div className="space-y-3 bg-[#f8f9fb] rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[#5C5470]">Plataforma:</span>
+                <a href="https://kiva360.cl/login" className="text-[12px] font-semibold text-[#3b6ea5] hover:underline">kiva360.cl/login</a>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[#5C5470]">Email:</span>
+                <span className="text-[12px] font-semibold text-[#1A1035]">{p.email_cliente}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[#5C5470]">Contraseña provisoria:</span>
+                <span className="text-[12px] font-mono font-bold text-[#1A1035] bg-[#e2dfd9] px-2 py-0.5 rounded">kiva2026</span>
+              </div>
+            </div>
+            <p className="text-[10px] text-[#E85D3A] mt-3 font-medium">⚠ Cambia tu contraseña al ingresar por primera vez desde Configuración.</p>
+          </div>
+
+          <a href="https://kiva360.cl/login" className="inline-block px-8 py-3 rounded-xl text-[14px] font-bold text-white bg-[#0d1b2a] hover:bg-[#1a2d47] transition-all">
+            Ir a la plataforma →
+          </a>
+          <p className="text-[11px] text-[#5C5470] mt-4">Aceptada por: <strong>{p.aceptada_por || nombre}</strong></p>
         </div>
       </div>
     )
