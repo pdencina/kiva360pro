@@ -310,6 +310,40 @@ export default function ConfiguracionClient({ usuario, stats, horariosJornada }:
         )}
       </div>
 
+      {/* ═══ ADMINISTRACIÓN DEL EQUIPO ═══ */}
+      <div className="bg-white border border-[var(--ar-border)] rounded-xl p-5 mt-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
+        <div className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-4">Administración del equipo</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <a href="/usuarios" className="flex items-center gap-3 p-4 rounded-xl border border-[var(--ar-border)] hover:border-[#5B3E9E]/30 hover:bg-[#f3f0f9]/30 transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-[#f3f0f9] flex items-center justify-center group-hover:bg-[#5B3E9E] transition-colors">
+              <i className="ti ti-users-group text-[18px] text-[#5B3E9E] group-hover:text-white" aria-hidden="true"/>
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-[var(--ar-text)]">Usuarios</div>
+              <div className="text-[11px] text-[var(--ar-muted)]">Crear y gestionar el equipo</div>
+            </div>
+          </a>
+          <a href="/configuracion/permisos" className="flex items-center gap-3 p-4 rounded-xl border border-[var(--ar-border)] hover:border-[#E85D3A]/30 hover:bg-[#fef0ec]/30 transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-[#fef0ec] flex items-center justify-center group-hover:bg-[#E85D3A] transition-colors">
+              <i className="ti ti-lock-open text-[18px] text-[#E85D3A] group-hover:text-white" aria-hidden="true"/>
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-[var(--ar-text)]">Permisos</div>
+              <div className="text-[11px] text-[var(--ar-muted)]">Qué ve cada rol</div>
+            </div>
+          </a>
+          <a href="/configuracion/contratos" className="flex items-center gap-3 p-4 rounded-xl border border-[var(--ar-border)] hover:border-[#4A9E7A]/30 hover:bg-[#edf7f2]/30 transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-[#edf7f2] flex items-center justify-center group-hover:bg-[#4A9E7A] transition-colors">
+              <i className="ti ti-file-certificate text-[18px] text-[#4A9E7A] group-hover:text-white" aria-hidden="true"/>
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-[var(--ar-text)]">Contratos</div>
+              <div className="text-[11px] text-[var(--ar-muted)]">Plantillas para apoderados</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
       {/* ═══ EXPORTAR DATOS ═══ */}
       <div className="bg-white border border-[var(--ar-border)] rounded-xl p-5 mt-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
         <div className="flex items-center justify-between">

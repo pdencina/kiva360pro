@@ -41,10 +41,10 @@ const NAV_GESTION: NavItem[] = [
 
 const NAV_CUENTA: NavItem[] = [
   { label: 'Campus',          href: '/super-admin',          icon: 'ti-building-school', roles: ['super_admin'] },
-  { label: 'Usuarios',        href: '/usuarios',             icon: 'ti-user-cog',        roles: ['pastor_campus'] },
+  { label: 'Usuarios',        href: '/usuarios',             icon: 'ti-user-cog',        roles: ['admin', 'pastor_campus'] },
   { label: 'Usuarios',        href: '/super-admin/usuarios', icon: 'ti-user-cog',        roles: ['super_admin'] },
   { label: 'Tabla de aportes', href: '/super-admin/aportes', icon: 'ti-table',           roles: ['super_admin'] },
-  { label: 'Configuración',   href: '/configuracion',        icon: 'ti-settings',        roles: ['super_admin','pastor_campus'] },
+  { label: 'Configuración',   href: '/configuracion',        icon: 'ti-settings',        roles: ['super_admin','admin','pastor_campus'] },
 ]
 
 const NAV_APODERADO: NavItem[] = [
