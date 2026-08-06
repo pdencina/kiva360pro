@@ -30,6 +30,12 @@ CREATE TABLE IF NOT EXISTS public.propuestas (
   estado          text NOT NULL DEFAULT 'enviada' CHECK (estado IN ('borrador', 'enviada', 'aceptada', 'rechazada', 'vencida')),
   aceptada_at     timestamptz,
   aceptada_por    text, -- nombre de quien aceptó
+  -- Firma electrónica
+  firma_codigo    text, -- código de verificación enviado por email (6 dígitos)
+  firma_codigo_expira timestamptz, -- expira en 30 min
+  firma_nombre    text, -- nombre como aparece en la firma
+  firma_ip        text, -- IP del firmante
+  firma_user_agent text, -- navegador del firmante
   -- Notas
   notas_internas  text,
   condiciones_especiales text,

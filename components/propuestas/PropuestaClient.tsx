@@ -39,22 +39,47 @@ export default function PropuestaClient({ propuesta: p }: Props) {
   const [nombre, setNombre] = useState('')
   const [showAceptar, setShowAceptar] = useState(false)
   const [aceptada, setAceptada] = useState(p.estado === 'aceptada')
+  const [codigo, setCodigo] = useState('')
+  const [enviandoCodigo, setEnviandoCodigo] = useState(false)
+  const [emailMasked, setEmailMasked] = useState('')
+  const [aceptaTerminos, setAceptaTerminos] = useState(false)
+  const [errorFirma, setErrorFirma] = useState('')
 
   const montoAnual = p.monto_anual || Math.round(p.monto_mensual * 12 * (1 - p.descuento_anual / 100))
   const montoMensualAnual = Math.round(montoAnual / 12)
   const ahorro = p.monto_mensual * 12 - montoAnual
 
-  async function handleAceptar() {
-    if (!nombre.trim()) return
-    setAceptando(true)
+  async function handleEnviarCodigo() {
+    setEnviandoCodigo(true)
+    setErrorFirma('')
     try {
       const res = await fetch('/api/propuestas/aceptar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: p.slug, nombre_aceptante: nombre, modalidad }),
+        body: JSON.stringify({ accion: 'enviar_codigo', slug: p.slug }),
       })
-      if (res.ok) setAceptada(true)
-    } catch {} finally { setAceptando(false) }
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setEmailMasked(data.email_enviado)
+      setShowAceptar(true)
+    } catch (err: any) { setErrorFirma(err.message) }
+    finally { setEnviandoCodigo(false) }
+  }
+
+  async function handleFirmar() {
+    setAceptando(true)
+    setErrorFirma('')
+    try {
+      const res = await fetch('/api/propuestas/aceptar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accion: 'firmar', slug: p.slug, codigo, nombre_firma: nombre, modalidad }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setAceptada(true)
+    } catch (err: any) { setErrorFirma(err.message) }
+    finally { setAceptando(false) }
   }
 
   if (aceptada) {
@@ -161,35 +186,78 @@ export default function PropuestaClient({ propuesta: p }: Props) {
         {/* Accept */}
         {p.estado === 'enviada' && !showAceptar && (
           <div className="text-center">
-            <button onClick={() => setShowAceptar(true)}
-              className="px-8 py-4 rounded-xl text-[15px] font-bold text-white bg-[#0d1b2a] hover:bg-[#1a2d47] transition-all shadow-lg active:scale-[0.98]">
-              Aceptar propuesta
+            <button onClick={handleEnviarCodigo}
+              disabled={enviandoCodigo}
+              className="px-8 py-4 rounded-xl text-[15px] font-bold text-white bg-[#0d1b2a] hover:bg-[#1a2d47] transition-all shadow-lg active:scale-[0.98] disabled:opacity-60">
+              {enviandoCodigo ? 'Enviando código...' : 'Firmar propuesta'}
             </button>
-            <p className="text-[11px] text-[#5C5470] mt-3">Al aceptar, confirmas que estás de acuerdo con las condiciones descritas.</p>
+            <p className="text-[11px] text-[#5C5470] mt-3">Se enviará un código de verificación a tu email para firmar.</p>
           </div>
         )}
 
         {showAceptar && (
-          <div className="bg-white rounded-2xl border-2 border-emerald-200 p-6 text-center">
-            <h3 className="text-[15px] font-bold text-[#1A1035] mb-4">Confirmar aceptación</h3>
-            <p className="text-[12px] text-[#5C5470] mb-4">Ingresa tu nombre completo para confirmar:</p>
-            <input
-              value={nombre} onChange={e => setNombre(e.target.value)}
-              className="w-full max-w-xs mx-auto px-4 py-3 border border-[#e2dfd9] rounded-xl text-center text-[14px] mb-4"
-              placeholder="Nombre completo"
-            />
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-[12px] text-[#5C5470]">Modalidad:</span>
-              <span className="text-[12px] font-bold text-[#1A1035] capitalize">{modalidad}</span>
-              <span className="text-[12px] text-[#5C5470]">·</span>
-              <span className="text-[12px] font-bold text-[#1A1035]">
-                ${(modalidad === 'anual' ? montoAnual : p.monto_mensual).toLocaleString('es-CL')}/{modalidad === 'anual' ? 'año' : 'mes'}
-              </span>
+          <div className="bg-white rounded-2xl border-2 border-emerald-200 p-6">
+            <h3 className="text-[16px] font-bold text-[#1A1035] text-center mb-2">Firma electrónica</h3>
+            <p className="text-[12px] text-[#5C5470] text-center mb-5">Ingresa el código enviado a <strong>{emailMasked}</strong> y tu nombre para firmar.</p>
+
+            {/* Código */}
+            <div className="mb-4">
+              <label className="block text-[11px] font-semibold text-[#5C5470] uppercase tracking-wider mb-2 text-center">Código de verificación</label>
+              <input
+                value={codigo} onChange={e => setCodigo(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="w-full max-w-[200px] mx-auto block px-4 py-3 border-2 border-[#e2dfd9] rounded-xl text-center text-[24px] font-mono font-bold tracking-[6px] focus:border-[#0d1b2a] outline-none"
+                placeholder="000000" maxLength={6}
+              />
             </div>
-            <button onClick={handleAceptar} disabled={aceptando || !nombre.trim()}
-              className="px-8 py-3 rounded-xl text-[14px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all disabled:opacity-50">
-              {aceptando ? 'Procesando...' : 'Confirmo y acepto'}
-            </button>
+
+            {/* Firma (nombre con tipografía) */}
+            <div className="mb-4">
+              <label className="block text-[11px] font-semibold text-[#5C5470] uppercase tracking-wider mb-2 text-center">Su firma</label>
+              <div className="border-2 border-dashed border-[#e2dfd9] rounded-xl p-4 text-center">
+                <input
+                  value={nombre} onChange={e => setNombre(e.target.value)}
+                  className="w-full text-center text-[28px] font-bold border-none outline-none bg-transparent"
+                  style={{ fontFamily: 'cursive, Georgia, serif' }}
+                  placeholder="Escriba su nombre"
+                />
+                {nombre && (
+                  <p className="text-[10px] text-[#5C5470] mt-2">Vista previa de su firma electrónica</p>
+                )}
+              </div>
+            </div>
+
+            {/* Modalidad */}
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span className="text-[12px] text-[#5C5470]">Modalidad:</span>
+              <select value={modalidad} onChange={e => setModalidad(e.target.value)} className="px-3 py-1.5 rounded-lg border border-[#e2dfd9] text-[12px] font-semibold">
+                <option value="mensual">Mensual (${p.monto_mensual.toLocaleString('es-CL')}/mes)</option>
+                <option value="anual">Anual (${montoAnual.toLocaleString('es-CL')}/año — {p.descuento_anual}% desc.)</option>
+              </select>
+            </div>
+
+            {/* Legal checkbox */}
+            <label className="flex items-start gap-2 mb-5 cursor-pointer max-w-md mx-auto">
+              <input type="checkbox" checked={aceptaTerminos} onChange={e => setAceptaTerminos(e.target.checked)} className="rounded mt-0.5 shrink-0"/>
+              <span className="text-[11px] text-[#5C5470] leading-relaxed">
+                Al seleccionar "Adoptar y Firmar", acepto que la imagen de la firma anterior será la representación electrónica de mi firma para todos los fines y tendrá el mismo efecto legal que mi firma original en papel.
+              </span>
+            </label>
+
+            {errorFirma && <p className="text-[12px] text-red-500 text-center mb-3">{errorFirma}</p>}
+
+            <div className="flex justify-center gap-3">
+              <button onClick={() => setShowAceptar(false)} className="px-5 py-2.5 rounded-xl text-[13px] font-medium text-[#5C5470] border border-[#e2dfd9] hover:bg-[#f9f7f5]">
+                Cancelar
+              </button>
+              <button onClick={handleFirmar} disabled={aceptando || codigo.length !== 6 || !nombre.trim() || !aceptaTerminos}
+                className="px-8 py-2.5 rounded-xl text-[14px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all disabled:opacity-50 flex items-center gap-2">
+                {aceptando ? 'Firmando...' : 'Adoptar y Firmar →'}
+              </button>
+            </div>
+
+            <p className="text-[10px] text-[#9ca3af] text-center mt-4">
+              ¿No recibiste el código? <button onClick={handleEnviarCodigo} className="text-[#0d1b2a] font-medium underline">Reenviar</button>
+            </p>
           </div>
         )}
 
