@@ -51,9 +51,10 @@ export const DATOS_BANCARIOS = `
 <div class="datos-bancarios">
 <p class="titulo">Datos bancarios para transferencia:</p>
 <p>
-RUT: 65.168.392-0<br/>
-Banco: BancoEstado · Cuenta Corriente N° 291-0-008051-4<br/>
-Correo: contacto@kiva360.cl
+<strong>Flexio Technologies Spa</strong><br/>
+RUT: 78.479.402-4<br/>
+Banco: Bci · Cuenta Corriente N° 68569265<br/>
+Correo: pablo@flexio.cl
 </p>
 </div>`
 

@@ -67,13 +67,13 @@ export default function PagoFacilPage() {
               </div>
             </div>
             <div className="bg-[#f9fafb] rounded-lg p-3 text-[11px] text-[#4b5563] space-y-1">
-              <div><strong>Banco:</strong> BancoEstado</div>
-              <div><strong>Cuenta Corriente:</strong> 291-0-008051-4</div>
-              <div><strong>RUT:</strong> 65.168.392-0</div>
-              <div><strong>Nombre:</strong> Kiva360</div>
-              <div><strong>Email:</strong> contacto@kiva360.cl</div>
+              <div><strong>Nombre:</strong> Flexio Technologies Spa</div>
+              <div><strong>Banco:</strong> Bci</div>
+              <div><strong>Cuenta Corriente:</strong> 68569265</div>
+              <div><strong>RUT:</strong> 78.479.402-4</div>
+              <div><strong>Email:</strong> pablo@flexio.cl</div>
             </div>
-            <p className="text-[10px] text-[#9ca3af] mt-2">Envía el comprobante a contacto@kiva360.cl indicando nombre del alumno.</p>
+            <p className="text-[10px] text-[#9ca3af] mt-2">Envía el comprobante a pablo@flexio.cl indicando nombre del alumno.</p>
           </div>
 
           {/* Pago presencial */}

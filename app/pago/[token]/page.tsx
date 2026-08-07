@@ -153,9 +153,9 @@ export default function PagoLinkPage({ params }: { params: { token: string } }) 
             <details className="mt-4">
               <summary className="text-[11px] text-[#6b7280] cursor-pointer hover:text-[#1a2332] text-center">También puedes pagar por transferencia</summary>
               <div className="mt-3 bg-[#f9fafb] rounded-lg p-3 text-[11px] text-[#4b5563] space-y-0.5">
-                <div><strong>Banco:</strong> BancoEstado · Cta. Cte. 291-0-008051-4</div>
-                <div><strong>RUT:</strong> 65.168.392-0</div>
-                <div><strong>Nombre:</strong> Fund. Educacional AR Ministries</div>
+                <div><strong>Banco:</strong> Bci · Cta. Cte. 68569265</div>
+                <div><strong>RUT:</strong> 78.479.402-4</div>
+                <div><strong>Nombre:</strong> Flexio Technologies Spa</div>
                 <div><strong>Email:</strong> adm@arschoolglobal.com</div>
               </div>
             </details>
