@@ -26,12 +26,12 @@ export default async function PostularPage({ searchParams }: Props) {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseKey) {
-    return <PostularError mensaje={`Error de configuración. URL: ${supabaseUrl ? 'OK' : 'FALTA'}, KEY: ${supabaseKey ? 'OK' : 'FALTA'}`} />
+    return <PostularError mensaje="Error de configuración del servidor. Contacta al administrador." />
   }
 
   try {
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/colegios?id=eq.${colegioId}&select=id,nombre,direccion,telefono,logo_url,color_primario,color_acento`,
+      `${supabaseUrl}/rest/v1/colegios?id=eq.${colegioId}&select=id,nombre,direccion,telefono,logo_url`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -44,7 +44,8 @@ export default async function PostularPage({ searchParams }: Props) {
 
     if (!res.ok) {
       const text = await res.text()
-      return <PostularError mensaje={`Error ${res.status}: ${text.substring(0, 100)}`} />
+      console.error('PostularPage fetch error:', res.status, text)
+      return <PostularError mensaje="Centro educativo no encontrado. Verifica que el link de postulación sea correcto." />
     }
 
     const colegio = await res.json()
@@ -55,6 +56,7 @@ export default async function PostularPage({ searchParams }: Props) {
 
     return <PostularFormClient colegio={colegio} />
   } catch (err: any) {
-    return <PostularError mensaje={`Error: ${err.message}`} />
+    console.error('PostularPage error:', err)
+    return <PostularError mensaje="Error al cargar el formulario. Intenta nuevamente." />
   }
 }

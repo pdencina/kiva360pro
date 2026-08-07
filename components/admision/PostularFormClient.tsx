@@ -7,7 +7,7 @@ interface Props {
   colegio: {
     id: string; nombre: string; direccion: string | null
     telefono: string | null; logo_url: string | null
-    color_primario: string | null; color_acento: string | null
+    color_primario?: string | null; color_acento?: string | null
   }
 }
 
