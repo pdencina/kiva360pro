@@ -341,6 +341,15 @@ export default function ConfiguracionClient({ usuario, stats, horariosJornada }:
               <div className="text-[11px] text-[var(--ar-muted)]">Plantillas para apoderados</div>
             </div>
           </a>
+          <a href="/configuracion/suscripcion" className="flex items-center gap-3 p-4 rounded-xl border border-[var(--ar-border)] hover:border-[#8B6914]/30 hover:bg-[#fef9ec]/30 transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-[#fef9ec] flex items-center justify-center group-hover:bg-[#8B6914] transition-colors">
+              <i className="ti ti-credit-card text-[18px] text-[#8B6914] group-hover:text-white" aria-hidden="true"/>
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-[var(--ar-text)]">Mi Suscripción</div>
+              <div className="text-[11px] text-[var(--ar-muted)]">Plan y pagos Kiva360</div>
+            </div>
+          </a>
         </div>
       </div>
 

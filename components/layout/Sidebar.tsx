@@ -41,6 +41,7 @@ const NAV_GESTION: NavItem[] = [
 
 const NAV_CUENTA: NavItem[] = [
   { label: 'Panel Kiva360',   href: '/super-admin',          icon: 'ti-dashboard', roles: ['super_admin'] },
+  { label: 'Suscripciones',  href: '/super-admin/suscripciones', icon: 'ti-credit-card', roles: ['super_admin'] },
   { label: 'Propuestas',      href: '/super-admin/propuestas/nueva', icon: 'ti-file-invoice', roles: ['super_admin'] },
   { label: 'Usuarios',        href: '/usuarios',             icon: 'ti-user-cog',        roles: ['admin'] },
   { label: 'Usuarios',        href: '/super-admin/usuarios', icon: 'ti-user-cog',        roles: ['super_admin'] },
