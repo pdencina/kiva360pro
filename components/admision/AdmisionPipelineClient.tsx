@@ -170,9 +170,51 @@ export default function AdmisionPipelineClient({ prospectos, colegioId }: Props)
                 <div className="flex gap-2"><span className="text-[var(--ar-muted)] w-20 shrink-0">Fecha</span><span className="text-[var(--ar-text)]">{new Date(selected.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>
               </div>
 
+              {/* Documentos adjuntos */}
+              {selected.metadata?.documentos && Object.keys(selected.metadata.documentos).length > 0 && (
+                <div className="pt-4 border-t border-[var(--ar-border)]">
+                  <div className="text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-wider mb-3">Documentos adjuntos</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(selected.metadata.documentos as Record<string, string>).map(([key, url]) => {
+                      const labels: Record<string, string> = {
+                        ci_alumno_frente: 'CI Alumno (frente)',
+                        ci_alumno_reverso: 'CI Alumno (reverso)',
+                        foto_alumno: 'Foto alumno',
+                        ci_apoderado_frente: 'CI Apoderado (frente)',
+                        ci_apoderado_reverso: 'CI Apoderado (reverso)',
+                        certificado_nacimiento: 'Cert. nacimiento',
+                        cuenta_servicio_basico: 'Cuenta serv. básico',
+                        certificado_medico: 'Cert. médico',
+                      }
+                      const isPdf = url.toLowerCase().endsWith('.pdf')
+                      return (
+                        <a
+                          key={key}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-2 rounded-lg border border-[var(--ar-border)] hover:bg-[#f9f7f5] transition-colors group"
+                        >
+                          {isPdf ? (
+                            <div className="w-8 h-8 rounded bg-red-50 flex items-center justify-center shrink-0">
+                              <i className="ti ti-file-type-pdf text-red-500 text-[14px]" aria-hidden="true" />
+                            </div>
+                          ) : (
+                            <img src={url} alt={labels[key] || key} className="w-8 h-8 rounded object-cover shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-medium text-[var(--ar-text)] truncate">{labels[key] || key}</p>
+                            <p className="text-[9px] text-[var(--ar-muted)] group-hover:text-[var(--ar-accent)]">Ver</p>
+                          </div>
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Actions */}
               <div className="pt-4 border-t border-[var(--ar-border)] space-y-2">
-                <div className="text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-wider mb-2">Mover a:</div>
                 <div className="grid grid-cols-2 gap-2">
                   {ETAPAS.filter(e => e.key !== selected.etapa).map(e => (
                     <button
