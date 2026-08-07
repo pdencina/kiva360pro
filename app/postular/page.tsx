@@ -50,6 +50,7 @@ export default async function PostularPage({ searchParams }: Props) {
       .single()
 
     if (error || !colegio) {
+      console.error('PostularPage colegio lookup failed:', { colegioId, error })
       return <PostularError mensaje="Centro educativo no encontrado. Verifica que el link de postulación sea correcto." />
     }
 
