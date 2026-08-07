@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import PostularFormClient from '@/components/admision/PostularFormClient'
 import PostularError from '@/components/admision/PostularError'
 
@@ -29,17 +30,18 @@ function PostularContent() {
       return
     }
 
-    fetch(`/api/postular/colegio?id=${colegioId}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Colegio no encontrado')
-        return res.json()
-      })
-      .then(data => {
-        setColegio(data)
-        setLoading(false)
-      })
-      .catch(() => {
-        setError('Centro educativo no encontrado. Verifica que el link de postulación sea correcto.')
+    const supabase = createClient()
+    supabase
+      .from('colegios')
+      .select('id, nombre, direccion, telefono, logo_url, color_primario, color_acento')
+      .eq('id', colegioId)
+      .single()
+      .then(({ data, error: err }) => {
+        if (err || !data) {
+          setError('Centro educativo no encontrado. Verifica que el link de postulación sea correcto.')
+        } else {
+          setColegio(data as Colegio)
+        }
         setLoading(false)
       })
   }, [colegioId])
