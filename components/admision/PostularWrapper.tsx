@@ -14,13 +14,11 @@ interface Colegio {
   color_acento: string | null
 }
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
 export default function PostularWrapper({ colegioId }: { colegioId: string }) {
   const [colegio, setColegio] = useState<Colegio | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [debugInfo, setDebugInfo] = useState('')
 
   useEffect(() => {
     if (!colegioId) {
@@ -29,19 +27,31 @@ export default function PostularWrapper({ colegioId }: { colegioId: string }) {
       return
     }
 
-    // Fetch directo a Supabase REST API (sin SDK)
+    // Usar las NEXT_PUBLIC env vars que Next.js inyecta en build time
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+      setDebugInfo(`URL: ${supabaseUrl ? 'OK' : 'MISSING'}, KEY: ${supabaseKey ? 'OK' : 'MISSING'}`)
+      setError('Error de configuración del servidor. Contacta al administrador.')
+      setLoading(false)
+      return
+    }
+
     fetch(
-      `${SUPABASE_URL}/rest/v1/colegios?id=eq.${colegioId}&select=id,nombre,direccion,telefono,logo_url,color_primario,color_acento`,
+      `${supabaseUrl}/rest/v1/colegios?id=eq.${colegioId}&select=id,nombre,direccion,telefono,logo_url,color_primario,color_acento`,
       {
         headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
           'Accept': 'application/vnd.pgrst.object+json',
         },
       }
     )
       .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        if (!res.ok) {
+          return res.text().then(t => { throw new Error(`HTTP ${res.status}: ${t}`) })
+        }
         return res.json()
       })
       .then((data: Colegio) => {
@@ -49,7 +59,7 @@ export default function PostularWrapper({ colegioId }: { colegioId: string }) {
         setLoading(false)
       })
       .catch((err) => {
-        console.error('PostularWrapper fetch error:', err)
+        setDebugInfo(err.message)
         setError('Centro educativo no encontrado. Verifica que el link de postulación sea correcto.')
         setLoading(false)
       })
@@ -67,7 +77,14 @@ export default function PostularWrapper({ colegioId }: { colegioId: string }) {
   }
 
   if (error) {
-    return <PostularError mensaje={error} />
+    return (
+      <div>
+        <PostularError mensaje={error} />
+        {debugInfo && (
+          <p className="text-center text-[10px] text-red-400 mt-2 font-mono">{debugInfo}</p>
+        )}
+      </div>
+    )
   }
 
   if (!colegio) {
