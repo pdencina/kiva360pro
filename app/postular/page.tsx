@@ -1,65 +1,82 @@
-import { createClient as createAdminClient } from '@supabase/supabase-js'
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
 import PostularFormClient from '@/components/admision/PostularFormClient'
 import PostularError from '@/components/admision/PostularError'
 
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
-
-function getAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) {
-    console.error('PostularPage: Missing env vars', { url: !!url, key: !!key })
-    throw new Error('Server configuration error')
-  }
-  return createAdminClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+interface Colegio {
+  id: string
+  nombre: string
+  direccion: string | null
+  telefono: string | null
+  logo_url: string | null
+  color_primario: string | null
+  color_acento: string | null
 }
 
-interface Props {
-  searchParams: { c?: string }
-}
+function PostularContent() {
+  const searchParams = useSearchParams()
+  const colegioId = searchParams.get('c')
+  const [colegio, setColegio] = useState<Colegio | null>(null)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
-export async function generateMetadata({ searchParams }: Props) {
-  const colegioId = searchParams.c
-  if (!colegioId) return { title: 'Postulación — Kiva360' }
-
-  try {
-    const admin = getAdmin()
-    const { data: colegio } = await admin.from('colegios').select('nombre').eq('id', colegioId).single()
-    if (!colegio) return { title: 'Postulación — Kiva360' }
-
-    return {
-      title: `Postula a ${(colegio as any).nombre} — Kiva360`,
-      description: `Formulario de postulación para ${(colegio as any).nombre}. Completa tus datos y adjunta los documentos requeridos.`,
-    }
-  } catch {
-    return { title: 'Postulación — Kiva360' }
-  }
-}
-
-export default async function PostularPage({ searchParams }: Props) {
-  const colegioId = searchParams.c
-
-  if (!colegioId) {
-    return <PostularError mensaje="Link de postulación inválido. Contacta al centro educativo para obtener el link correcto." />
-  }
-
-  try {
-    const admin = getAdmin()
-    const { data: colegio, error } = await admin
-      .from('colegios')
-      .select('id, nombre, direccion, telefono, logo_url, color_primario, color_acento')
-      .eq('id', colegioId)
-      .single()
-
-    if (error || !colegio) {
-      console.error('PostularPage colegio lookup failed:', { colegioId, error: JSON.stringify(error) })
-      return <PostularError mensaje="Centro educativo no encontrado. Verifica que el link de postulación sea correcto." />
+  useEffect(() => {
+    if (!colegioId) {
+      setError('Link de postulación inválido. Contacta al centro educativo para obtener el link correcto.')
+      setLoading(false)
+      return
     }
 
-    return <PostularFormClient colegio={colegio as any} />
-  } catch (err) {
-    console.error('PostularPage error:', err)
-    return <PostularError mensaje="Error al cargar el formulario. Intenta nuevamente en unos momentos." />
+    fetch(`/api/postular/colegio?id=${colegioId}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Colegio no encontrado')
+        return res.json()
+      })
+      .then(data => {
+        setColegio(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        setError('Centro educativo no encontrado. Verifica que el link de postulación sea correcto.')
+        setLoading(false)
+      })
+  }, [colegioId])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F9F7F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-3 border-[#e2dfd9] border-t-[#0d1b2a] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[13px] text-[#5C5470]">Cargando formulario...</p>
+        </div>
+      </div>
+    )
   }
+
+  if (error) {
+    return <PostularError mensaje={error} />
+  }
+
+  if (!colegio) {
+    return <PostularError mensaje="Error inesperado. Intenta nuevamente." />
+  }
+
+  return <PostularFormClient colegio={colegio} />
+}
+
+export default function PostularPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F9F7F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-3 border-[#e2dfd9] border-t-[#0d1b2a] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[13px] text-[#5C5470]">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <PostularContent />
+    </Suspense>
+  )
 }
