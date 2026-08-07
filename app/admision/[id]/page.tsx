@@ -34,3 +34,5 @@ export default async function AdmisionPage({ params }: { params: { id: string } 
 
   return <AdmisionFormClient colegio={colegio as any} />
 }
+
+// Force redeploy
