@@ -30,6 +30,8 @@ export default function LoginPage() {
       router.push('/super-admin')
     } else if (['apoderado', 'alumno'].includes(rol)) {
       router.push('/portal')
+    } else if (rol === 'postulante') {
+      router.push('/portal/postulacion')
     } else {
       router.push('/inicio')
     }

@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
 
     const colegio_id = formData.get('colegio_id') as string
+    const user_id = formData.get('user_id') as string | null
     const nombre = formData.get('nombre') as string
     const apellido = formData.get('apellido') as string | null
     const email = formData.get('email') as string
@@ -104,6 +105,7 @@ export async function POST(request: NextRequest) {
     // Insertar prospecto
     const { data, error } = await admin.from('prospectos').insert({
       colegio_id,
+      user_id: user_id || null,
       nombre,
       apellido: apellido || null,
       email,

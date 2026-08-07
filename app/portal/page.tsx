@@ -22,8 +22,13 @@ export default async function PortalPage() {
   const u = ur as any
   const rol = u?.rol
 
-  if (!rol || !['apoderado', 'alumno'].includes(rol)) {
+  if (!rol || !['apoderado', 'alumno', 'postulante'].includes(rol)) {
     redirect('/login')
+  }
+
+  // Postulantes van directo a su vista de seguimiento
+  if (rol === 'postulante') {
+    redirect('/portal/postulacion')
   }
 
   // Datos del alumno vinculado

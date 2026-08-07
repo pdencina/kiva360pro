@@ -26,7 +26,7 @@ export default async function PortalLayout({ children }: { children: React.React
 
   const usuario = ur as any
   const rol = usuario?.rol
-  if (!['apoderado','alumno'].includes(rol)) redirect('/inicio')
+  if (!['apoderado','alumno','postulante'].includes(rol)) redirect('/inicio')
 
   // Cargar permisos
   const { data: permisos } = await admin

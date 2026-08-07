@@ -9,6 +9,7 @@ interface Props {
     telefono: string | null; logo_url: string | null
     color_primario?: string | null; color_acento?: string | null
   }
+  userId?: string
 }
 
 interface DocumentFile {
@@ -27,7 +28,7 @@ const DOCUMENTOS_CONFIG = [
   { key: 'certificado_medico', label: 'Certificado médico', required: false, icon: 'ti-stethoscope' },
 ]
 
-export default function PostularFormClient({ colegio }: Props) {
+export default function PostularFormClient({ colegio, userId }: Props) {
   const [form, setForm] = useState({
     nombre: '', apellido: '', email: '', telefono: '',
     nombre_alumno: '', edad_alumno: '', diagnostico: '',
@@ -102,6 +103,7 @@ export default function PostularFormClient({ colegio }: Props) {
     try {
       const formData = new FormData()
       formData.append('colegio_id', colegio.id)
+      if (userId) formData.append('user_id', userId)
       formData.append('nombre', form.nombre)
       formData.append('apellido', form.apellido)
       formData.append('email', form.email)
@@ -160,9 +162,16 @@ export default function PostularFormClient({ colegio }: Props) {
             Hemos recibido tu postulación y documentos correctamente.
             Nos pondremos en contacto contigo a la brevedad.
           </p>
-          <Link href="/" className="text-[13px] font-medium hover:underline" style={{ color: primaryColor }}>
-            Volver al inicio
-          </Link>
+          {userId ? (
+            <a href="/portal/postulacion" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white bg-[#0d1b2a] hover:opacity-90 transition-all">
+              <i className="ti ti-eye text-[14px]" aria-hidden="true" />
+              Ver estado de mi postulación
+            </a>
+          ) : (
+            <Link href="/" className="text-[13px] font-medium hover:underline" style={{ color: primaryColor }}>
+              Volver al inicio
+            </Link>
+          )}
         </div>
       </div>
     )

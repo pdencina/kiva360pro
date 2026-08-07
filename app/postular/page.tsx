@@ -1,5 +1,7 @@
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 import PostularFormClient from '@/components/admision/PostularFormClient'
+import PostularAuthGate from '@/components/admision/PostularAuthGate'
 import PostularError from '@/components/admision/PostularError'
 
 export const dynamic = 'force-dynamic'
@@ -21,7 +23,7 @@ export default async function PostularPage({ searchParams }: Props) {
     return <PostularError mensaje="Link de postulación inválido. Contacta al centro educativo para obtener el link correcto." />
   }
 
-  // Fetch directo a Supabase REST API (sin depender de createClient)
+  // Fetch colegio data
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -43,8 +45,7 @@ export default async function PostularPage({ searchParams }: Props) {
     )
 
     if (!res.ok) {
-      const text = await res.text()
-      console.error('PostularPage fetch error:', res.status, text)
+      console.error('PostularPage fetch error:', res.status)
       return <PostularError mensaje="Centro educativo no encontrado. Verifica que el link de postulación sea correcto." />
     }
 
@@ -54,7 +55,17 @@ export default async function PostularPage({ searchParams }: Props) {
       return <PostularError mensaje="Centro educativo no encontrado. Verifica que el link de postulación sea correcto." />
     }
 
-    return <PostularFormClient colegio={colegio} />
+    // Check if user is already logged in
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user) {
+      // User is logged in — show form directly
+      return <PostularFormClient colegio={colegio} userId={user.id} />
+    }
+
+    // User not logged in — show auth gate (register/login)
+    return <PostularAuthGate colegio={colegio} />
   } catch (err: any) {
     console.error('PostularPage error:', err)
     return <PostularError mensaje="Error al cargar el formulario. Intenta nuevamente." />

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-type Rol = 'super_admin' | 'admin' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno'
+type Rol = 'super_admin' | 'admin' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno' | 'postulante'
 
 interface NavItem {
   label: string; href: string; icon: string; badge?: number; roles: Rol[]
@@ -73,6 +73,10 @@ const NAV_ALUMNO: NavItem[] = [
   { label: 'Mi perfil',       href: '/portal/perfil',         icon: 'ti-user',            roles: ['alumno'] },
 ]
 
+const NAV_POSTULANTE: NavItem[] = [
+  { label: 'Mi postulación',  href: '/portal/postulacion',    icon: 'ti-file-search',     roles: ['postulante'] },
+]
+
 const ROL_BADGE: Record<string, { label: string; color: string; icon: string; accent: string; activeBg: string; activeIndicator: string }> = {
   super_admin:     { label: 'Super Admin',     color: 'bg-[#FEF3EC] text-[#C45A1A] border border-[#C45A1A]/20', icon: 'ti-shield-check',      accent: '#C45A1A', activeBg: 'bg-[#C45A1A]', activeIndicator: '#C45A1A' },
   admin:           { label: 'Administrador',   color: 'bg-[#FEF3EC] text-[#C45A1A] border border-[#C45A1A]/20', icon: 'ti-briefcase',         accent: '#C45A1A', activeBg: 'bg-[#C45A1A]', activeIndicator: '#C45A1A' },
@@ -80,6 +84,7 @@ const ROL_BADGE: Record<string, { label: string; color: string; icon: string; ac
   tutor:           { label: 'Profesional',     color: 'bg-[#EDF5F0] text-[#2D5A3F] border border-[#2D5A3F]/20', icon: 'ti-stethoscope',       accent: '#2D5A3F', activeBg: 'bg-[#2D5A3F]', activeIndicator: '#2D5A3F' },
   apoderado:       { label: 'Apoderado',       color: 'bg-[#EDF6FA] text-[#3D7A94] border border-[#3D7A94]/15', icon: 'ti-heart-handshake',   accent: '#3D7A94', activeBg: 'bg-[#3D7A94]', activeIndicator: '#3D7A94' },
   alumno:          { label: 'Alumno',          color: 'bg-[#F3EFFE] text-[#6B4C9A] border border-[#6B4C9A]/20', icon: 'ti-backpack',          accent: '#6B4C9A', activeBg: 'bg-[#6B4C9A]', activeIndicator: '#6B4C9A' },
+  postulante:      { label: 'Postulante',      color: 'bg-[#FEF9EC] text-[#8B6914] border border-[#8B6914]/20', icon: 'ti-file-search',       accent: '#8B6914', activeBg: 'bg-[#8B6914]', activeIndicator: '#8B6914' },
 }
 
 interface Props { rol?: string; modulosHabilitados?: string[] | null }
@@ -213,6 +218,7 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null }: Pr
       <nav className="flex-1 py-2 px-3 overflow-y-auto" aria-label="Navegación principal">
         {rolTyped === 'apoderado' && renderGroup(NAV_APODERADO, 'Mi espacio')}
         {rolTyped === 'alumno'    && renderGroup(NAV_ALUMNO,    'Mi espacio')}
+        {rolTyped === 'postulante' && renderGroup(NAV_POSTULANTE, 'Mi postulación')}
         {!isPortal && (
           <>
             {renderGroup(NAV_PRINCIPAL, 'Principal')}
