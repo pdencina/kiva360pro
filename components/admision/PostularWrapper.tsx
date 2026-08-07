@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import PostularFormClient from '@/components/admision/PostularFormClient'
 import PostularError from '@/components/admision/PostularError'
 
@@ -15,6 +14,9 @@ interface Colegio {
   color_acento: string | null
 }
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
 export default function PostularWrapper({ colegioId }: { colegioId: string }) {
   const [colegio, setColegio] = useState<Colegio | null>(null)
   const [error, setError] = useState('')
@@ -27,19 +29,28 @@ export default function PostularWrapper({ colegioId }: { colegioId: string }) {
       return
     }
 
-    const supabase = createClient()
-    supabase
-      .from('colegios')
-      .select('id, nombre, direccion, telefono, logo_url, color_primario, color_acento')
-      .eq('id', colegioId)
-      .single()
-      .then(({ data, error: err }) => {
-        if (err || !data) {
-          console.error('PostularWrapper supabase error:', err)
-          setError('Centro educativo no encontrado. Verifica que el link de postulación sea correcto.')
-        } else {
-          setColegio(data as Colegio)
-        }
+    // Fetch directo a Supabase REST API (sin SDK)
+    fetch(
+      `${SUPABASE_URL}/rest/v1/colegios?id=eq.${colegioId}&select=id,nombre,direccion,telefono,logo_url,color_primario,color_acento`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Accept': 'application/vnd.pgrst.object+json',
+        },
+      }
+    )
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((data: Colegio) => {
+        setColegio(data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('PostularWrapper fetch error:', err)
+        setError('Centro educativo no encontrado. Verifica que el link de postulación sea correcto.')
         setLoading(false)
       })
   }, [colegioId])
