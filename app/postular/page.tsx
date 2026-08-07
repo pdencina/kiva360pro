@@ -3,13 +3,16 @@ import PostularFormClient from '@/components/admision/PostularFormClient'
 import PostularError from '@/components/admision/PostularError'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 function getAdmin() {
-  return createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) {
+    console.error('PostularPage: Missing env vars', { url: !!url, key: !!key })
+    throw new Error('Server configuration error')
+  }
+  return createAdminClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
 interface Props {
@@ -50,7 +53,7 @@ export default async function PostularPage({ searchParams }: Props) {
       .single()
 
     if (error || !colegio) {
-      console.error('PostularPage colegio lookup failed:', { colegioId, error })
+      console.error('PostularPage colegio lookup failed:', { colegioId, error: JSON.stringify(error) })
       return <PostularError mensaje="Centro educativo no encontrado. Verifica que el link de postulación sea correcto." />
     }
 
