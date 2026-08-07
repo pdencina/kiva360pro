@@ -62,7 +62,7 @@ export default function AdmisionPipelineClient({ prospectos, colegioId }: Props)
     finally { setUpdating(false) }
   }
 
-  const linkAdmision = `${typeof window !== 'undefined' ? window.location.origin : ''}/admision/${colegioId}`
+  const linkAdmision = `${typeof window !== 'undefined' ? window.location.origin : ''}/postular?c=${colegioId}`
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -79,7 +79,7 @@ export default function AdmisionPipelineClient({ prospectos, colegioId }: Props)
           >
             <i className="ti ti-link text-[12px]" aria-hidden="true"/> Copiar link admisión
           </button>
-          <a href={`/admision/${colegioId}`} target="_blank" className="btn-primary text-[11px]">
+          <a href={`/postular?c=${colegioId}`} target="_blank" className="btn-primary text-[11px]">
             <i className="ti ti-external-link text-[12px]" aria-hidden="true"/> Ver formulario
           </a>
         </div>
