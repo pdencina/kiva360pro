@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { MercadoPagoConfig, PreApproval } from 'mercadopago'
+import crypto from 'crypto'
 
 function getAdmin() {
   return createAdminClient(
@@ -10,12 +11,44 @@ function getAdmin() {
   )
 }
 
+function verifyWebhookSignature(request: NextRequest, body: string): boolean {
+  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET
+  if (!secret) return true // Si no hay secret configurado, no validar (dev)
+
+  const xSignature = request.headers.get('x-signature')
+  const xRequestId = request.headers.get('x-request-id')
+
+  if (!xSignature || !xRequestId) return true // MP no siempre manda firma
+
+  try {
+    const parts = xSignature.split(',')
+    const ts = parts.find(p => p.trim().startsWith('ts='))?.split('=')[1]
+    const hash = parts.find(p => p.trim().startsWith('v1='))?.split('=')[1]
+
+    if (!ts || !hash) return true
+
+    const dataId = JSON.parse(body)?.data?.id || ''
+    const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
+    const computed = crypto.createHmac('sha256', secret).update(manifest).digest('hex')
+
+    return computed === hash
+  } catch {
+    return true // Si falla la validación, dejar pasar (para no romper en dev)
+  }
+}
+
 // POST: Webhook de Mercado Pago para notificaciones de suscripción
 export async function POST(request: NextRequest) {
   const admin = getAdmin()
+  const bodyText = await request.text()
+
+  if (!verifyWebhookSignature(request, bodyText)) {
+    console.error('MP Webhook: firma inválida')
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+  }
 
   try {
-    const body = await request.json()
+    const body = JSON.parse(bodyText)
     console.log('MP Webhook:', JSON.stringify(body))
 
     const { type, data } = body
