@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS public.suscripciones (
   tarjeta_inscrita boolean NOT NULL DEFAULT false,
   tbk_user        text, -- token oneclick si inscribieron tarjeta
   tbk_token       text,
+  mp_preapproval_id text, -- ID de suscripción en Mercado Pago
   -- Historial
   ultimo_pago_at  timestamptz,
   meses_pagados   integer NOT NULL DEFAULT 0,

@@ -1,9 +1,13 @@
 'use client'
 
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+
 interface Suscripcion {
   id: string; plan: string; monto_mensual: number; estado: string
   fecha_inicio: string; fecha_vencimiento: string | null
   ultimo_pago_at: string | null; meses_pagados: number
+  tarjeta_inscrita: boolean
 }
 
 interface Pago {
@@ -29,6 +33,25 @@ const ESTADO_STYLES: Record<string, string> = {
 }
 
 export default function MiSuscripcionClient({ suscripcion, pagos }: Props) {
+  const [subscribing, setSubscribing] = useState(false)
+
+  async function suscribirTarjeta() {
+    setSubscribing(true)
+    try {
+      const res = await fetch('/api/suscripciones/mercadopago', { method: 'POST' })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error al crear suscripción')
+      }
+      const { init_point } = await res.json()
+      // Redirigir a Mercado Pago para inscribir tarjeta
+      window.location.href = init_point
+    } catch (err: any) {
+      toast.error(err.message)
+      setSubscribing(false)
+    }
+  }
+
   if (!suscripcion) {
     return (
       <div className="p-6 max-w-2xl mx-auto">
@@ -90,6 +113,39 @@ export default function MiSuscripcionClient({ suscripcion, pagos }: Props) {
             <p className="text-[10px] font-bold text-[var(--ar-muted)] uppercase">Meses pagados</p>
             <p className="text-[18px] font-bold text-[var(--ar-text)]">{suscripcion.meses_pagados}</p>
           </div>
+        </div>
+      </div>
+
+      {/* Suscripción automática con tarjeta */}
+      <div className="card p-5 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <i className="ti ti-credit-card text-blue-600 text-[20px]" aria-hidden="true" />
+            </div>
+            <div>
+              <h3 className="text-[13px] font-bold text-[var(--ar-text)]">Pago automático mensual</h3>
+              <p className="text-[11px] text-[var(--ar-muted)]">
+                {suscripcion.tarjeta_inscrita
+                  ? 'Tarjeta inscrita — se cobra automáticamente cada mes'
+                  : 'Inscribe tu tarjeta para cobro automático los 30 de cada mes'
+                }
+              </p>
+            </div>
+          </div>
+          {suscripcion.tarjeta_inscrita ? (
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
+              <i className="ti ti-check text-[11px]" aria-hidden="true" /> Activa
+            </span>
+          ) : (
+            <button
+              onClick={suscribirTarjeta}
+              disabled={subscribing}
+              className="btn-primary text-[11px] py-2 px-4"
+            >
+              {subscribing ? 'Redirigiendo...' : 'Suscribir tarjeta'}
+            </button>
+          )}
         </div>
       </div>
 
