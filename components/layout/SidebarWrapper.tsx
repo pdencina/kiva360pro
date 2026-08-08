@@ -19,6 +19,15 @@ export default function SidebarWrapper({ rol, modulosHabilitadosInicial }: Props
     setMobileOpen(false)
   }, [pathname])
 
+  // Escuchar evento global para abrir desde el Topbar
+  useEffect(() => {
+    function handleToggle() {
+      setMobileOpen(prev => !prev)
+    }
+    window.addEventListener('toggle-sidebar', handleToggle)
+    return () => window.removeEventListener('toggle-sidebar', handleToggle)
+  }, [])
+
   // Cerrar con Escape
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -63,15 +72,6 @@ export default function SidebarWrapper({ rol, modulosHabilitadosInicial }: Props
 
   return (
     <>
-      {/* Mobile hamburger button */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed bottom-6 left-6 z-40 w-12 h-12 bg-[var(--ar-navy)] text-white rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-transform"
-        aria-label="Abrir menú"
-      >
-        <i className="ti ti-menu-2 text-[20px]" aria-hidden="true" />
-      </button>
-
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <Sidebar rol={rol} modulosHabilitados={modulos} />
@@ -86,7 +86,7 @@ export default function SidebarWrapper({ rol, modulosHabilitadosInicial }: Props
             onClick={() => setMobileOpen(false)}
           />
           {/* Drawer */}
-          <div className="relative w-[260px] max-w-[80vw] animate-slide-in">
+          <div className="relative w-[270px] max-w-[80vw] animate-slide-in safe-bottom">
             <Sidebar rol={rol} modulosHabilitados={modulos} />
             {/* Close button */}
             <button
