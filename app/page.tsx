@@ -5,6 +5,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import Navbar from '@/components/landing/Navbar'
 import Hero from '@/components/landing/Hero'
 import Features from '@/components/landing/Features'
+import AdmisionPipeline from '@/components/landing/AdmisionPipeline'
 import Stats from '@/components/landing/Stats'
 import Modules from '@/components/landing/Modules'
 import Pricing from '@/components/landing/Pricing'
@@ -41,6 +42,7 @@ export default async function HomePage() {
       <Navbar />
       <Hero />
       <Features />
+      <AdmisionPipeline />
       <Stats />
       <Modules />
       <Pricing />

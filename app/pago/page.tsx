@@ -98,7 +98,7 @@ export default function PagoFacilPage() {
 
         {/* Info */}
         <div className="text-center">
-          <p className="text-[12px] text-[#9ca3af]">¿Tienes dudas? Escríbenos al <a href="https://wa.me/56936902642" target="_blank" className="text-[var(--ar-accent)] hover:underline">+56 9 3690 2642</a></p>
+          <p className="text-[12px] text-[#9ca3af]">¿Tienes dudas? Escríbenos al <a href="https://wa.me/56949616038" target="_blank" className="text-[var(--ar-accent)] hover:underline">+56 9 4961 6038</a></p>
         </div>
       </div>
 

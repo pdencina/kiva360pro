@@ -50,8 +50,8 @@ export default function Footer() {
               Contacto
             </div>
             <ul className="space-y-2.5">
-              <li><a href="mailto:contacto@kiva360.cl" className="text-[13px] text-white/50 hover:text-white transition-colors">contacto@kiva360.cl</a></li>
-              <li><a href="https://wa.me/56936902642" className="text-[13px] text-white/50 hover:text-white transition-colors">+56 9 3690 2642</a></li>
+              <li><a href="mailto:pablo@kiva360.cl" className="text-[13px] text-white/50 hover:text-white transition-colors">pablo@kiva360.cl</a></li>
+              <li><a href="https://wa.me/56949616038" className="text-[13px] text-white/50 hover:text-white transition-colors">+56 9 4961 6038</a></li>
               <li><span className="text-[13px] text-white/50">Santiago, Chile</span></li>
             </ul>
           </div>

@@ -299,7 +299,7 @@ export default function PropuestaClient({ propuesta: p }: Props) {
             <span className="text-[12px] font-semibold text-[#5C5470]">Kiva360</span>
           </div>
           <p className="text-[11px] text-[#5C5470]">Flexio Technologies SPA · RUT 78.479.402-4</p>
-          <p className="text-[10px] text-[#9ca3af] mt-1">contacto@kiva360.cl · +56 9 3690 2642 · kiva360.cl</p>
+          <p className="text-[10px] text-[#9ca3af] mt-1">pablo@kiva360.cl · +56 9 4961 6038 · kiva360.cl</p>
         </div>
       </div>
     </div>

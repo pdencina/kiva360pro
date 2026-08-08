@@ -31,7 +31,7 @@ export default function CTA() {
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">>
               <a
-                href="https://wa.me/56936902642?text=Hola%2C%20me%20interesa%20una%20demo%20de%20Kiva360"
+                href="https://wa.me/56949616038?text=Hola%2C%20me%20interesa%20una%20demo%20de%20Kiva360"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-[14px] text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -43,10 +43,10 @@ export default function CTA() {
                 Agendar por WhatsApp
               </a>
               <a
-                href="mailto:contacto@kiva360.cl"
+                href="mailto:pablo@kiva360.cl"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-medium text-[14px] text-white/70 glass hover:text-white transition-all"
               >
-                contacto@kiva360.cl
+                pablo@kiva360.cl
               </a>
             </div>
           </div>

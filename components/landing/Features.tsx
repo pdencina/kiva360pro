@@ -7,6 +7,55 @@ const features = [
   {
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+        <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+      </svg>
+    ),
+    title: 'Admisión con pipeline completo',
+    description: 'Formulario público para familias con upload de documentos. Pipeline visual para gestionar postulaciones de inicio a matrícula.',
+    color: '#B86E00',
+    bgColor: '#fef3e2',
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+    title: 'Portal del postulante',
+    description: 'El apoderado se registra, postula y hace seguimiento del estado de su postulación en tiempo real desde su propio portal.',
+    color: '#E85D3A',
+    bgColor: '#fef0ec',
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4.5 12.75l6 6 9-13.5"/>
+      </svg>
+    ),
+    title: 'Firma digital de contratos',
+    description: 'El apoderado firma el contrato de matrícula y pagaré online con validez legal (Ley 19.799). Recibes notificación al instante.',
+    color: '#4A9E7A',
+    bgColor: '#edf7f2',
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+      </svg>
+    ),
+    title: 'Cobro automático mensual',
+    description: 'Inscripción de tarjeta con Mercado Pago. Se cobra automáticamente cada mes sin intervención manual.',
+    color: '#3D7A94',
+    bgColor: '#edf6fa',
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4.5 12.75l6 6 9-13.5"/>
       </svg>
     ),
@@ -65,19 +114,6 @@ const features = [
     description: 'Define programas flexibles (intensivo, after school, sesiones individuales) con cupos, horarios y costos diferenciados.',
     color: '#2D1B69',
     bgColor: '#f0ecf9',
-  },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-        <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
-      </svg>
-    ),
-    title: 'Formulario de admisión',
-    description: 'Link público para que las familias postulen directo a tu centro. Los datos caen a tu pipeline sin intermediarios.',
-    color: '#B86E00',
-    bgColor: '#fef3e2',
   },
   {
     icon: (
