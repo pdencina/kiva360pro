@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 
-const SEDES: Record<string, string> = { santiago: 'Santiago', punta_arenas: 'Punta Arenas', puente_alto: 'Puente Alto' }
+const SEDES: Record<string, string> = {}
 const TIPOS: Record<string, string> = { inicial: 'Aporte Inicial', mensual: 'Aporte Mensual' }
 const MODALIDADES: Record<string, string> = { presencial: 'Presencial', online: 'Online' }
 const JORNADAS: Record<string, string> = { completa: 'Completa', media: 'Media jornada' }
 
 interface Aporte {
-  id: string; nivel: string; modalidad: string; jornada: string | null; tipo: string; anio: number; sede: string | null; monto: number
+  id: string; nivel: string; modalidad: string; jornada: string | null; tipo: string; anio: number; monto: number
 }
 
 interface Props { aportes: Aporte[] }
@@ -20,7 +20,7 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
   const [editando, setEditando] = useState<string | null>(null)
   const [editMonto, setEditMonto] = useState(0)
   const [showNuevo, setShowNuevo] = useState(false)
-  const [nuevo, setNuevo] = useState({ nivel: 'Playgroup', modalidad: 'presencial', jornada: 'completa', tipo: 'mensual', anio: new Date().getFullYear() + 1, sede: '', monto: 0 })
+  const [nuevo, setNuevo] = useState({ nivel: 'Playgroup', modalidad: 'presencial', jornada: 'completa', tipo: 'mensual', anio: new Date().getFullYear() + 1, monto: 0 })
   const [beca, setBeca] = useState(0)
 
   const filtrados = aportes.filter(a => a.anio === anioFiltro)
@@ -47,13 +47,13 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
 
   async function crearNuevo() {
     if (!nuevo.monto) { toast.error('Ingrese un monto'); return }
-    const body = { ...nuevo, sede: nuevo.sede || null, jornada: nuevo.jornada || null }
+    const body = { ...nuevo, jornada: nuevo.jornada || null }
     const res = await fetch('/api/aportes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     if (res.ok) {
       const data = await res.json()
       setAportes(prev => [...prev, data])
       setShowNuevo(false)
-      setNuevo({ nivel: 'Playgroup', modalidad: 'presencial', jornada: 'completa', tipo: 'mensual', anio: anioFiltro, sede: '', monto: 0 })
+      setNuevo({ nivel: 'Playgroup', modalidad: 'presencial', jornada: 'completa', tipo: 'mensual', anio: anioFiltro, monto: 0 })
       toast.success('Aporte creado')
     } else toast.error('Error al crear')
   }
@@ -69,7 +69,6 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
                 <th className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider px-4 py-3 text-left">Nivel</th>
                 <th className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider px-4 py-3 text-left">Modalidad</th>
                 <th className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider px-4 py-3 text-left">Jornada</th>
-                <th className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider px-4 py-3 text-left">Sede</th>
                 <th className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider px-4 py-3 text-right">Monto</th>
                 {beca > 0 && <th className="text-[10px] font-semibold text-[var(--ar-accent)] uppercase tracking-wider px-4 py-3 text-right">Con beca ({beca}%)</th>}
                 <th className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider px-4 py-3 text-center w-24">Acciones</th>
@@ -77,24 +76,12 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
             </thead>
             <tbody>
               {items.length === 0 ? (
-                <tr><td colSpan={beca > 0 ? 7 : 6} className="px-4 py-8 text-center text-[#9ca3af]">Sin registros para este año</td></tr>
+                <tr><td colSpan={beca > 0 ? 6 : 5} className="px-4 py-8 text-center text-[#9ca3af]">Sin registros para este año</td></tr>
               ) : items.map(a => (
                 <tr key={a.id} className="border-b border-[#f5f6f7] hover:bg-[#fafbfc]">
                   <td className="px-4 py-3 font-medium text-[#1B3A5C]">{a.nivel}</td>
                   <td className="px-4 py-3 text-[#6b7280]">{MODALIDADES[a.modalidad] ?? a.modalidad}</td>
                   <td className="px-4 py-3 text-[#6b7280]">{a.jornada ? JORNADAS[a.jornada] ?? a.jornada : 'Todas'}</td>
-                  <td className="px-4 py-3 text-[#6b7280]">
-                    {a.sede ? (
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold ${
-                        a.sede === 'santiago' ? 'bg-blue-50 text-blue-700' :
-                        a.sede === 'punta_arenas' ? 'bg-emerald-50 text-emerald-700' :
-                        a.sede === 'puente_alto' ? 'bg-violet-50 text-violet-700' :
-                        'bg-gray-50 text-gray-600'
-                      }`}>
-                        {SEDES[a.sede] ?? a.sede}
-                      </span>
-                    ) : <span className="text-[#9ca3af]">Todas</span>}
-                  </td>
                   <td className="px-4 py-3 text-right font-medium text-[#1B3A5C]">
                     {editando === a.id ? (
                       <input type="number" value={editMonto} onChange={e => setEditMonto(parseInt(e.target.value) || 0)} className="w-24 px-2 py-1 border border-[var(--ar-border)] rounded text-right text-[12px]" autoFocus/>
@@ -134,7 +121,7 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="page-title">Tabla de Aportes</h1>
-          <p className="page-subtitle">Configuración global de montos por nivel, modalidad y sede</p>
+          <p className="page-subtitle">Configuración de montos por nivel y modalidad</p>
         </div>
         <button onClick={() => setShowNuevo(true)} className="btn-primary">
           <i className="ti ti-plus text-sm" aria-hidden="true"/> Nuevo aporte
@@ -205,15 +192,6 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
               <div>
                 <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Año</label>
                 <input type="number" value={nuevo.anio} onChange={e => setNuevo(p => ({...p, anio: parseInt(e.target.value)}))} className="input-base text-[12px]"/>
-              </div>
-              <div>
-                <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Sede</label>
-                <select value={nuevo.sede} onChange={e => setNuevo(p => ({...p, sede: e.target.value}))} className="select-base w-full text-[12px]">
-                  <option value="">Todas las sedes</option>
-                  <option value="santiago">Santiago</option>
-                  <option value="punta_arenas">Punta Arenas</option>
-                  <option value="puente_alto">Puente Alto</option>
-                </select>
               </div>
               <div className="col-span-2">
                 <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Monto ($)</label>
