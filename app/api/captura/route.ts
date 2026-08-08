@@ -11,6 +11,12 @@ function getAdmin() {
 
 // POST: Crear sesión de captura
 export async function POST() {
+  // Captura requiere estar logueado (admin/tutor sube docs del celular)
+  const { createClient } = await import('@/lib/supabase/server')
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
   const admin = getAdmin()
   const codigo = Math.random().toString(36).substring(2, 8).toUpperCase()
   

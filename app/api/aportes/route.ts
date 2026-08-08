@@ -12,13 +12,24 @@ function getAdmin() {
 
 // GET: Listar tabla de aportes (filtrable por anio, sede, tipo)
 export async function GET(request: NextRequest) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
   const { searchParams } = new URL(request.url)
   const anio = searchParams.get('anio')
-  const sede = searchParams.get('sede')
 
   const admin = getAdmin()
+  const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
+  const usuario = ur as any
+
   let query = admin.from('tabla_aportes').select('*').eq('activo', true).order('nivel').order('tipo').order('sede')
   if (anio) query = query.eq('anio', parseInt(anio))
+
+  // Admin del colegio solo ve los suyos
+  if (usuario?.rol !== 'super_admin' && usuario?.colegio_id) {
+    query = query.or(`colegio_id.eq.${usuario.colegio_id},colegio_id.is.null`)
+  }
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

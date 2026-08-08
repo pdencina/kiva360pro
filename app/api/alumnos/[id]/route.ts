@@ -45,7 +45,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: 'Nada que actualizar' }, { status: 400 })
   }
 
-  const { data, error } = await admin.from('alumnos').update(updates).eq('id', params.id).select().single()
+  const { data, error } = await admin.from('alumnos').update(updates).eq('id', params.id).eq('colegio_id', (ur as any)?.colegio_id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json(data)

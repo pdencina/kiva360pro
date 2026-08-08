@@ -17,17 +17,21 @@ export async function GET(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const admin = getAdmin()
+  const { data: ur } = await admin.from('usuarios').select('colegio_id').eq('id', user.id).single()
+  const colegioId = (ur as any)?.colegio_id
+
   const { searchParams } = new URL(request.url)
   const alumnoId = searchParams.get('alumno_id')
   if (!alumnoId) return NextResponse.json({ error: 'alumno_id requerido' }, { status: 400 })
 
-  const { data, error } = await admin
-    .from('horario_alumno')
+  let query = admin.from('horario_alumno')
     .select(`*, profesional:usuarios(id, nombre, apellido)`)
     .eq('alumno_id', alumnoId)
     .eq('activo', true)
-    .order('dia_semana')
-    .order('hora_inicio')
+
+  if (colegioId) query = query.eq('colegio_id', colegioId)
+
+  const { data, error } = await query.order('dia_semana').order('hora_inicio')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data ?? [])

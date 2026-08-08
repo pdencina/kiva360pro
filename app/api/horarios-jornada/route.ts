@@ -12,12 +12,18 @@ function getAdmin() {
 
 // GET: Listar horarios de jornada
 export async function GET() {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
   const admin = getAdmin()
-  const { data, error } = await admin
-    .from('horarios_jornada')
-    .select('*')
-    .eq('activo', true)
-    .order('nivel')
+  const { data: ur } = await admin.from('usuarios').select('colegio_id').eq('id', user.id).single()
+  const colegioId = (ur as any)?.colegio_id
+
+  let query = admin.from('horarios_jornada').select('*').eq('activo', true).order('nivel').order('dia')
+  if (colegioId) query = query.eq('colegio_id', colegioId)
+
+  const { data, error } = await query
     .order('dia')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
