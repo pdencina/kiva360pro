@@ -32,10 +32,16 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const admin = getAdmin()
-  const { data: ur } = await admin.from('usuarios').select('rol').eq('id', user.id).single()
-  if ((ur as any)?.rol !== 'super_admin') return NextResponse.json({ error: 'Solo super_admin' }, { status: 403 })
+  const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
+  const usuario = ur as any
+  if (!usuario || !['super_admin', 'admin'].includes(usuario.rol)) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
   const body = await request.json()
+  // Si es admin del colegio, forzar su colegio_id
+  if (usuario.rol === 'admin') {
+    body.colegio_id = usuario.colegio_id
+  }
+
   const { data, error } = await admin.from('tabla_aportes').insert(body).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data, { status: 201 })
@@ -48,13 +54,18 @@ export async function PUT(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const admin = getAdmin()
-  const { data: ur } = await admin.from('usuarios').select('rol').eq('id', user.id).single()
-  if ((ur as any)?.rol !== 'super_admin') return NextResponse.json({ error: 'Solo super_admin' }, { status: 403 })
+  const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
+  const usuario = ur as any
+  if (!usuario || !['super_admin', 'admin'].includes(usuario.rol)) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
   const { id, ...updates } = await request.json()
   if (!id) return NextResponse.json({ error: 'ID requerido' }, { status: 400 })
 
-  const { data, error } = await admin.from('tabla_aportes').update({ ...updates, updated_at: new Date().toISOString() }).eq('id', id).select().single()
+  let query = admin.from('tabla_aportes').update({ ...updates, updated_at: new Date().toISOString() }).eq('id', id)
+  // Admin solo puede editar los de su colegio
+  if (usuario.rol === 'admin') query = query.eq('colegio_id', usuario.colegio_id)
+
+  const { data, error } = await query.select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
@@ -66,14 +77,18 @@ export async function DELETE(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const admin = getAdmin()
-  const { data: ur } = await admin.from('usuarios').select('rol').eq('id', user.id).single()
-  if ((ur as any)?.rol !== 'super_admin') return NextResponse.json({ error: 'Solo super_admin' }, { status: 403 })
+  const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
+  const usuario = ur as any
+  if (!usuario || !['super_admin', 'admin'].includes(usuario.rol)) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID requerido' }, { status: 400 })
 
-  const { error } = await admin.from('tabla_aportes').delete().eq('id', id)
+  let query = admin.from('tabla_aportes').delete().eq('id', id)
+  if (usuario.rol === 'admin') query = query.eq('colegio_id', usuario.colegio_id)
+
+  const { error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }
