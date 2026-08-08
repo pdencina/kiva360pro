@@ -33,7 +33,7 @@ export default function Topbar({ usuario }: Props) {
 
   return (
     <header className="bg-white/80 backdrop-blur-xl border-b border-[var(--ar-border)] sticky top-0 z-30">
-      <div className="flex items-center justify-between h-[56px] px-6">
+      <div className="flex items-center justify-between h-[56px] px-4 md:px-6">
         {/* Logo */}
         <Link href={rol === 'apoderado' || rol === 'alumno' ? '/portal' : '/inicio'} className="flex items-center gap-3 shrink-0 group">
           <Image src="/icono-solo/kiva360-icon.svg" alt="Kiva360" width={34} height={34} className="rounded-lg group-hover:scale-105 transition-transform duration-200"/>

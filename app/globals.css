@@ -243,6 +243,42 @@
 ::-webkit-scrollbar-thumb { background: #e2e4e8; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
+/* ═══ MOBILE / PWA OPTIMIZATIONS ═══ */
+/* Prevent iOS zoom on input focus */
+@media screen and (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* Safe area insets for notch devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Touch feedback for interactive elements */
+@media (hover: none) {
+  .btn-primary:active, .btn-secondary:active, .btn-accent:active {
+    transform: scale(0.95);
+  }
+  .card:active {
+    transform: scale(0.99);
+  }
+}
+
+/* Prevent text selection on UI elements (mobile) */
+nav, aside, header, button {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Smooth scrolling on iOS */
+.overflow-y-auto, .overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Focus styles */
 :focus-visible {
   outline: 2px solid var(--ar-primary);
@@ -258,12 +294,12 @@
 
 /* Modals & overlays */
 .modal-overlay {
-  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+  @apply fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4;
   background: rgba(15, 23, 36, 0.4);
   backdrop-filter: blur(4px);
 }
 .modal-content {
-  @apply bg-white rounded-2xl w-full shadow-2xl overflow-hidden animate-fade-in-scale;
+  @apply bg-white rounded-t-2xl md:rounded-2xl w-full shadow-2xl overflow-hidden animate-fade-in-scale max-h-[90vh] overflow-y-auto;
   box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0,0,0,0.03);
 }
 

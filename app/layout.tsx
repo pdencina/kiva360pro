@@ -23,6 +23,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: '#0d1b2a',
 }
 
@@ -31,8 +33,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className="antialiased">
       <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="min-h-screen">
+      <body className="min-h-screen overscroll-none">
         <NavigationProgress />
         {children}
       </body>
