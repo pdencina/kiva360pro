@@ -20,7 +20,7 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
   const [editando, setEditando] = useState<string | null>(null)
   const [editMonto, setEditMonto] = useState(0)
   const [showNuevo, setShowNuevo] = useState(false)
-  const [nuevo, setNuevo] = useState({ nivel: 'Playgroup', modalidad: 'presencial', jornada: 'completa', tipo: 'mensual', anio: new Date().getFullYear() + 1, monto: 0 })
+  const [nuevo, setNuevo] = useState({ nivel: '', modalidad: '', jornada: '', tipo: 'mensual', anio: new Date().getFullYear() + 1, monto: 0 })
   const [beca, setBeca] = useState(0)
 
   const filtrados = aportes.filter(a => a.anio === anioFiltro)
@@ -46,14 +46,15 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
   }
 
   async function crearNuevo() {
+    if (!nuevo.nivel) { toast.error('Ingrese un nivel o programa'); return }
     if (!nuevo.monto) { toast.error('Ingrese un monto'); return }
-    const body = { ...nuevo, jornada: nuevo.jornada || null }
+    const body = { ...nuevo, jornada: nuevo.jornada || null, modalidad: nuevo.modalidad || null }
     const res = await fetch('/api/aportes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     if (res.ok) {
       const data = await res.json()
       setAportes(prev => [...prev, data])
       setShowNuevo(false)
-      setNuevo({ nivel: 'Playgroup', modalidad: 'presencial', jornada: 'completa', tipo: 'mensual', anio: anioFiltro, monto: 0 })
+      setNuevo({ nivel: '', modalidad: '', jornada: '', tipo: 'mensual', anio: anioFiltro, monto: 0 })
       toast.success('Aporte creado')
     } else toast.error('Error al crear')
   }
@@ -80,8 +81,8 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
               ) : items.map(a => (
                 <tr key={a.id} className="border-b border-[#f5f6f7] hover:bg-[#fafbfc]">
                   <td className="px-4 py-3 font-medium text-[#1B3A5C]">{a.nivel}</td>
-                  <td className="px-4 py-3 text-[#6b7280]">{MODALIDADES[a.modalidad] ?? a.modalidad}</td>
-                  <td className="px-4 py-3 text-[#6b7280]">{a.jornada ? JORNADAS[a.jornada] ?? a.jornada : 'Todas'}</td>
+                  <td className="px-4 py-3 text-[#6b7280]">{a.modalidad}</td>
+                  <td className="px-4 py-3 text-[#6b7280]">{a.jornada || '—'}</td>
                   <td className="px-4 py-3 text-right font-medium text-[#1B3A5C]">
                     {editando === a.id ? (
                       <input type="number" value={editMonto} onChange={e => setEditMonto(parseInt(e.target.value) || 0)} className="w-24 px-2 py-1 border border-[var(--ar-border)] rounded text-right text-[12px]" autoFocus/>
@@ -161,39 +162,29 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
             <h3 className="text-[15px] font-bold text-[#1B3A5C] mb-4">Nuevo registro de aporte</h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Nivel</label>
-                <select value={nuevo.nivel} onChange={e => setNuevo(p => ({...p, nivel: e.target.value}))} className="select-base w-full text-[12px]">
-                  <option value="Playgroup">Playgroup</option>
-                  <option value="Preschool a High School">Preschool a High School</option>
-                </select>
+                <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Nivel / Programa</label>
+                <input type="text" value={nuevo.nivel} onChange={e => setNuevo(p => ({...p, nivel: e.target.value}))} className="input-base w-full text-[12px]" placeholder="Ej: Pre-kinder, Básica, Programa TEA..."/>
               </div>
               <div>
                 <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Tipo</label>
                 <select value={nuevo.tipo} onChange={e => setNuevo(p => ({...p, tipo: e.target.value}))} className="select-base w-full text-[12px]">
-                  <option value="inicial">Aporte Inicial</option>
+                  <option value="inicial">Aporte Inicial (matrícula)</option>
                   <option value="mensual">Aporte Mensual</option>
                 </select>
               </div>
               <div>
                 <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Modalidad</label>
-                <select value={nuevo.modalidad} onChange={e => setNuevo(p => ({...p, modalidad: e.target.value}))} className="select-base w-full text-[12px]">
-                  <option value="presencial">Presencial</option>
-                  <option value="online">Online</option>
-                </select>
+                <input type="text" value={nuevo.modalidad} onChange={e => setNuevo(p => ({...p, modalidad: e.target.value}))} className="input-base w-full text-[12px]" placeholder="Ej: Presencial, Online, Híbrido..."/>
               </div>
               <div>
                 <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Jornada</label>
-                <select value={nuevo.jornada} onChange={e => setNuevo(p => ({...p, jornada: e.target.value}))} className="select-base w-full text-[12px]">
-                  <option value="">Todas</option>
-                  <option value="completa">Completa</option>
-                  <option value="media">Media jornada</option>
-                </select>
+                <input type="text" value={nuevo.jornada} onChange={e => setNuevo(p => ({...p, jornada: e.target.value}))} className="input-base w-full text-[12px]" placeholder="Ej: Completa, Media, Extendida..."/>
               </div>
               <div>
                 <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Año</label>
                 <input type="number" value={nuevo.anio} onChange={e => setNuevo(p => ({...p, anio: parseInt(e.target.value)}))} className="input-base text-[12px]"/>
               </div>
-              <div className="col-span-2">
+              <div>
                 <label className="block text-[10px] font-semibold text-[#6b7280] uppercase mb-1">Monto ($)</label>
                 <input type="number" value={nuevo.monto || ''} onChange={e => setNuevo(p => ({...p, monto: parseInt(e.target.value) || 0}))} className="input-base text-[12px]" placeholder="260000"/>
               </div>
