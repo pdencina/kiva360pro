@@ -107,7 +107,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-[#f8f9fb] flex items-center justify-center p-8">
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-3 mb-8">
-          <img src="/logo-arschool.png" alt="Kiva360" className="h-10" />
+          <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="h-10 w-10 rounded-lg" />
         </div>
 
         <h2 className="text-[22px] font-bold text-[#1a2332] mb-1" style={{ fontFamily: 'var(--font-display)' }}>Crear contraseña</h2>
