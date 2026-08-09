@@ -11,12 +11,8 @@ function getAdmin() {
   )
 }
 
-// Mapeo de colegio_id a sede (mismo que en /api/contratos)
-const SEDES_POR_COLEGIO: Record<string, string> = {
-  '11111111-1111-1111-1111-111111111111': 'santiago',
-  '22222222-2222-2222-2222-222222222222': 'puente_alto',
-  '33333333-3333-3333-3333-333333333333': 'punta_arenas',
-}
+// Mapeo de colegio_id a sede (dinámico, se usa la dirección del colegio)
+const SEDES_POR_COLEGIO: Record<string, string> = {}
 
 // POST: Guardar firma digital con evidencia legal (FES Ley 19.799)
 export async function POST(request: NextRequest) {

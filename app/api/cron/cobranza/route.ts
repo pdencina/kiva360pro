@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
     try {
       await enviarEmail({
         to: c.familia.email,
-        subject: `AR School — Aporte vencido (${c.dias_atraso} días de atraso)`,
+        subject: `Recordatorio de pago — Aporte vencido (${c.dias_atraso} días de atraso)`,
         html: `
           <div style="font-family:-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
             <h2 style="color:#c53030;">Aporte vencido</h2>
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
             <div style="background:#fef3ec;border:1px solid #fed7aa;border-radius:8px;padding:12px;margin:16px 0;font-size:13px;color:#9a3412;">
               El incumplimiento reiterado (2 o más plazos vencidos) puede generar la pérdida de beneficios según el contrato de prestación de servicios.
             </div>
-            <p style="font-size:12px;color:#9ca3af;">Este es un recordatorio automático de AR School Global.</p>
+            <p style="font-size:12px;color:#9ca3af;">Este es un recordatorio automático.</p>
           </div>
         `,
       })

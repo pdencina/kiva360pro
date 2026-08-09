@@ -104,7 +104,7 @@ tr:nth-child(even) { background: #f8fafc; }
     html += `</ul></div>`
   }
 
-  html += `<div class="footer">AR School Global · Documento generado el ${fecha}</div>`
+  html += `<div class="footer">Kiva360 · Documento generado el ${fecha}</div>`
   html += `<div class="no-print"><button onclick="window.print()" style="background:#1a2332;color:white;border:none;padding:10px 28px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button> <button onclick="window.close()" style="background:white;color:#1a2332;border:1.5px solid #e2e8f0;padding:10px 28px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-left:8px;">Cerrar</button></div>`
   html += `</body></html>`
 
@@ -157,7 +157,7 @@ tr:nth-child(even) { background: #f8fafc; }
     html += `</tbody></table>`
   })
 
-  html += `<div class="footer">AR School Global · Horario personal · ${fecha}</div>`
+  html += `<div class="footer">Kiva360 · Horario personal · ${fecha}</div>`
   html += `<div class="no-print"><button onclick="window.print()" style="background:#1e40af;color:white;border:none;padding:10px 28px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button> <button onclick="window.close()" style="background:white;color:#1e40af;border:1.5px solid #e2e8f0;padding:10px 28px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-left:8px;">Cerrar</button></div>`
   html += `</body></html>`
 

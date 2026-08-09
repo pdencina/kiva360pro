@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
 
   // Generar HTML
   const html = generarBoletinHTML({
-    alumno: { nombre: al.nombre, apellido: al.apellido, curso: al.curso, colegio: al.colegio?.nombre ?? 'AR School' },
+    alumno: { nombre: al.nombre, apellido: al.apellido, curso: al.curso, colegio: al.colegio?.nombre ?? 'Centro Educativo' },
     materias,
     promedioGeneral,
     totalEvaluaciones: cals.length,
@@ -148,7 +148,7 @@ ${materias.length === 0 ? '<div style="text-align:center;padding:40px;color:#9ca
 </div>
 
 <div style="margin-top:30px;text-align:center;color:#9ca3af;font-size:9px;border-top:1px solid #e8eaed;padding-top:12px;">
-  AR School Global · Boletín generado el ${fecha} · Este documento es informativo
+  Kiva360 · Boletín generado el ${fecha} · Este documento es informativo
 </div>
 
 <div class="no-print">

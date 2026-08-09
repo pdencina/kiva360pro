@@ -98,7 +98,7 @@ export async function crearNotificaciones(opts: NotificacionOpts) {
 /**
  * Notificar publicación de horario a todos los tutores del colegio.
  */
-export async function notificarHorarioPublicado(colegioId: string, tituloHorario: string) {
+export async function notificarHorarioPublicado(colegioId: string, tituloHorario: string, colegioNombre?: string) {
   return crearNotificaciones({
     colegioId,
     titulo: '📅 Nuevo horario publicado',
@@ -107,7 +107,7 @@ export async function notificarHorarioPublicado(colegioId: string, tituloHorario
     href: '/planificacion',
     roles: ['tutor'],
     enviarEmailNotif: true,
-    emailSubject: `AR School — Nuevo horario publicado`,
+    emailSubject: `${colegioNombre || 'Kiva360'} — Nuevo horario publicado`,
     emailHtml: templateNotificacionHorario(tituloHorario),
   })
 }
@@ -131,7 +131,7 @@ export async function notificarComunicado(
     href: '/portal/comunicados',
     roles: ['apoderado'],
     enviarEmailNotif: true,
-    emailSubject: `AR School — ${titulo}`,
+    emailSubject: `${colegio || 'Kiva360'} — ${titulo}`,
     emailHtml: templateComunicado(titulo, contenido, colegio),
   })
 
@@ -143,7 +143,7 @@ function templateNotificacionHorario(titulo: string) {
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="border-bottom: 2px solid #1a2332; padding-bottom: 16px; margin-bottom: 24px;">
-        <strong style="font-size: 16px; color: #1a2332;">AR SCHOOL</strong>
+        <strong style="font-size: 16px; color: #1a2332;">Kiva360</strong>
         <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">Planificación</span>
       </div>
       <h2 style="color: #1a2332; font-size: 18px; margin: 0 0 12px;">📅 Nuevo horario publicado</h2>
@@ -154,7 +154,7 @@ function templateNotificacionHorario(titulo: string) {
         Ingresa a la plataforma para revisar tu horario personal y ver los bloques que tienes asignados esta semana.
       </p>
       <div style="text-align: center; margin: 28px 0;">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.arschoolglobal.com'}/planificacion" 
+        <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://kiva360.cl'}/planificacion" 
            style="background: #1a2332; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-block;">
           Ver mi horario
         </a>
@@ -216,7 +216,7 @@ export async function notificarNuevaTarea(
     href: '/portal/tareas',
     usuarioIds: apoderadoIds,
     enviarEmailNotif: true,
-    emailSubject: `AR School — Nueva tarea: ${titulo}`,
+    emailSubject: `Nueva tarea: ${titulo}`,
     emailHtml: templateNuevaTarea(titulo, curso, materia, fechaStr),
   })
 }

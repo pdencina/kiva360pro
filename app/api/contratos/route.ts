@@ -14,11 +14,8 @@ function getAdmin() {
   )
 }
 
-const SEDES: Record<string, string> = {
-  '11111111-1111-1111-1111-111111111111': 'Victoria 52, Comuna de Santiago',
-  '22222222-2222-2222-2222-222222222222': 'José Manuel Irarrázaval 0565, Comuna de Puente Alto',
-  '33333333-3333-3333-3333-333333333333': 'Chiloé 862, Comuna de Punta Arenas',
-}
+const SEDES: Record<string, string> = {}
+
 
 export async function GET(request: NextRequest) {
   const supabase = createClient()
@@ -75,7 +72,7 @@ export async function GET(request: NextRequest) {
   const mesesCobro = 10
   const porcentajeBeca = matricula?.porcentaje_beca ?? 0
   const fechaMat = matricula?.fecha_matricula ?? new Date().toISOString().split('T')[0]
-  const sede = SEDES[colegio?.id] ?? 'Victoria 52, Comuna de Santiago'
+  const sede = colegio?.direccion ?? ''
   const firmaApoderado = matricula?.firma_apoderado ?? null
   const firmadoAt = matricula?.firmado_at ? new Date(matricula.firmado_at).toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' }) : null
 

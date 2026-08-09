@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
           const alumnoNombre = `${nombre.trim()} ${apellido.trim()}`
           const emailResult = await enviarEmail({
             to: email_apoderado.trim(),
-            subject: `Bienvenido/a a AR School - Cuenta creada para ${alumnoNombre}`,
+            subject: `Bienvenido/a - Cuenta creada para ${alumnoNombre}`,
             html: templateInvitacionApoderado(nombreCompleto, alumnoNombre, linkAcceso),
           })
           console.log('Email enviado:', emailResult)
@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
             const alumnoNombre = `${nombre.trim()} ${apellido.trim()}`
             const emailResult = await enviarEmail({
               to: email_apoderado.trim(),
-              subject: `Bienvenido/a a AR School - Cuenta creada para ${alumnoNombre}`,
+              subject: `Bienvenido/a - Cuenta creada para ${alumnoNombre}`,
               html: templateInvitacionApoderado(nombreCompleto, alumnoNombre, linkAcceso2),
             })
             console.log('Email enviado (usuario existente):', emailResult)

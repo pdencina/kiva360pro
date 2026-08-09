@@ -44,14 +44,14 @@ export async function POST(request: NextRequest) {
     const html = templateComunicado(
       (comunicado as any).titulo,
       (comunicado as any).contenido,
-      (comunicado as any).colegio?.nombre ?? 'AR School'
+      (comunicado as any).colegio?.nombre ?? 'Tu centro educativo'
     )
 
     // Enviar en lotes de 50
     let enviados = 0
     for (let i = 0; i < emails.length; i += 50) {
       const batch = emails.slice(i, i + 50)
-      const result = await enviarEmail({ to: batch, subject: `${(comunicado as any).titulo} — AR School`, html })
+      const result = await enviarEmail({ to: batch, subject: `${(comunicado as any).titulo} — ${(comunicado as any).colegio?.nombre || 'Kiva360'}`, html })
       if (result.ok) enviados += batch.length
     }
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     const result = await enviarEmail({
       to: email,
-      subject: `Reporte diario de ${(alumno as any).nombre} — AR School`,
+      subject: `Reporte diario de ${(alumno as any).nombre} — ${(alumno as any).colegio?.nombre || 'Kiva360'}`,
       html,
     })
 
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     const result = await enviarEmail({
       to: (familia as any).email,
-      subject: `Recordatorio de pago — AR School`,
+      subject: `Recordatorio de pago — ${(familia as any).colegio?.nombre || 'Kiva360'}`,
       html,
     })
 

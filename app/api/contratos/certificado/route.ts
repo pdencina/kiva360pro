@@ -69,7 +69,7 @@ body { font-family:-apple-system,sans-serif; color:#1a2332; padding:50px; max-wi
 </style></head><body>
 
 <div class="header">
-  <div class="sub">Fundación Educacional AR Ministries</div>
+  <div class="sub">Certificado de Firma Electrónica</div>
   <h1>Certificado de Firma Electrónica</h1>
   <div class="sub" style="margin-top:8px;">Ley 19.799 — Firma Electrónica Simple</div>
 </div>
@@ -127,7 +127,7 @@ ${auditoria.representante_institucional ? `<div class="section">
 </div>
 
 <div class="footer">
-  AR School Global · Fundación Educacional AR Ministries · RUT 65.168.392-0<br/>
+  Kiva360 · Gestión Educacional<br/>
   Certificado generado el ${new Date().toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' })}
 </div>
 

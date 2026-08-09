@@ -155,8 +155,8 @@ export default function PagoLinkPage({ params }: { params: { token: string } }) 
               <div className="mt-3 bg-[#f9fafb] rounded-lg p-3 text-[11px] text-[#4b5563] space-y-0.5">
                 <div><strong>Banco:</strong> BancoEstado · Cta. Cte. 291-0-008051-4</div>
                 <div><strong>RUT:</strong> 65.168.392-0</div>
-                <div><strong>Nombre:</strong> Fund. Educacional AR Ministries</div>
-                <div><strong>Email:</strong> adm@arschoolglobal.com</div>
+                <div><strong>Nombre:</strong> Centro Educativo</div>
+                <div><strong>Email:</strong> contacta a tu centro</div>
               </div>
             </details>
           </div>

@@ -43,20 +43,17 @@ export default function MatriculaClient({ planes, matriculas, cursos, aportes, b
   }
 
   // Auto-completar montos desde tabla de aportes
-  function calcularMontos(curso: string, jornada: string, sede: string) {
+  function calcularMontos(curso: string, jornada: string, _sede: string) {
     const anioActual = new Date().getFullYear()
-    const esPlaygroup = curso.toLowerCase().includes('play group') || curso.toLowerCase().includes('pre school')
-    const nivel = esPlaygroup ? 'Playgroup' : 'Preschool a High School'
-    const jornadaTipo = jornada === 'completa' ? 'completa' : 'media'
-    const sedeKey = sede || null
 
-    // Buscar aporte inicial
-    let inicial = aportes.find(a => a.tipo === 'inicial' && a.nivel === nivel && a.anio === anioActual && (a.sede === sedeKey || (!sedeKey && !a.sede)))
-    if (!inicial) inicial = aportes.find(a => a.tipo === 'inicial' && a.nivel === nivel && a.anio === anioActual && !a.sede)
+    // Buscar aporte inicial que coincida con el curso/nivel
+    let inicial = aportes.find(a => a.tipo === 'inicial' && a.anio === anioActual && curso.toLowerCase().includes(a.nivel.toLowerCase()))
+    if (!inicial) inicial = aportes.find(a => a.tipo === 'inicial' && a.anio === anioActual)
 
-    // Buscar aporte mensual
-    let mensual = aportes.find(a => a.tipo === 'mensual' && a.nivel === nivel && a.anio === anioActual && (a.jornada === jornadaTipo || !a.jornada) && (a.sede === sedeKey || (!sedeKey && !a.sede)))
-    if (!mensual) mensual = aportes.find(a => a.tipo === 'mensual' && a.nivel === nivel && a.anio === anioActual && (a.jornada === jornadaTipo || !a.jornada) && !a.sede)
+    // Buscar aporte mensual que coincida con curso + jornada
+    let mensual = aportes.find(a => a.tipo === 'mensual' && a.anio === anioActual && curso.toLowerCase().includes(a.nivel.toLowerCase()) && jornada.toLowerCase().includes((a.jornada || '').toLowerCase()))
+    if (!mensual) mensual = aportes.find(a => a.tipo === 'mensual' && a.anio === anioActual && curso.toLowerCase().includes(a.nivel.toLowerCase()))
+    if (!mensual) mensual = aportes.find(a => a.tipo === 'mensual' && a.anio === anioActual)
 
     const montoInicial = inicial?.monto ?? 0
     const montoMensual = mensual?.monto ?? 0
@@ -304,63 +301,13 @@ export default function MatriculaClient({ planes, matriculas, cursos, aportes, b
               <div><label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Nacionalidad</label><input value={form.nacionalidad} onChange={e => setForm(p => ({...p, nacionalidad: capitalizarNombre(e.target.value)}))} className="input-base"/></div>
               <div><label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">País natal</label><input value={form.pais_natal} onChange={e => setForm(p => ({...p, pais_natal: capitalizarNombre(e.target.value)}))} className="input-base" placeholder="Chile"/></div>
               <div><label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Curso *</label>
-                <select value={form.curso} onChange={e => { setForm(p => ({...p, curso: e.target.value})); calcularMontos(e.target.value, form.jornada, form.sede) }} className="select-base w-full">
-                  {cursos.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <input type="text" list="cursos-list" value={form.curso} onChange={e => { setForm(p => ({...p, curso: e.target.value})); calcularMontos(e.target.value, form.jornada, '') }} className={`input-base w-full ${esError('curso')}`} placeholder="Ej: Pre-kinder, 1° Básico, Programa TEA..."/>
+                <datalist id="cursos-list">
+                  {cursos.map(c => <option key={c} value={c}/>)}
+                </datalist>
               </div>
               <div><label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Jornada</label>
-                <select value={form.jornada} onChange={e => { setForm(p => ({...p, jornada: e.target.value})); calcularMontos(form.curso, e.target.value, form.sede) }} className="select-base w-full">
-                  {(() => {
-                    const cursoLower = form.curso.toLowerCase()
-                    const esHighSchool = cursoLower.includes('high school') || cursoLower.includes('medio')
-                    const esMiddleSchool = cursoLower.includes('middle school')
-                    const esPreschool = cursoLower.includes('pre school') || cursoLower.includes('kinder')
-                    const esPlaygroup = cursoLower.includes('play group')
-                    const soloCompleta = esHighSchool || esMiddleSchool
-
-                    if (esPlaygroup) {
-                      return (
-                        <>
-                          <option value="completa">Jornada Completa (Lun-Jue 08:30-18:00, Vie 08:30-17:00)</option>
-                          <option value="am">Media Jornada AM (Lun-Vie 08:30-13:00)</option>
-                          <option value="especial">Jornada Especial (1 a 4 días por semana)</option>
-                        </>
-                      )
-                    }
-                    if (esPreschool) {
-                      return <option value="completa">Jornada Única (Lun-Vie 08:30-12:45)</option>
-                    }
-                    if (soloCompleta) {
-                      return <option value="completa">Jornada Completa (Lun-Mar-Jue 08:30-16:00, Mié-Vie 08:30-13:40)</option>
-                    }
-                    // Elementary
-                    return (
-                      <>
-                        <option value="completa">Jornada Completa (Lun-Mar-Jue 08:30-16:00, Mié-Vie 08:30-13:40)</option>
-                        <option value="am">Media Jornada AM (Lun-Vie 08:30-13:00)</option>
-                        <option value="especial">Jornada Especial (1 a 4 días por semana)</option>
-                      </>
-                    )
-                  })()}
-                </select>
-                {(() => {
-                  const cursoLower = form.curso.toLowerCase()
-                  const soloCompleta = cursoLower.includes('high school') || cursoLower.includes('medio') || cursoLower.includes('middle school') || cursoLower.includes('pre school') || cursoLower.includes('kinder')
-                  if (soloCompleta && form.jornada !== 'completa') {
-                    setTimeout(() => setForm(p => ({...p, jornada: 'completa'})), 0)
-                  }
-                  return soloCompleta ? (
-                    <span className="text-[10px] text-[#6b7280] mt-1 block">Preschool, Middle y High School tienen jornada única</span>
-                  ) : null
-                })()}
-              </div>
-              <div><label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Sede</label>
-                <select value={form.sede} onChange={e => { setForm(p => ({...p, sede: e.target.value})); calcularMontos(form.curso, form.jornada, e.target.value) }} className="select-base w-full">
-                  <option value="">Según colegio asignado</option>
-                  <option value="santiago">Santiago (Victoria 52)</option>
-                  <option value="puente_alto">Puente Alto (Irarrázaval 0565)</option>
-                  <option value="punta_arenas">Punta Arenas (Chiloé 862)</option>
-                </select>
+                <input type="text" value={form.jornada} onChange={e => { setForm(p => ({...p, jornada: e.target.value})); calcularMontos(form.curso, e.target.value, '') }} className={`input-base w-full ${esError('jornada')}`} placeholder="Ej: Completa, Media jornada, Extendida..."/>
               </div>
               <div><label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Tipo de ingreso</label>
                 <select value={form.tipo_ingreso} onChange={e => setForm(p => ({...p, tipo_ingreso: e.target.value}))} className="select-base w-full">

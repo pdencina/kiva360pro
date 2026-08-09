@@ -73,12 +73,12 @@ h1 { font-size: 16px; text-align: center; margin-bottom: 4px; text-transform: up
 <body>
 
 <div class="header">
-  <div class="logo">AR SCHOOL GLOBAL</div>
+  <div class="logo">${a.colegio?.nombre ?? 'Centro Educativo'}</div>
   <div class="badge">FICHA DE EMERGENCIA</div>
 </div>
 
 <h1>${a.nombre} ${a.apellido}</h1>
-<div class="subtitle">${a.curso ?? '—'} · ${a.colegio?.nombre ?? 'AR School'} · Edad: ${edad}</div>
+<div class="subtitle">${a.curso ?? '—'} · ${a.colegio?.nombre ?? 'Centro Educativo'} · Edad: ${edad}</div>
 
 <div class="grid">
   <!-- Datos personales -->
@@ -146,7 +146,7 @@ ${(a.alergias || a.condiciones_medicas) ? `
 ` : ''}
 
 <div class="footer">
-  Ficha generada por AR School Global · ${new Date().toLocaleDateString('es-CL')} · Fundación Educacional AR Ministries
+  Ficha generada por Kiva360 · ${new Date().toLocaleDateString('es-CL')}
 </div>
 
 <div class="no-print">

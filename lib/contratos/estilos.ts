@@ -41,10 +41,7 @@ export const HEADER_FUNDACION = `
 
 export const FOOTER_SEDES = `
 <div class="footer-sedes">
-<strong>Sede Santiago:</strong> Victoria 52, Santiago, Chile<br/>
-<strong>Sede Puente Alto:</strong> Av. José Manuel Irarrázaval 0565, Puente Alto, Santiago, Chile.<br/>
-<strong>Sede Punta Arenas:</strong> Chiloé 862, Punta Arenas, Chile.<br/>
-e-mail: contacto@kiva360.cl · www.kiva360.cl
+<p style="font-size:10px;color:#9ca3af;text-align:center;margin-top:40px;">Documento generado por Kiva360 · Gestión Educacional Integral</p>
 </div>`
 
 export const DATOS_BANCARIOS = `
@@ -73,8 +70,8 @@ export function seccionFirmas(firmaApoderado: string | null, firmadoAt: string |
 <div class="firma-box">
 <div class="firma-espacio"></div>
 <div class="firma-linea"></div>
-<div class="firma-nombre">PATRICIO FERNANDO BURGOS PÉREZ</div>
-<div class="firma-detalle">RUT N° 12.274.490-6</div>
+<div class="firma-nombre">Representante del Centro</div>
+<div class="firma-detalle"></div>
 <div class="firma-rol">Representante Legal</div>
 </div>
 <div class="firma-box">
