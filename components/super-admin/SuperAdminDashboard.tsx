@@ -265,11 +265,19 @@ export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usu
             <table className="w-full text-[12px]">
               <thead>
                 <tr className="table-head">
-                  <th>Cliente</th><th>Plan</th><th>Monto</th><th>Modalidad</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
+                  <th>Cliente</th><th>Plan</th><th>Monto</th><th>Modalidad</th><th>Estado</th><th>Firmado</th><th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {propuestas.map((p: any) => (
+                {propuestas.map((p: any) => {
+                  const diasContratado = p.aceptada_at ? Math.floor((Date.now() - new Date(p.aceptada_at).getTime()) / (1000 * 60 * 60 * 24)) : null
+                  // Proporcional: días restantes del mes de firma
+                  const diasMes = p.aceptada_at ? new Date(new Date(p.aceptada_at).getFullYear(), new Date(p.aceptada_at).getMonth() + 1, 0).getDate() : 30
+                  const diaFirma = p.aceptada_at ? new Date(p.aceptada_at).getDate() : 1
+                  const diasRestantesMes = diasMes - diaFirma
+                  const montoProporcional = p.monto_mensual ? Math.round((p.monto_mensual / diasMes) * diasRestantesMes) : 0
+
+                  return (
                   <tr key={p.id} className="table-row">
                     <td className="font-medium">{p.nombre_cliente}</td>
                     <td>{p.plan}</td>
@@ -280,7 +288,17 @@ export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usu
                         {p.estado}
                       </span>
                     </td>
-                    <td className="text-[var(--ar-muted)]">{new Date(p.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}</td>
+                    <td className="text-[var(--ar-muted)]">
+                      {p.aceptada_at ? (
+                        <div>
+                          <div>{new Date(p.aceptada_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}</div>
+                          <div className="text-[9px] text-emerald-600 font-semibold">{diasContratado} días contratado</div>
+                          {montoProporcional > 0 && <div className="text-[9px] text-[#B86E00]">1er mes: ${montoProporcional.toLocaleString('es-CL')}</div>}
+                        </div>
+                      ) : (
+                        <span>{new Date(p.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })}</span>
+                      )}
+                    </td>
                     <td>
                       <div className="flex items-center gap-2">
                         <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/propuesta/${p.slug}`); toast.success('Link copiado') }}
@@ -300,7 +318,7 @@ export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usu
                       </div>
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>
