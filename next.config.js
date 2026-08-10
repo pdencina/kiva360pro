@@ -9,6 +9,11 @@ const nextConfig = {
       { protocol: 'https', hostname: '**.supabase.co' },
     ],
   },
+  async rewrites() {
+    return [
+      { source: '/demo/sakurakids', destination: '/demo-sakurakids.html' },
+    ]
+  },
 }
 
 module.exports = nextConfig
