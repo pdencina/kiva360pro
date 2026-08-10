@@ -67,6 +67,22 @@ export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usu
     if (res.ok) { toast.success('Propuesta eliminada'); window.location.reload() }
   }
 
+  async function handleReenviar(id: string, slug: string) {
+    const res = await fetch('/api/propuestas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, estado: 'enviada', resetear_firma: true }),
+    })
+    if (res.ok) {
+      const link = `${window.location.origin}/propuesta/${slug}`
+      navigator.clipboard.writeText(link)
+      toast.success('Propuesta reenviada. Link copiado al portapapeles.')
+      window.location.reload()
+    } else {
+      toast.error('Error al reenviar')
+    }
+  }
+
   // KPIs
   const totalAlumnos = alumnos.filter(a => a.activo).length
   const totalUsuarios = usuarios.filter(u => u.activo).length
@@ -269,6 +285,10 @@ export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usu
                       <div className="flex items-center gap-2">
                         <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/propuesta/${p.slug}`); toast.success('Link copiado') }}
                           className="text-[10px] text-[var(--ar-accent)] font-medium hover:underline">Copiar</button>
+                        {p.estado !== 'enviada' && (
+                          <button onClick={() => handleReenviar(p.id, p.slug)}
+                            className="text-[10px] text-emerald-600 font-medium hover:underline">Reenviar</button>
+                        )}
                         <button onClick={() => abrirEditar(p)}
                           className="text-[10px] text-[#5B3E9E] font-medium hover:underline">Editar</button>
                         <button onClick={() => handleEliminar(p.id, p.nombre_cliente)}

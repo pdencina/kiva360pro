@@ -51,7 +51,19 @@ export async function PATCH(request: NextRequest) {
   if ((ur as any)?.rol !== 'super_admin') return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
 
   const body = await request.json()
-  const { id, ...updates } = body
+  const { id, resetear_firma, ...updates } = body
+
+  // Si se pide resetear firma, limpiar campos de firma para permitir nueva firma
+  if (resetear_firma) {
+    updates.firma_codigo = null
+    updates.firma_codigo_expira = null
+    updates.aceptada_at = null
+    updates.aceptada_por = null
+    updates.firma_nombre = null
+    updates.firma_ip = null
+    updates.firma_user_agent = null
+  }
+
   const { data, error } = await admin.from('propuestas').update(updates).eq('id', id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
