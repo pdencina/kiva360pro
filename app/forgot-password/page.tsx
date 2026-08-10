@@ -21,7 +21,12 @@ export default function ForgotPasswordPage() {
 
     if (!res.ok) {
       const data = await res.json()
-      toast.error(data.error || 'Error al enviar el email')
+      const msg = data.error || ''
+      if (msg.includes('security purposes') || msg.includes('rate limit')) {
+        toast.error('Espera un momento antes de solicitar otro enlace.')
+      } else {
+        toast.error('Error al enviar el email. Verifica tu correo e intenta de nuevo.')
+      }
       setLoading(false)
       return
     }
@@ -53,7 +58,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center font-display font-bold text-white text-sm">AR</div>
+          <img src="/icono-solo/kiva360-icon.svg" alt="Kiva360" className="w-9 h-9 rounded-xl"/>
           <span className="font-display font-semibold text-slate-900 text-lg">Kiva360</span>
         </div>
 
@@ -70,7 +75,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               className="input-base"
-              placeholder="usuario@arschoolglobal.com"
+              placeholder="tu@correo.com"
               required
             />
           </div>
