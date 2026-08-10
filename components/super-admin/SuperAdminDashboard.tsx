@@ -289,6 +289,10 @@ export default function SuperAdminDashboard({ colegios, propuestas, alumnos, usu
                           <button onClick={() => handleReenviar(p.id, p.slug)}
                             className="text-[10px] text-emerald-600 font-medium hover:underline">Reenviar</button>
                         )}
+                        {p.estado === 'aceptada' && (
+                          <a href={`/propuesta/${p.slug}`} target="_blank"
+                            className="text-[10px] text-[#3D7A94] font-medium hover:underline">Ver contrato</a>
+                        )}
                         <button onClick={() => abrirEditar(p)}
                           className="text-[10px] text-[#5B3E9E] font-medium hover:underline">Editar</button>
                         <button onClick={() => handleEliminar(p.id, p.nombre_cliente)}
