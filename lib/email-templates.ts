@@ -81,8 +81,10 @@ ${footer()}
 // ═══════════════════════════════════════
 // TEMPLATE: Propuesta firmada (confirmación)
 // ═══════════════════════════════════════
-export function emailPropuestaFirmada(nombreCliente: string, nombreFirma: string, plan: string, modalidad: string, ip: string) {
-  const fecha = new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+export function emailPropuestaFirmada(nombreCliente: string, nombreFirma: string, plan: string, modalidad: string, ip: string, monto?: number) {
+  // Hora Chile (UTC-4 en verano, UTC-3 en invierno)
+  const fecha = new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago' })
+  const montoStr = monto ? `$${monto.toLocaleString('es-CL')}/mes` : '—'
   return wrapper(`
 ${header('Propuesta firmada')}
 <div style="padding:40px;">
@@ -93,19 +95,29 @@ ${header('Propuesta firmada')}
   </div>
   <h2 style="font-size:20px;font-weight:700;color:${BRAND.text};margin:0 0 8px;text-align:center;">Propuesta firmada exitosamente</h2>
   <p style="font-size:14px;color:${BRAND.muted};text-align:center;margin:0 0 28px;">
-    La propuesta de servicios para <strong style="color:${BRAND.text};">${nombreCliente}</strong> ha sido firmada.
+    <strong style="color:${BRAND.text};">${nombreCliente}</strong> ha firmado la propuesta de servicios Kiva360.
   </p>
   <div style="background:${BRAND.bg};border-radius:12px;padding:20px;margin-bottom:24px;">
     <table style="width:100%;font-size:13px;border-collapse:collapse;">
-      <tr><td style="padding:6px 0;color:${BRAND.muted};width:120px;">Firmada por:</td><td style="font-weight:600;color:${BRAND.text};">${nombreFirma}</td></tr>
-      <tr><td style="padding:6px 0;color:${BRAND.muted};">Fecha:</td><td style="font-weight:600;color:${BRAND.text};">${fecha}</td></tr>
-      <tr><td style="padding:6px 0;color:${BRAND.muted};">Plan:</td><td style="font-weight:600;color:${BRAND.text};">${plan}</td></tr>
-      <tr><td style="padding:6px 0;color:${BRAND.muted};">Modalidad:</td><td style="font-weight:600;color:${BRAND.text};text-transform:capitalize;">${modalidad}</td></tr>
-      <tr><td style="padding:6px 0;color:${BRAND.muted};">IP:</td><td style="font-size:11px;color:#9ca3af;">${ip}</td></tr>
+      <tr><td style="padding:8px 0;color:${BRAND.muted};width:130px;">Firmada por:</td><td style="font-weight:600;color:${BRAND.text};">${nombreFirma}</td></tr>
+      <tr><td style="padding:8px 0;color:${BRAND.muted};">Fecha y hora:</td><td style="font-weight:600;color:${BRAND.text};">${fecha} (hora Chile)</td></tr>
+      <tr><td style="padding:8px 0;color:${BRAND.muted};">Plan contratado:</td><td style="font-weight:600;color:${BRAND.text};">${plan}</td></tr>
+      <tr><td style="padding:8px 0;color:${BRAND.muted};">Monto:</td><td style="font-weight:600;color:${BRAND.text};">${montoStr}</td></tr>
+      <tr><td style="padding:8px 0;color:${BRAND.muted};">Modalidad de pago:</td><td style="font-weight:600;color:${BRAND.text};text-transform:capitalize;">${modalidad}</td></tr>
+      <tr><td style="padding:8px 0;color:${BRAND.muted};">IP del firmante:</td><td style="font-size:11px;color:#9ca3af;">${ip}</td></tr>
     </table>
   </div>
+  <div style="background:#f0ecf9;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+    <p style="font-size:12px;font-weight:600;color:#5B3E9E;margin:0 0 8px;">Próximos pasos:</p>
+    <ol style="font-size:12px;color:${BRAND.muted};margin:0;padding-left:16px;line-height:1.8;">
+      <li>Configurar la plataforma del centro</li>
+      <li>Crear usuarios (admin, profesionales)</li>
+      <li>Capacitación del equipo (30 min)</li>
+      <li>Activar suscripción de pago</li>
+    </ol>
+  </div>
   <p style="font-size:13px;color:${BRAND.muted};text-align:center;">
-    Nuestro equipo se pondrá en contacto para iniciar la implementación.
+    Pablo se pondrá en contacto para coordinar la implementación.
   </p>
   <p style="font-size:10px;color:#9ca3af;text-align:center;margin-top:20px;">
     Este documento tiene validez legal como firma electrónica simple según la Ley 19.799 de Chile.

@@ -91,15 +91,15 @@ export async function POST(request: NextRequest) {
       await enviarEmail({
         to: p.email_cliente,
         subject: `Propuesta firmada — ${p.nombre_cliente} · Kiva360`,
-        html: emailPropuestaFirmada(p.nombre_cliente, nombre_firma, p.plan, modalidad || p.modalidad_pago, ip),
+        html: emailPropuestaFirmada(p.nombre_cliente, nombre_firma, p.plan, modalidad || p.modalidad_pago, ip, p.monto_mensual),
       })
     }
 
     // Send notification to Pablo
     await enviarEmail({
       to: 'pablo@kiva360.cl',
-      subject: `🎉 Propuesta FIRMADA — ${p.nombre_cliente}`,
-      html: emailPropuestaFirmada(p.nombre_cliente, nombre_firma, p.plan, modalidad || p.modalidad_pago, ip),
+      subject: `Propuesta FIRMADA — ${p.nombre_cliente}`,
+      html: emailPropuestaFirmada(p.nombre_cliente, nombre_firma, p.plan, modalidad || p.modalidad_pago, ip, p.monto_mensual),
     })
 
     return NextResponse.json(data)

@@ -118,6 +118,27 @@ export default function PropuestaClient({ propuesta: p }: Props) {
           <a href="https://kiva360.cl/login" className="inline-block px-8 py-3 rounded-xl text-[14px] font-bold text-white bg-[#0d1b2a] hover:bg-[#1a2d47] transition-all">
             Ir a la plataforma →
           </a>
+
+          {/* Suscripción de pago */}
+          <div className="bg-white rounded-2xl border border-emerald-200 p-5 mt-6 text-left">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              </div>
+              <div>
+                <h4 className="text-[13px] font-bold text-[#1A1035]">Configura tu pago mensual</h4>
+                <p className="text-[11px] text-[#5C5470]">Inscribe tu tarjeta para cobro automático</p>
+              </div>
+            </div>
+            <p className="text-[11px] text-[#5C5470] mb-3 leading-relaxed">
+              Para activar tu suscripción, ingresa a la plataforma y ve a <strong>Configuración → Mi Suscripción → Suscribir tarjeta</strong>. El cobro se realizará automáticamente cada mes.
+            </p>
+            <a href="https://kiva360.cl/configuracion/suscripcion" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Suscribir tarjeta ahora
+            </a>
+          </div>
+
           <p className="text-[11px] text-[#5C5470] mt-4">Aceptada por: <strong>{p.aceptada_por || nombre}</strong></p>
         </div>
       </div>
