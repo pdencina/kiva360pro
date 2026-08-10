@@ -8,12 +8,24 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
+
+    // Intentar como authorization code (PKCE flow)
+    const { error: codeError } = await supabase.auth.exchangeCodeForSession(code)
+    if (!codeError) {
       return NextResponse.redirect(`${origin}${next}`)
     }
+
+    // Si falla, intentar como OTP (recovery flow con custom SMTP)
+    const { error: otpError } = await supabase.auth.verifyOtp({
+      token_hash: code,
+      type: 'recovery',
+    })
+    if (!otpError) {
+      return NextResponse.redirect(`${origin}${next}`)
+    }
+
+    console.error('Auth callback failed:', codeError?.message, otpError?.message)
   }
 
-  // Si algo falla, redirigir a login con error
   return NextResponse.redirect(`${origin}/login?error=auth_failed`)
 }
