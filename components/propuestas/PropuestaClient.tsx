@@ -261,6 +261,29 @@ export default function PropuestaClient({ propuesta: p }: Props) {
           </div>
         )}
 
+        {/* Sello de firma si ya está aceptada */}
+        {p.estado === 'aceptada' && (
+          <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 text-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h3 className="text-[18px] font-bold text-emerald-800 mb-2">Contrato firmado</h3>
+            <p className="text-[13px] text-emerald-700 mb-4">
+              Firmado por <strong>{p.aceptada_por || p.firma_nombre}</strong> el {p.aceptada_at ? new Date(p.aceptada_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago' }) : '—'}
+            </p>
+            <div className="bg-white rounded-xl p-4 border border-emerald-100 text-left max-w-sm mx-auto">
+              <table className="text-[12px] w-full">
+                <tbody>
+                  <tr><td className="py-1 text-[#5C5470]">Firmada por:</td><td className="font-semibold text-[#1A1035]">{p.aceptada_por || p.firma_nombre}</td></tr>
+                  <tr><td className="py-1 text-[#5C5470]">Email:</td><td className="font-semibold text-[#1A1035]">{p.email_cliente}</td></tr>
+                  <tr><td className="py-1 text-[#5C5470]">IP:</td><td className="text-[#9ca3af] font-mono text-[11px]">{p.firma_ip || '—'}</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[10px] text-emerald-600 mt-4">Validez legal: Ley 19.799 — Firma Electrónica Simple</p>
+          </div>
+        )}
+
         {showAceptar && (
           <div className="bg-white rounded-2xl border-2 border-emerald-200 p-6">
             <h3 className="text-[16px] font-bold text-[#1A1035] text-center mb-2">Firma electrónica</h3>
