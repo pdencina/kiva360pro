@@ -30,7 +30,7 @@ export default async function PropuestaPage({ params }: { params: { slug: string
   if (p.estado === 'aceptada') {
     const fechaFirma = p.aceptada_at ? new Date(p.aceptada_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago' }) : '—'
     return (
-      <div className="min-h-screen bg-[#F9F7F5]">
+      <div className="min-h-screen bg-[#F9F7F5]" data-firmada="true">
         <div className="bg-emerald-600 text-white py-3 px-6 text-center sticky top-0 z-50">
           <p className="text-[12px] font-semibold">Propuesta firmada por <strong>{p.aceptada_por || p.firma_nombre}</strong> el {fechaFirma} (hora Chile)</p>
         </div>
