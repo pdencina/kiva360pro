@@ -53,7 +53,7 @@ export default function PropuestaClient({ propuesta: p }: Props) {
       .then(data => {
         if (data && data.estado === 'aceptada') {
           setAceptada(true)
-          setPropData(prev => ({ ...prev, ...data }))
+          setPropData({ ...p, ...data })
         }
       })
       .catch(() => {})
@@ -283,14 +283,15 @@ export default function PropuestaClient({ propuesta: p }: Props) {
             </div>
             <h3 className="text-[18px] font-bold text-emerald-800 mb-2">Contrato firmado</h3>
             <p className="text-[13px] text-emerald-700 mb-4">
-              Firmado por <strong>{propData.aceptada_por || propData.firma_nombre || p.aceptada_por || p.firma_nombre}</strong> el {(propData.aceptada_at || p.aceptada_at) ? new Date(propData.aceptada_at || p.aceptada_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago' }) : '—'}
+              Firmado por <strong>{propData.aceptada_por || p.aceptada_por || propData.firma_nombre || p.firma_nombre || '—'}</strong> el {(propData.aceptada_at || p.aceptada_at) ? new Date(propData.aceptada_at || p.aceptada_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago' }) : '—'}
             </p>
             <div className="bg-white rounded-xl p-4 border border-emerald-100 text-left max-w-sm mx-auto">
               <table className="text-[12px] w-full">
                 <tbody>
-                  <tr><td className="py-1 text-[#5C5470]">Firmada por:</td><td className="font-semibold text-[#1A1035]">{propData.aceptada_por || propData.firma_nombre || p.aceptada_por}</td></tr>
-                  <tr><td className="py-1 text-[#5C5470]">Email:</td><td className="font-semibold text-[#1A1035]">{propData.email_cliente || p.email_cliente}</td></tr>
-                  <tr><td className="py-1 text-[#5C5470]">IP:</td><td className="text-[#9ca3af] font-mono text-[11px]">{propData.firma_ip || p.firma_ip || '—'}</td></tr>
+                  <tr><td className="py-1.5 text-[#5C5470] w-28">Firmada por:</td><td className="font-semibold text-[#1A1035]">{propData.aceptada_por || p.aceptada_por || propData.firma_nombre || p.firma_nombre || '—'}</td></tr>
+                  <tr><td className="py-1.5 text-[#5C5470]">Fecha y hora:</td><td className="font-semibold text-[#1A1035]">{(propData.aceptada_at || p.aceptada_at) ? new Date(propData.aceptada_at || p.aceptada_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago' }) : '—'}</td></tr>
+                  <tr><td className="py-1.5 text-[#5C5470]">Email:</td><td className="font-semibold text-[#1A1035]">{propData.email_cliente || p.email_cliente}</td></tr>
+                  <tr><td className="py-1.5 text-[#5C5470]">IP:</td><td className="text-[#9ca3af] font-mono text-[11px]">{propData.firma_ip || p.firma_ip || '—'}</td></tr>
                 </tbody>
               </table>
             </div>
