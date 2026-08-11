@@ -31,7 +31,7 @@ export default function CTA() {
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">>
               <a
-                href="https://wa.me/56949616038?text=Hola%2C%20me%20interesa%20una%20demo%20de%20Kiva360"
+                href="https://wa.me/56984651744?text=Hola%2C%20me%20interesa%20una%20demo%20de%20Kiva360"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-[14px] text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
