@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import Navbar from '@/components/landing/Navbar'
 import Hero from '@/components/landing/Hero'
+import Trusted from '@/components/landing/Trusted'
 import Features from '@/components/landing/Features'
 import AdmisionPipeline from '@/components/landing/AdmisionPipeline'
 import ReporteDiarioShowcase from '@/components/landing/ReporteDiarioShowcase'
@@ -42,6 +43,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <Hero />
+      <Trusted />
       <Features />
       <AdmisionPipeline />
       <ReporteDiarioShowcase />
