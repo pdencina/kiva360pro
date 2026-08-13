@@ -29,5 +29,5 @@ export default async function AlumnosPage() {
 
   const cursos = [...new Set((alumnos ?? []).map((a: any) => a.curso))].sort()
 
-  return <AlumnosClient alumnos={(alumnos as any[]) ?? []} cursos={cursos} colegioId={colegioId} />
+  return <AlumnosClient alumnos={(alumnos as any[]) ?? []} cursos={cursos} colegioId={colegioId} rol={usuario.rol} />
 }

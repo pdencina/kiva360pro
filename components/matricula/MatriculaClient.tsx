@@ -85,6 +85,7 @@ export default function MatriculaClient({ planes, matriculas, cursos, aportes, b
     retiro_nombre: '', retiro_parentesco: '', retiro_rut: '', retiro_telefono: '',
     // Cobros
     plan_cobro_id: '', monto_matricula: 0, monto_mensual: 0, meses_cobro: 10, porcentaje_beca: 0,
+    monto_extension_horaria: 0,
     medio_pago_matricula: '' as '' | 'transferencia' | 'tarjeta' | 'cheque' | 'pagare',
     // Config
     crear_cuenta_apoderado: true, password_apoderado: '',
@@ -495,6 +496,11 @@ export default function MatriculaClient({ planes, matriculas, cursos, aportes, b
                 <div className="w-full px-3.5 py-2.5 bg-[#f9fafb] border border-[var(--ar-border)] rounded-lg text-[13px] text-[#1B3A5C] font-medium">
                   {form.monto_mensual > 0 ? `$${form.monto_mensual.toLocaleString('es-CL')}` : <span className="text-[#9ca3af]">Seleccione curso y sede</span>}
                 </div>
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Extensión horaria ($)</label>
+                <input type="text" value={form.monto_extension_horaria ? form.monto_extension_horaria.toLocaleString('es-CL') : ''} onChange={e => { const v = parseInt(e.target.value.replace(/\D/g, '')) || 0; setForm(p => ({...p, monto_extension_horaria: v})) }} className="input-base" placeholder="Valor adicional (opcional)"/>
+                <p className="text-[9px] text-[#9ca3af] mt-1">Cobro adicional por horas extra</p>
               </div>
               <div><label className="block text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">Meses</label><input type="number" min="1" max="12" value={form.meses_cobro} onChange={e => setForm(p => ({...p, meses_cobro: parseInt(e.target.value) || 10}))} className="input-base"/></div>
               <div>

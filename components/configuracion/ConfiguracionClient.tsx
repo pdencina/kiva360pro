@@ -355,7 +355,7 @@ export default function ConfiguracionClient({ usuario, stats, horariosJornada }:
               <i className="ti ti-table text-[18px] text-[#2D7A54] group-hover:text-white" aria-hidden="true"/>
             </div>
             <div>
-              <div className="text-[13px] font-semibold text-[var(--ar-text)]">Tabla de Aportes</div>
+              <div className="text-[13px] font-semibold text-[var(--ar-text)]">Valores Programas</div>
               <div className="text-[11px] text-[var(--ar-muted)]">Precios por nivel y jornada</div>
             </div>
           </a>

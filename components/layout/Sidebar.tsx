@@ -29,7 +29,7 @@ const NAV_PRINCIPAL: NavItem[] = [
 ]
 
 const NAV_GESTION: NavItem[] = [
-  { label: 'Aportes',             href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision'] },
+  { label: 'Valores Programas',   href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision'] },
   { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin'] },
   { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin'] },
   { label: 'Documentos',         href: '/documentos',   icon: 'ti-folder',           roles: ['super_admin','admin','gestor_admision','tutor'] },

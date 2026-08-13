@@ -141,9 +141,17 @@ export default async function FichaAlumnoPage({ params }: { params: { id: string
               <div className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3">Apoderado</div>
               <div className="space-y-2 text-[12px]">
                 <div className="font-medium text-[#1a2332]">{fam.nombre_apoderado} {fam.apellido_apoderado}</div>
-                <div className="text-[#6b7280]">{fam.email}</div>
-                {fam.telefono && <div className="text-[#6b7280]">{fam.telefono}</div>}
-                {fam.rut && <div className="text-[#9ca3af] text-[11px]">RUT: {fam.rut}</div>}
+                {['super_admin', 'admin', 'gestor_admision', 'pastor_campus'].includes(userRol) && (
+                  <>
+                    <div className="text-[#6b7280]">{fam.email}</div>
+                    {fam.telefono && <div className="text-[#6b7280]">{fam.telefono}</div>}
+                    {fam.rut && <div className="text-[#9ca3af] text-[11px]">RUT: {fam.rut}</div>}
+                    {fam.direccion && <div className="text-[#9ca3af] text-[11px]">{fam.direccion}</div>}
+                  </>
+                )}
+                {userRol === 'tutor' && (
+                  <div className="text-[11px] text-[#9ca3af] italic">Datos de contacto restringidos</div>
+                )}
               </div>
             </div>
           )}

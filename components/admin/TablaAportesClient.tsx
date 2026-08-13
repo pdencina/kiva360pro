@@ -121,7 +121,7 @@ export default function TablaAportesClient({ aportes: initial }: Props) {
     <div className="p-6 max-w-5xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="page-title">Tabla de Aportes</h1>
+          <h1 className="page-title">Valores Programas</h1>
           <p className="page-subtitle">Configuración de montos por nivel y modalidad</p>
         </div>
         <button onClick={() => setShowNuevo(true)} className="btn-primary">

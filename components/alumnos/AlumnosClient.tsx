@@ -5,12 +5,12 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
-interface Props { alumnos: any[]; cursos: string[]; colegioId: string }
+interface Props { alumnos: any[]; cursos: string[]; colegioId: string; rol?: string }
 
 const CURSOS_DEFAULT = ['1° Básico','2° Básico','3° Básico','4° Básico','5° Básico','6° Básico',
   '7° Básico','8° Básico','I° Medio','II° Medio','III° Medio','IV° Medio']
 
-export default function AlumnosClient({ alumnos, cursos, colegioId }: Props) {
+export default function AlumnosClient({ alumnos, cursos, colegioId, rol = 'admin' }: Props) {
   const [cursoBusq, setCursoBusq] = useState('')
   const [textBusq, setTextBusq] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -232,8 +232,9 @@ export default function AlumnosClient({ alumnos, cursos, colegioId }: Props) {
                     </div>
                     <div>
                       <div className="font-semibold text-slate-800 text-sm">{alumnoDetalle.familias[0].nombre_apoderado} {alumnoDetalle.familias[0].apellido_apoderado}</div>
-                      <div className="text-xs text-slate-500">{alumnoDetalle.familias[0].email}</div>
-                      {alumnoDetalle.familias[0].telefono && <div className="text-xs text-slate-500">{alumnoDetalle.familias[0].telefono}</div>}
+                      {rol !== 'tutor' && <div className="text-xs text-slate-500">{alumnoDetalle.familias[0].email}</div>}
+                      {rol !== 'tutor' && alumnoDetalle.familias[0].telefono && <div className="text-xs text-slate-500">{alumnoDetalle.familias[0].telefono}</div>}
+                      {rol === 'tutor' && <div className="text-xs text-slate-400 italic">Datos de contacto restringidos</div>}
                     </div>
                   </div>
                 </div>
