@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.actas_conducta (
   alumno_id       uuid NOT NULL REFERENCES public.alumnos(id) ON DELETE CASCADE,
   -- Contenido del acta
   tipo            text NOT NULL DEFAULT 'conducta'
-                  CHECK (tipo IN ('conducta', 'logro', 'compromiso', 'citacion', 'otro')),
+                  CHECK (tipo IN ('conducta', 'logro', 'compromiso', 'citacion', 'accidente', 'epilepsia', 'incidente_entre_ninos', 'emergencia_medica', 'otro')),
   titulo          text NOT NULL, -- "Acta de conducta - Agresión física"
   descripcion     text NOT NULL, -- Descripción detallada del evento
   fecha_evento    date NOT NULL DEFAULT CURRENT_DATE,
@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS public.actas_conducta (
   medidas         text, -- Medidas tomadas / acuerdos
   compromisos     text, -- Compromisos del apoderado/alumno
   observaciones   text, -- Observaciones adicionales
+  gravedad        text DEFAULT 'media' CHECK (gravedad IN ('leve', 'media', 'grave', 'critica')),
+  requiere_firma  boolean NOT NULL DEFAULT true,
   -- Quién la crea
   creado_por      uuid NOT NULL REFERENCES public.usuarios(id),
   -- Estado del acta
