@@ -98,7 +98,7 @@ export default function Hero() {
               ))}
             </div>
             <div className="text-[12px] text-white/40">
-              <span className="text-white/70 font-medium">+15 colegios</span> ya gestionan con Kiva360
+              Centros educativos <span className="text-white/70 font-medium">ya gestionan</span> con Kiva360
             </div>
           </motion.div>
         </div>

@@ -6,8 +6,9 @@ import Link from 'next/link'
 
 const navLinks = [
   { label: 'Funcionalidades', href: '#features' },
-  { label: 'Módulos', href: '#modules' },
+  { label: 'Cómo funciona', href: '#como-funciona' },
   { label: 'Planes', href: '#pricing' },
+  { label: 'Preguntas', href: '#faq' },
   { label: 'Contacto', href: '#contact' },
 ]
 

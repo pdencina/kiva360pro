@@ -10,7 +10,9 @@ import AdmisionPipeline from '@/components/landing/AdmisionPipeline'
 import ReporteDiarioShowcase from '@/components/landing/ReporteDiarioShowcase'
 import Stats from '@/components/landing/Stats'
 import Modules from '@/components/landing/Modules'
+import ComoFunciona from '@/components/landing/ComoFunciona'
 import Pricing from '@/components/landing/Pricing'
+import FAQ from '@/components/landing/FAQ'
 import CTA from '@/components/landing/CTA'
 import Footer from '@/components/landing/Footer'
 
@@ -87,6 +89,60 @@ export default async function HomePage() {
         inLanguage: 'es-CL',
         publisher: { '@id': `${siteUrl}/#organization` },
       },
+      {
+        '@type': 'FAQPage',
+        '@id': `${siteUrl}/#faq`,
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: '¿Cuánto demora implementar Kiva360 en mi centro?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'La mayoría de los centros quedan operativos en menos de una semana. Cargamos tus cursos, alumnos y programas, y capacitamos a tu equipo y a las familias.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Puedo migrar los datos que ya tengo?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Sí. Si tienes tus alumnos y apoderados en Excel o en otro sistema, los importamos durante la configuración inicial sin que pierdas información.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Funciona en el celular?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Completamente. El equipo del centro y los apoderados pueden usar Kiva360 desde el teléfono: reportes diarios, comunicados, asistencia, pagos y firma de documentos.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Es seguro el manejo de datos de menores?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'La información se aloja en infraestructura cifrada y cada perfil ve solo lo que le corresponde. Las firmas quedan registradas con fecha, hora e IP para respaldo legal.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Sirve para centros NEE y jardines, no solo colegios?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Sí. Kiva360 es transversal: se usa en jardines infantiles, escuelas de lenguaje, centros de intervención NEE y colegios, con evaluación cualitativa, planes de intervención, agenda de sesiones y reporte diario.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: '¿Tengo que firmar un contrato de permanencia?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'No. Trabajamos con planes mensuales sin permanencia, con actualizaciones y soporte incluidos.',
+            },
+          },
+        ],
+      },
     ],
   }
 
@@ -104,7 +160,9 @@ export default async function HomePage() {
       <ReporteDiarioShowcase />
       <Stats />
       <Modules />
+      <ComoFunciona />
       <Pricing />
+      <FAQ />
       <CTA />
       <Footer />
     </div>
