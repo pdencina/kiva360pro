@@ -39,8 +39,63 @@ export default async function HomePage() {
   }
 
   // Unauthenticated users see the landing page
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kiva360.cl'
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${siteUrl}/#organization`,
+        name: 'Kiva360',
+        legalName: 'Flexio Technologies SPA',
+        url: siteUrl,
+        logo: `${siteUrl}/logo-principal/kiva360-horizontal.png`,
+        email: 'pablo@kiva360.cl',
+        telephone: '+56949616038',
+        areaServed: 'CL',
+        contactPoint: {
+          '@type': 'ContactPoint',
+          telephone: '+56949616038',
+          email: 'pablo@kiva360.cl',
+          contactType: 'sales',
+          availableLanguage: ['es'],
+        },
+      },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': `${siteUrl}/#software`,
+        name: 'Kiva360',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        url: siteUrl,
+        description:
+          'Plataforma integral de gestión escolar en Chile: matrículas digitales, asistencia, evaluaciones cualitativas, planificación con IA, intervención NEE, cobranzas y comunicación con familias.',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'CLP',
+          description: 'Solicita una demostración gratuita',
+        },
+        publisher: { '@id': `${siteUrl}/#organization` },
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${siteUrl}/#website`,
+        url: siteUrl,
+        name: 'Kiva360',
+        inLanguage: 'es-CL',
+        publisher: { '@id': `${siteUrl}/#organization` },
+      },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
       <Hero />
       <Trusted />
