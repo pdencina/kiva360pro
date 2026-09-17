@@ -10,11 +10,13 @@ import AdmisionPipeline from '@/components/landing/AdmisionPipeline'
 import ReporteDiarioShowcase from '@/components/landing/ReporteDiarioShowcase'
 import Stats from '@/components/landing/Stats'
 import Modules from '@/components/landing/Modules'
+import AntesDespues from '@/components/landing/AntesDespues'
 import ComoFunciona from '@/components/landing/ComoFunciona'
 import Pricing from '@/components/landing/Pricing'
 import FAQ from '@/components/landing/FAQ'
 import CTA from '@/components/landing/CTA'
 import Footer from '@/components/landing/Footer'
+import WhatsappFloat from '@/components/landing/WhatsappFloat'
 
 export default async function HomePage() {
   const supabase = createClient()
@@ -160,11 +162,13 @@ export default async function HomePage() {
       <ReporteDiarioShowcase />
       <Stats />
       <Modules />
+      <AntesDespues />
       <ComoFunciona />
       <Pricing />
       <FAQ />
       <CTA />
       <Footer />
+      <WhatsappFloat />
     </div>
   )
 }
