@@ -28,7 +28,7 @@ export default async function CobrosSesionPage() {
 
   const [{ data: cobros }, { data: tarifas }, { data: alumnos }, { data: profesionales }] = await Promise.all([
     admin.from('cobros_sesion')
-      .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios(id, nombre, apellido), tarifa:tarifas_sesion(id, nombre)`)
+      .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios!profesional_id(id, nombre, apellido), tarifa:tarifas_sesion(id, nombre)`)
       .eq('colegio_id', colegioId).order('fecha_sesion', { ascending: false }).limit(50),
     admin.from('tarifas_sesion').select('*').eq('colegio_id', colegioId).eq('activo', true).order('nombre'),
     admin.from('alumnos').select('id, nombre, apellido, curso').eq('colegio_id', colegioId).eq('activo', true).order('apellido'),

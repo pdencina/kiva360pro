@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     .select(`
       *,
       alumno:alumnos(id, nombre, apellido, curso),
-      profesional:usuarios(id, nombre, apellido)
+      profesional:usuarios!profesional_id(id, nombre, apellido)
     `)
     .eq('colegio_id', usuario.colegio_id)
     .order('fecha', { ascending: true })
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await admin
     .from('agenda_sesiones')
     .insert(sesiones)
-    .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios(id, nombre, apellido)`)
+    .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios!profesional_id(id, nombre, apellido)`)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data, { status: 201 })
@@ -144,7 +144,7 @@ export async function PATCH(request: NextRequest) {
     .update(updates)
     .eq('id', id)
     .eq('colegio_id', usuario.colegio_id)
-    .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios(id, nombre, apellido)`)
+    .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios!profesional_id(id, nombre, apellido)`)
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

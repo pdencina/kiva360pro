@@ -74,7 +74,7 @@ export default async function InicioPage() {
       ? admin.from('actas_conducta').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId).eq('requiere_firma', true).in('estado', ['enviada', 'vista'])
       : Promise.resolve({ count: 0 } as any),
     esGestion
-      ? admin.from('agenda_sesiones').select('id, fecha, hora_inicio, tipo_sesion, estado, alumno:alumnos(nombre,apellido), profesional:usuarios(nombre,apellido)')
+      ? admin.from('agenda_sesiones').select('id, fecha, hora_inicio, tipo_sesion, estado, alumno:alumnos(nombre,apellido), profesional:usuarios!profesional_id(nombre,apellido)')
           .eq('colegio_id', colegioId).in('estado', ['programada', 'confirmada']).gte('fecha', hoy).lte('fecha', en7dias)
           .order('fecha', { ascending: true }).order('hora_inicio', { ascending: true }).limit(5)
       : Promise.resolve({ data: [] } as any),

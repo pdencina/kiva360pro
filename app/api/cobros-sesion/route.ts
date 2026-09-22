@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     .select(`
       *,
       alumno:alumnos(id, nombre, apellido, curso),
-      profesional:usuarios(id, nombre, apellido),
+      profesional:usuarios!profesional_id(id, nombre, apellido),
       tarifa:tarifas_sesion(id, nombre, especialidad)
     `)
     .eq('colegio_id', usuario.colegio_id)
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
     descuento: descuentoFinal,
     monto_final: montoFinal,
     estado: paqueteVendidoId ? 'pagado' : 'pendiente', // If from pack, mark as paid
-  }).select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios(id, nombre, apellido)`).single()
+  }).select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios!profesional_id(id, nombre, apellido)`).single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
@@ -184,7 +184,7 @@ export async function PATCH(request: NextRequest) {
     .update(updates)
     .eq('id', id)
     .eq('colegio_id', usuario.colegio_id)
-    .select(`*, alumno:alumnos(id, nombre, apellido), profesional:usuarios(id, nombre, apellido)`)
+    .select(`*, alumno:alumnos(id, nombre, apellido), profesional:usuarios!profesional_id(id, nombre, apellido)`)
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

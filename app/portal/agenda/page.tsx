@@ -46,7 +46,7 @@ export default async function PortalAgendaPage() {
   const today = new Date().toISOString().split('T')[0]
   const { data: sesiones } = await admin
     .from('agenda_sesiones')
-    .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios(id, nombre, apellido)`)
+    .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios!profesional_id(id, nombre, apellido)`)
     .in('alumno_id', alumnoIds)
     .gte('fecha', today)
     .in('estado', ['programada', 'confirmada'])
@@ -57,7 +57,7 @@ export default async function PortalAgendaPage() {
   // Load past sessions (last 10)
   const { data: pasadas } = await admin
     .from('agenda_sesiones')
-    .select(`*, alumno:alumnos(id, nombre, apellido), profesional:usuarios(id, nombre, apellido)`)
+    .select(`*, alumno:alumnos(id, nombre, apellido), profesional:usuarios!profesional_id(id, nombre, apellido)`)
     .in('alumno_id', alumnoIds)
     .lt('fecha', today)
     .in('estado', ['completada', 'no_asistio'])
