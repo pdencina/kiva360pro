@@ -138,7 +138,7 @@ begin
     aud
   )
   values (
-    uuid_generate_v4(),
+    gen_random_uuid(),
     p_email,
     crypt(p_password, gen_salt('bf')),
     now(),

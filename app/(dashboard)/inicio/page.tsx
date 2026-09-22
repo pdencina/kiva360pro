@@ -46,6 +46,9 @@ export default async function InicioPage() {
   const mes  = ultimoCobro ? (ultimoCobro as any).mes  : ahora.getMonth() + 1
   const anio = ultimoCobro ? (ultimoCobro as any).anio : ahora.getFullYear()
 
+  const esGestion = ['admin', 'super_admin', 'pastor_campus'].includes(rol)
+  const en7dias = new Date(ahora.getTime() + 7 * 86400000).toISOString().split('T')[0]
+
   const [
     { count: totalAlumnos },
     { count: totalComunicados },
@@ -53,6 +56,10 @@ export default async function InicioPage() {
     { data: asistenciasHoy },
     { data: notificaciones },
     { data: ultimosComunicados },
+    { count: planesActivos },
+    { count: actasPendientes },
+    { data: proximasSesionesRaw },
+    { count: alumnosConNEE },
   ] = await Promise.all([
     admin.from('alumnos').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId).eq('activo', true),
     admin.from('comunicados').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId),
@@ -60,6 +67,20 @@ export default async function InicioPage() {
     admin.from('asistencias').select('estado').eq('colegio_id', colegioId).eq('fecha', hoy),
     admin.from('notificaciones').select('*').eq('colegio_id', colegioId).eq('leida', false).order('created_at', { ascending: false }).limit(10),
     admin.from('comunicados').select('*').eq('colegio_id', colegioId).order('created_at', { ascending: false }).limit(5),
+    esGestion
+      ? admin.from('planes_intervencion').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId).eq('estado', 'activo')
+      : Promise.resolve({ count: 0 } as any),
+    esGestion
+      ? admin.from('actas_conducta').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId).eq('requiere_firma', true).in('estado', ['enviada', 'vista'])
+      : Promise.resolve({ count: 0 } as any),
+    esGestion
+      ? admin.from('agenda_sesiones').select('id, fecha, hora_inicio, tipo_sesion, estado, alumno:alumnos(nombre,apellido), profesional:usuarios(nombre,apellido)')
+          .eq('colegio_id', colegioId).in('estado', ['programada', 'confirmada']).gte('fecha', hoy).lte('fecha', en7dias)
+          .order('fecha', { ascending: true }).order('hora_inicio', { ascending: true }).limit(5)
+      : Promise.resolve({ data: [] } as any),
+    esGestion
+      ? admin.from('alumnos').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId).eq('activo', true).not('necesidades_especiales', 'is', null)
+      : Promise.resolve({ count: 0 } as any),
   ])
 
   // --- ACCIONES PENDIENTES (contextual) ---
@@ -184,11 +205,30 @@ export default async function InicioPage() {
     })
   }
 
+  // Actas de conducta pendientes de firma (admin/super_admin)
+  if (esGestion && actasPendientes && actasPendientes > 0) {
+    pendientes.push({
+      texto: `${actasPendientes} acta${actasPendientes > 1 ? 's' : ''} pendiente${actasPendientes > 1 ? 's' : ''} de firma`,
+      href: '/incidentes',
+      icon: 'ti-signature',
+      tipo: 'warning',
+    })
+  }
+
   const recaudado = (cobros ?? []).filter((c: any) => c.estado === 'pagado').reduce((a: number, c: any) => a + c.monto, 0)
   const enMora    = (cobros ?? []).filter((c: any) => ['mora','parcial','pendiente'].includes(c.estado)).reduce((a: number, c: any) => a + (c.monto - c.monto_pagado), 0)
   const pctAsistencia = (asistenciasHoy ?? []).length > 0
     ? Math.round((asistenciasHoy ?? []).filter((a: any) => a.estado === 'presente').length / (asistenciasHoy ?? []).length * 100)
     : null
+
+  const proximasSesiones = (proximasSesionesRaw ?? []).map((s: any) => ({
+    id: s.id,
+    fecha: s.fecha,
+    hora: s.hora_inicio?.slice(0, 5) ?? '',
+    tipo: s.tipo_sesion,
+    alumno: s.alumno ? `${s.alumno.nombre} ${s.alumno.apellido}` : '—',
+    profesional: s.profesional ? `${s.profesional.nombre} ${s.profesional.apellido}` : '—',
+  }))
 
   return (
     <DashboardInicio
@@ -202,6 +242,12 @@ export default async function InicioPage() {
         pctAsistencia,
         moraCritica: (cobros ?? []).filter((c: any) => c.estado === 'mora').length,
       }}
+      nee={esGestion ? {
+        planesActivos: planesActivos ?? 0,
+        alumnosConNEE: alumnosConNEE ?? 0,
+        actasPendientes: actasPendientes ?? 0,
+        proximasSesiones,
+      } : null}
       notificaciones={(notificaciones as any[]) ?? []}
       ultimosComunicados={(ultimosComunicados as any[]) ?? []}
       mesActual={`${getMesNombre(mes)} ${anio}`}
