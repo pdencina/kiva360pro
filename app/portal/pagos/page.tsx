@@ -43,12 +43,29 @@ export default async function PortalPagosPage() {
     )
   }
 
-  const { data: cobros } = await admin
-    .from('cobros')
-    .select('*, alumno:alumnos(nombre, apellido, curso)')
-    .in('alumno_id', alumnoIds)
-    .order('anio', { ascending: true })
-    .order('mes', { ascending: true })
+  const [{ data: cobros }, { data: documentos }, { data: paquetesVendidos }] = await Promise.all([
+    admin.from('cobros')
+      .select('*, alumno:alumnos(nombre, apellido, curso)')
+      .in('alumno_id', alumnoIds)
+      .order('anio', { ascending: true })
+      .order('mes', { ascending: true }),
+    admin.from('documentos_tributarios')
+      .select('*, alumno:alumnos(nombre, apellido)')
+      .in('alumno_id', alumnoIds)
+      .eq('estado', 'emitido')
+      .order('created_at', { ascending: false }),
+    admin.from('paquetes_vendidos')
+      .select('*, paquete:paquetes_sesion(nombre), alumno:alumnos(nombre, apellido)')
+      .in('alumno_id', alumnoIds)
+      .eq('activo', true)
+      .order('created_at', { ascending: false }),
+  ])
 
-  return <PortalPagosClient cobros={(cobros as any[]) ?? []} />
+  return (
+    <PortalPagosClient
+      cobros={(cobros as any[]) ?? []}
+      documentos={(documentos as any[]) ?? []}
+      paquetesVendidos={(paquetesVendidos as any[]) ?? []}
+    />
+  )
 }

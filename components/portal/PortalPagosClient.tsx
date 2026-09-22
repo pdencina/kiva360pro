@@ -6,9 +6,9 @@ import toast from 'react-hot-toast'
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
-interface Props { cobros: any[] }
+interface Props { cobros: any[]; documentos?: any[]; paquetesVendidos?: any[] }
 
-export default function PortalPagosClient({ cobros }: Props) {
+export default function PortalPagosClient({ cobros, documentos = [], paquetesVendidos = [] }: Props) {
   const searchParams = useSearchParams()
   const resultado = searchParams.get('resultado')
 
@@ -287,6 +287,66 @@ export default function PortalPagosClient({ cobros }: Props) {
                 <div className="text-right">
                   <div className="text-[14px] font-bold text-emerald-700">${c.monto.toLocaleString('es-CL')}</div>
                   <span className="text-[9px] text-emerald-600 font-medium">PAGADO</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mis paquetes de sesiones */}
+      {paquetesVendidos.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-[14px] font-bold text-[#1B3A5C] mb-3 flex items-center gap-2">
+            <i className="ti ti-package text-[#5B3E9E]" aria-hidden="true"/> Mis paquetes de sesiones
+          </h2>
+          <div className="space-y-2">
+            {paquetesVendidos.map((pv: any) => {
+              const pct = pv.sesiones_total > 0 ? Math.round((pv.sesiones_usadas / pv.sesiones_total) * 100) : 0
+              return (
+                <div key={pv.id} className="bg-white border border-[var(--ar-border)] rounded-xl p-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <div className="text-[13px] font-medium text-[#1B3A5C]">{pv.paquete?.nombre ?? 'Paquete de sesiones'}</div>
+                      <div className="text-[11px] text-[#9ca3af]">{pv.alumno?.nombre} {pv.alumno?.apellido}</div>
+                    </div>
+                    <span className="text-[12px] font-bold text-[#1B3A5C]">{pv.sesiones_usadas}/{pv.sesiones_total} sesiones</span>
+                  </div>
+                  <div className="h-2 bg-[#f0f4f8] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#5B3E9E] rounded-full" style={{ width: `${pct}%` }}/>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Mis boletas y facturas */}
+      {documentos.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-[14px] font-bold text-[#1B3A5C] mb-3 flex items-center gap-2">
+            <i className="ti ti-file-invoice text-[#1B3A5C]" aria-hidden="true"/> Mis boletas y facturas
+          </h2>
+          <div className="space-y-2">
+            {documentos.map((d: any) => (
+              <div key={d.id} className="bg-white border border-[var(--ar-border)] rounded-xl p-4 flex items-center justify-between" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-[#EDF6FA] rounded-lg flex items-center justify-center">
+                    <i className="ti ti-file-invoice text-[#1B3A5C]" aria-hidden="true"/>
+                  </div>
+                  <div>
+                    <div className="text-[13px] font-medium text-[#1B3A5C] capitalize">{d.tipo} {d.folio ? `N° ${d.folio}` : ''}</div>
+                    <div className="text-[11px] text-[#9ca3af]">{d.alumno?.nombre} {d.alumno?.apellido} · {new Date(d.created_at).toLocaleDateString('es-CL')}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[13px] font-bold text-[#1B3A5C]">${d.monto_total?.toLocaleString('es-CL')}</span>
+                  {d.pdf_url && (
+                    <a href={d.pdf_url} target="_blank" rel="noopener noreferrer" className="btn-secondary text-[11px] py-2 px-3">
+                      <i className="ti ti-download text-xs" aria-hidden="true"/> Descargar
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
