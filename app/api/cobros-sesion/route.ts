@@ -98,23 +98,21 @@ export async function POST(request: NextRequest) {
   // Check if alumno has an active pack for discount
   let descuentoFinal = descuento || 0
   let paqueteVendidoId: string | null = null
+  let sesionesUsadasActuales = 0
 
-  const { data: packActivo } = await admin
+  const { data: packsActivos } = await admin
     .from('paquetes_vendidos')
     .select('id, sesiones_total, sesiones_usadas, paquete:paquetes_sesion(descuento_pct)')
     .eq('alumno_id', alumno_id)
     .eq('activo', true)
     .eq('estado_pago', 'pagado')
-    .lt('sesiones_usadas', admin.rpc ? 999 : 999) // will filter in code
     .order('created_at', { ascending: true })
-    .limit(1)
 
-  if (packActivo && (packActivo as any[]).length > 0) {
-    const pack = (packActivo as any[])[0]
-    if (pack.sesiones_usadas < pack.sesiones_total) {
-      descuentoFinal = Math.round(monto * ((pack.paquete?.descuento_pct || 100) / 100))
-      paqueteVendidoId = pack.id
-    }
+  const packConCupo = ((packsActivos as any[]) ?? []).find(p => p.sesiones_usadas < p.sesiones_total)
+  if (packConCupo) {
+    descuentoFinal = Math.round(monto * ((packConCupo.paquete?.descuento_pct || 100) / 100))
+    paqueteVendidoId = packConCupo.id
+    sesionesUsadasActuales = packConCupo.sesiones_usadas
   }
 
   const montoFinal = Math.max(0, monto - descuentoFinal)
@@ -142,13 +140,9 @@ export async function POST(request: NextRequest) {
 
   // If pack was used, increment sesiones_usadas
   if (paqueteVendidoId) {
-    await admin.rpc('increment_pack_usage', { pack_id: paqueteVendidoId })
-      .catch(() => {
-        // Fallback: direct update
-        admin.from('paquetes_vendidos')
-          .update({ sesiones_usadas: admin.rpc ? 1 : 1 }) // will handle with raw SQL
-          .eq('id', paqueteVendidoId)
-      })
+    await admin.from('paquetes_vendidos')
+      .update({ sesiones_usadas: sesionesUsadasActuales + 1 })
+      .eq('id', paqueteVendidoId)
   }
 
   return NextResponse.json(data, { status: 201 })

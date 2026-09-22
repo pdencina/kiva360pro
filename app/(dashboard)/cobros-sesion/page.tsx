@@ -26,13 +26,15 @@ export default async function CobrosSesionPage() {
 
   const colegioId = usuario.colegio_id
 
-  const [{ data: cobros }, { data: tarifas }, { data: alumnos }, { data: profesionales }] = await Promise.all([
+  const [{ data: cobros }, { data: tarifas }, { data: alumnos }, { data: profesionales }, { data: paquetes }, { data: paquetesVendidos }] = await Promise.all([
     admin.from('cobros_sesion')
       .select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios!profesional_id(id, nombre, apellido), tarifa:tarifas_sesion(id, nombre)`)
       .eq('colegio_id', colegioId).order('fecha_sesion', { ascending: false }).limit(50),
     admin.from('tarifas_sesion').select('*').eq('colegio_id', colegioId).eq('activo', true).order('nombre'),
     admin.from('alumnos').select('id, nombre, apellido, curso').eq('colegio_id', colegioId).eq('activo', true).order('apellido'),
     admin.from('usuarios').select('id, nombre, apellido').eq('colegio_id', colegioId).eq('activo', true).in('rol', ['tutor', 'admin', 'pastor_campus']).order('apellido'),
+    admin.from('paquetes_sesion').select('*, tarifa:tarifas_sesion(id, nombre, monto)').eq('colegio_id', colegioId).eq('activo', true).order('nombre'),
+    admin.from('paquetes_vendidos').select('*, paquete:paquetes_sesion(nombre, descuento_pct), alumno:alumnos(id, nombre, apellido, curso)').eq('colegio_id', colegioId).eq('activo', true).order('created_at', { ascending: false }),
   ])
 
   return (
@@ -41,6 +43,8 @@ export default async function CobrosSesionPage() {
       tarifas={(tarifas as any[]) ?? []}
       alumnos={(alumnos as any[]) ?? []}
       profesionales={(profesionales as any[]) ?? []}
+      paquetes={(paquetes as any[]) ?? []}
+      paquetesVendidos={(paquetesVendidos as any[]) ?? []}
     />
   )
 }
