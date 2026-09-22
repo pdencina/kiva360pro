@@ -89,7 +89,7 @@ const ROL_BADGE: Record<string, { label: string; color: string; icon: string; ac
   postulante:      { label: 'Postulante',      color: 'bg-[#FEF9EC] text-[#8B6914] border border-[#8B6914]/20', icon: 'ti-file-search',       accent: '#8B6914', activeBg: 'bg-[#8B6914]', activeIndicator: '#8B6914' },
 }
 
-interface Props { rol?: string; modulosHabilitados?: string[] | null }
+interface Props { rol?: string; modulosHabilitados?: string[] | null; collapsed?: boolean; onToggleCollapse?: () => void }
 
 // Mapeo: href del sidebar → key del módulo en BD
 const HREF_TO_MODULO: Record<string, string> = {
@@ -132,7 +132,7 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/portal/tareas': 'tareas',
 }
 
-export default function Sidebar({ rol = 'admin', modulosHabilitados = null }: Props) {
+export default function Sidebar({ rol = 'admin', modulosHabilitados = null, collapsed = false, onToggleCollapse }: Props) {
   const pathname  = usePathname()
   const rolTyped  = rol as Rol
   const badge     = ROL_BADGE[rolTyped]
@@ -184,21 +184,24 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null }: Pr
 
     return (
       <div className="mb-6">
-        <div className="px-3 py-1 text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-[0.1em] mb-2">{section}</div>
+        {!collapsed && <div className="px-3 py-1 text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-[0.1em] mb-2">{section}</div>}
         {visibles.map(item => {
           const active = pathname === item.href || (item.href !== '/inicio' && item.href !== '/portal' && pathname.startsWith(item.href))
           return (
-            <Link key={item.href + item.label} href={item.href}
-              className={`group relative flex items-center gap-2.5 px-3 py-[9px] rounded-lg text-[13px] font-medium mb-[2px] transition-all duration-150 ${
+            <Link key={item.href + item.label} href={item.href} title={collapsed ? item.label : undefined}
+              className={`group relative flex items-center gap-2.5 rounded-lg text-[13px] font-medium mb-[2px] transition-all duration-150 ${collapsed ? 'justify-center px-2 py-[9px]' : 'px-3 py-[9px]'} ${
                 active
                   ? 'text-white'
                   : 'text-[#5f6876] hover:bg-[#f4f5f7] hover:text-[var(--ar-text)]'
               }`}
               style={active ? { backgroundColor: roleAccent, boxShadow: '0 1px 3px rgba(26,35,50,0.15)' } : undefined}>
-              {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-white/60 rounded-r-full"/>}
-              <i className={`ti ${item.icon} text-[15px] flex-shrink-0 transition-colors duration-150 ${active ? 'text-white/90' : 'text-[var(--ar-muted)] group-hover:text-[#7c8390]'}`} aria-hidden="true"/>
-              <span className="flex-1 truncate">{item.label}</span>
-              {item.badge && <span className="bg-white/20 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none min-w-[18px] text-center">{item.badge}</span>}
+              {active && !collapsed && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-white/60 rounded-r-full"/>}
+              <span className="relative flex-shrink-0">
+                <i className={`ti ${item.icon} text-[15px] transition-colors duration-150 ${active ? 'text-white/90' : 'text-[var(--ar-muted)] group-hover:text-[#7c8390]'}`} aria-hidden="true"/>
+                {collapsed && !!item.badge && <span className="absolute -top-1 -right-1 w-[7px] h-[7px] rounded-full bg-[var(--ar-danger)] border border-white"/>}
+              </span>
+              {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+              {!collapsed && item.badge && <span className="bg-white/20 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none min-w-[18px] text-center">{item.badge}</span>}
             </Link>
           )
         })}
@@ -207,17 +210,37 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null }: Pr
   }
 
   return (
-    <aside className="w-[220px] lg:w-[220px] bg-white border-r border-[var(--ar-border)] flex flex-col shrink-0 min-h-[calc(100vh-56px)] h-screen lg:h-auto lg:min-h-[calc(100vh-56px)] relative">
+    <aside className={`${collapsed ? 'w-[64px]' : 'w-[220px]'} bg-white border-r border-[var(--ar-border)] flex flex-col shrink-0 h-full lg:h-[calc(100vh-56px)] relative transition-[width] duration-200`}>
       {/* Role accent strip at top */}
       <div className="absolute top-0 left-0 right-0 h-[3px] rounded-b-sm" style={{ backgroundColor: badge?.accent || '#1B3A5C' }}/>
-      <div className="px-4 pt-5 pb-3">
+
+      {/* Collapse toggle (desktop only) */}
+      {onToggleCollapse && (
+        <button
+          onClick={onToggleCollapse}
+          className="hidden lg:flex absolute -right-3 top-6 w-6 h-6 rounded-full bg-white border border-[var(--ar-border)] items-center justify-center hover:bg-[#f4f5f7] transition-colors z-10"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
+          aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+          aria-expanded={!collapsed}
+        >
+          <i className={`ti ${collapsed ? 'ti-chevron-right' : 'ti-chevron-left'} text-[13px] text-[var(--ar-muted)]`} aria-hidden="true"/>
+        </button>
+      )}
+
+      <div className={`px-4 pt-5 pb-3 ${collapsed ? 'flex justify-center px-2' : ''}`}>
         {badge && (
-          <div className={`inline-flex items-center gap-1.5 px-2.5 py-[6px] rounded-lg text-[10px] font-semibold ${badge.color}`}>
-            <i className={`ti ${badge.icon} text-[11px]`} aria-hidden="true"/> {badge.label}
-          </div>
+          collapsed ? (
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${badge.color}`} title={badge.label}>
+              <i className={`ti ${badge.icon} text-[13px]`} aria-hidden="true"/>
+            </div>
+          ) : (
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-[6px] rounded-lg text-[10px] font-semibold ${badge.color}`}>
+              <i className={`ti ${badge.icon} text-[11px]`} aria-hidden="true"/> {badge.label}
+            </div>
+          )
         )}
       </div>
-      <nav className="flex-1 py-2 px-3 overflow-y-auto" aria-label="Navegación principal">
+      <nav className="flex-1 py-2 px-3 overflow-y-auto overflow-x-hidden" aria-label="Navegación principal">
         {rolTyped === 'apoderado' && renderGroup(NAV_APODERADO, 'Mi espacio')}
         {rolTyped === 'alumno'    && renderGroup(NAV_ALUMNO,    'Mi espacio')}
         {rolTyped === 'postulante' && renderGroup(NAV_POSTULANTE, 'Mi postulación')}
@@ -229,9 +252,11 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null }: Pr
           </>
         )}
       </nav>
-      <div className="px-4 py-3 border-t border-[#f3f4f6]">
-        <div className="text-[10px] text-[var(--ar-muted)] tracking-wide">Kiva360 v1.0</div>
-      </div>
+      {!collapsed && (
+        <div className="px-4 py-3 border-t border-[#f3f4f6]">
+          <div className="text-[10px] text-[var(--ar-muted)] tracking-wide">Kiva360 v1.0</div>
+        </div>
+      )}
     </aside>
   )
 }

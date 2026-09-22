@@ -12,7 +12,23 @@ interface Props {
 export default function SidebarWrapper({ rol, modulosHabilitadosInicial }: Props) {
   const [modulos, setModulos] = useState<string[] | null>(modulosHabilitadosInicial)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
+
+  // Restaurar preferencia de colapso (desktop) guardada por el usuario
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('sidebar-collapsed') === '1') setCollapsed(true)
+    } catch {}
+  }, [])
+
+  function toggleCollapsed() {
+    setCollapsed(prev => {
+      const next = !prev
+      try { localStorage.setItem('sidebar-collapsed', next ? '1' : '0') } catch {}
+      return next
+    })
+  }
 
   // Cerrar sidebar al navegar (mobile)
   useEffect(() => {
@@ -73,8 +89,8 @@ export default function SidebarWrapper({ rol, modulosHabilitadosInicial }: Props
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden lg:block">
-        <Sidebar rol={rol} modulosHabilitados={modulos} />
+      <div className="hidden lg:block sticky top-[56px] self-start">
+        <Sidebar rol={rol} modulosHabilitados={modulos} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
       </div>
 
       {/* Mobile drawer overlay */}
