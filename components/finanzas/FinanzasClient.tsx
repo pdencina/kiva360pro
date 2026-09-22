@@ -102,6 +102,7 @@ export default function FinanzasClient({ kpis, deuda, topConceptos, mesActual, c
             <span className="text-[12px] text-[var(--ar-muted)]">Pendientes de emisión</span>
             <span className={`text-[13px] font-bold ${kpis.documentosPendientes > 0 ? 'text-[var(--ar-accent)]' : 'text-[var(--ar-text)]'}`}>{kpis.documentosPendientes}</span>
           </div>
+          <Link href="/finanzas/documentos" className="mt-3 block text-center text-[11px] text-[var(--ar-blue)] hover:underline">Ver documentos →</Link>
         </div>
 
         {/* Principales conceptos */}

@@ -26,7 +26,8 @@ type Tab = 'pedagogica' | 'terapeutica' | 'documentos'
 const TIPO_DOC_LABELS: Record<string, string> = {
   carne_identidad: 'Carné de identidad', certificado_nacimiento: 'Cert. nacimiento',
   certificado_domicilio: 'Cert. domicilio', informe_medico: 'Informe médico',
-  certificado_discapacidad: 'Cert. discapacidad', evaluacion_diagnostica: 'Eval. diagnóstica', otro: 'Otro',
+  certificado_discapacidad: 'Cert. discapacidad', evaluacion_diagnostica: 'Eval. diagnóstica',
+  consentimiento_informado: 'Consentimiento informado', pauta_clinica: 'Pauta clínica', otro: 'Otro',
 }
 
 const TIPO_INFORME_LABELS: Record<string, string> = {
@@ -302,6 +303,8 @@ function ModalDocumento({ alumnoId, onClose }: { alumnoId: string; onClose: () =
               <option value="informe_medico">Informe médico</option>
               <option value="certificado_discapacidad">Certificado de discapacidad</option>
               <option value="evaluacion_diagnostica">Evaluación diagnóstica</option>
+              <option value="consentimiento_informado">Consentimiento informado</option>
+              <option value="pauta_clinica">Pauta clínica</option>
               <option value="otro">Otro</option>
             </select>
           </div>
