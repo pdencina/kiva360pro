@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-type Rol = 'super_admin' | 'admin' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno' | 'postulante'
+type Rol = 'super_admin' | 'admin' | 'pastor_campus' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno' | 'postulante'
 
 interface NavItem {
   label: string; href: string; icon: string; badge?: number; roles: Rol[]
@@ -30,6 +30,7 @@ const NAV_PRINCIPAL: NavItem[] = [
 ]
 
 const NAV_GESTION: NavItem[] = [
+  { label: 'Finanzas',           href: '/finanzas',       icon: 'ti-report-analytics', roles: ['super_admin','admin','pastor_campus'] },
   { label: 'Valores Programas',   href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision'] },
   { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin'] },
   { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin'] },
@@ -112,6 +113,7 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/contable': 'cobranzas',
   '/cobranza': 'cobranzas',
   '/cobros-sesion': 'cobranzas',
+  '/finanzas': 'finanzas',
   '/becas': 'becas',
   '/documentos': 'documentos',
   '/calendario': 'calendario',

@@ -87,13 +87,13 @@ export const MODULOS_POR_ROL: Record<string, string[]> = {
   admin: [
     'inicio', 'matricula', 'alumnos', 'programas', 'horarios', 'planificacion',
     'asistencias', 'evaluaciones', 'comunicados', 'mensajes', 'libro_clases',
-    'intervencion', 'agenda', 'reporte_diario', 'tareas', 'cobranzas',
+    'intervencion', 'agenda', 'reporte_diario', 'tareas', 'cobranzas', 'finanzas',
     'documentos', 'calendario', 'fichas', 'reportes',
   ],
   pastor_campus: [
     'inicio', 'matricula', 'alumnos', 'programas', 'horarios', 'planificacion',
     'asistencias', 'evaluaciones', 'comunicados', 'mensajes', 'libro_clases',
-    'intervencion', 'agenda', 'reporte_diario', 'tareas', 'cobranzas',
+    'intervencion', 'agenda', 'reporte_diario', 'tareas', 'cobranzas', 'finanzas',
     'documentos', 'calendario', 'fichas', 'reportes',
   ],
   tutor: [
