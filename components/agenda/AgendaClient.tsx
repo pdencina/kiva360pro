@@ -6,8 +6,25 @@ import toast from 'react-hot-toast'
 interface Sesion {
   id: string; fecha: string; hora_inicio: string; hora_fin: string
   tipo_sesion: string; modalidad: string; estado: string; observaciones: string | null
+  grupo_recurrencia: string | null
   alumno: { id: string; nombre: string; apellido: string; curso: string }
   profesional: { id: string; nombre: string; apellido: string }
+}
+
+const TIPO_LABELS: Record<string, string> = {
+  individual: 'Individual', grupal: 'Grupal', familiar: 'Familiar',
+  evaluacion: 'Evaluación', coordinacion: 'Coordinación',
+}
+const MODALIDAD_LABELS: Record<string, string> = {
+  presencial: 'Presencial', remota: 'Remota', domicilio: 'Domicilio',
+}
+const ESTADO_LABELS: Record<string, string> = {
+  programada: 'Programada', confirmada: 'Confirmada', en_curso: 'En curso',
+  completada: 'Completada', cancelada: 'Cancelada', no_asistio: 'No asistió',
+}
+const ESTADO_DOT: Record<string, string> = {
+  programada: 'bg-blue-500', confirmada: 'bg-emerald-500', en_curso: 'bg-amber-500',
+  completada: 'bg-slate-400', cancelada: 'bg-red-400', no_asistio: 'bg-red-400',
 }
 
 interface Props {
@@ -77,6 +94,17 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId }: 
 
   // Drop indicator
   const [dropIndicator, setDropIndicator] = useState<{ date: string; y: number } | null>(null)
+
+  // Detail / edit / delete panel (Google Calendar style)
+  const [selected, setSelected] = useState<Sesion | null>(null)
+  const [editMode, setEditMode] = useState(false)
+  const [editForm, setEditForm] = useState({
+    fecha: '', hora_inicio: '', hora_fin: '', alumno_id: '', profesional_id: '',
+    tipo_sesion: 'individual', modalidad: 'presencial', estado: 'programada', observaciones: '',
+  })
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const dragMovedRef = useRef(false)
 
   const { dates, label } = getWeekDates(currentWeek)
   const desde = dates[0].toISOString().split('T')[0]
@@ -221,6 +249,67 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId }: 
     document.addEventListener('mouseup', onUp)
   }
 
+  // ═══ DETALLE / EDITAR / ELIMINAR (click en tarjeta) ═══
+  function openDetail(s: Sesion) {
+    setSelected(s)
+    setEditMode(false)
+    setEditForm({
+      fecha: s.fecha, hora_inicio: s.hora_inicio.slice(0, 5), hora_fin: s.hora_fin.slice(0, 5),
+      alumno_id: s.alumno.id, profesional_id: s.profesional.id,
+      tipo_sesion: s.tipo_sesion, modalidad: s.modalidad, estado: s.estado,
+      observaciones: s.observaciones ?? '',
+    })
+  }
+
+  function closeDetail() {
+    setSelected(null)
+    setEditMode(false)
+  }
+
+  async function handleUpdateSesion() {
+    if (!selected) return
+    if (!editForm.alumno_id || !editForm.profesional_id) { toast.error('Selecciona alumno y profesional'); return }
+    if (editForm.hora_fin <= editForm.hora_inicio) { toast.error('La hora de término debe ser posterior al inicio'); return }
+    setSaving(true)
+    try {
+      const res = await fetch('/api/agenda', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selected.id,
+          fecha: editForm.fecha,
+          hora_inicio: editForm.hora_inicio,
+          hora_fin: editForm.hora_fin,
+          alumno_id: editForm.alumno_id,
+          profesional_id: editForm.profesional_id,
+          tipo_sesion: editForm.tipo_sesion,
+          modalidad: editForm.modalidad,
+          estado: editForm.estado,
+          observaciones: editForm.observaciones || null,
+        }),
+      })
+      if (!res.ok) throw new Error((await res.json()).error)
+      toast.success('Sesión actualizada')
+      closeDetail()
+      fetchSesiones()
+    } catch (err: any) { toast.error(err.message || 'Error al actualizar') } finally { setSaving(false) }
+  }
+
+  async function handleDeleteSesion(serie: boolean) {
+    if (!selected) return
+    const msg = serie ? '¿Eliminar esta sesión y todas las futuras de la serie recurrente?' : '¿Eliminar esta sesión?'
+    if (!window.confirm(msg)) return
+    setDeleting(true)
+    try {
+      const url = `/api/agenda?id=${selected.id}${serie ? '&serie=true' : ''}`
+      const res = await fetch(url, { method: 'DELETE' })
+      if (!res.ok) throw new Error((await res.json()).error)
+      toast.success(serie ? 'Serie eliminada' : 'Sesión eliminada')
+      closeDetail()
+      fetchSesiones()
+    } catch (err: any) { toast.error(err.message || 'Error al eliminar') } finally { setDeleting(false) }
+  }
+
   return (
     <div className="p-6 max-w-full mx-auto">
       {/* Header */}
@@ -344,6 +433,8 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId }: 
                       const duration = (eH * 60 + eM) - (sH * 60 + sM)
                       const color = profColorMap[s.profesional.id] || '#5C5470'
 
+                      const isCompact = height < 40
+
                       return (
                         <div
                           key={s.id}
@@ -351,19 +442,33 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId }: 
                           draggable
                           onDragStart={e => {
                             e.stopPropagation()
+                            dragMovedRef.current = true
                             e.dataTransfer.setData('appointmentId', s.id)
                             e.dataTransfer.setData('duration', String(duration))
                             e.dataTransfer.effectAllowed = 'move'
                           }}
-                          className="absolute left-1 right-1 rounded-md border-l-[3px] px-1.5 py-1 overflow-hidden cursor-grab active:cursor-grabbing hover:shadow-md hover:brightness-95 transition-all z-10 group"
+                          onClick={e => {
+                            e.stopPropagation()
+                            if (dragMovedRef.current) { dragMovedRef.current = false; return }
+                            openDetail(s)
+                          }}
+                          className="absolute left-1 right-1 rounded-md border-l-[3px] px-1.5 py-1 overflow-hidden cursor-pointer hover:shadow-md hover:brightness-95 transition-all z-10 group"
                           style={{ top: `${top}px`, height: `${Math.max(height, 20)}px`, borderLeftColor: color, background: color + '18' }}
                         >
-                          <p className="text-[10px] font-bold truncate" style={{ color }}>{s.alumno.nombre} {s.alumno.apellido[0]}.</p>
-                          <p className="text-[9px] truncate opacity-70" style={{ color }}>{s.profesional.nombre} {s.profesional.apellido[0]}.</p>
-                          <p className="text-[8px] opacity-50" style={{ color }}>{s.hora_inicio.slice(0,5)} – {s.hora_fin.slice(0,5)}</p>
+                          <div className="flex items-center gap-1">
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${ESTADO_DOT[s.estado] || 'bg-slate-400'}`} />
+                            <p className="text-[10px] font-bold truncate" style={{ color }}>{s.alumno.nombre} {s.alumno.apellido[0]}.</p>
+                          </div>
+                          {!isCompact && (
+                            <>
+                              <p className="text-[9px] truncate opacity-70" style={{ color }}>{s.profesional.nombre} {s.profesional.apellido[0]}. · {TIPO_LABELS[s.tipo_sesion] ?? s.tipo_sesion}</p>
+                              <p className="text-[8px] opacity-50" style={{ color }}>{s.hora_inicio.slice(0,5)} – {s.hora_fin.slice(0,5)}</p>
+                            </>
+                          )}
                           {/* Resize handle */}
                           <div
                             onMouseDown={e => handleResizeStart(e, s)}
+                            onClick={e => e.stopPropagation()}
                             className="absolute bottom-0 left-0 right-0 h-3 cursor-s-resize flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           ><div className="w-8 h-1 rounded-full opacity-40" style={{ background: color }} /></div>
                         </div>
@@ -433,6 +538,126 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId }: 
                 {creating ? 'Creando...' : 'Agendar'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ PANEL: DETALLE / EDITAR / ELIMINAR (Google Calendar style) ═══ */}
+      {selected && (
+        <div className="fixed inset-0 z-50 bg-black/20" onClick={closeDetail}>
+          <div className="fixed top-20 right-4 md:right-8 bg-white rounded-2xl shadow-2xl border border-[var(--ar-border)] w-[90vw] md:w-[26rem] animate-fade-in-scale max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-[var(--ar-border)]">
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${ESTADO_DOT[selected.estado] || 'bg-slate-400'}`} />
+                <h3 className="font-bold text-[15px] text-[var(--ar-text)]">
+                  {editMode ? 'Editar sesión' : `${selected.alumno.nombre} ${selected.alumno.apellido}`}
+                </h3>
+              </div>
+              <button onClick={closeDetail} className="text-[var(--ar-muted)] hover:text-[var(--ar-text)] text-xl">×</button>
+            </div>
+
+            {!editMode ? (
+              /* ── VISTA DE DETALLE ── */
+              <>
+                <div className="p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <i className="ti ti-clock text-[15px] text-[var(--ar-muted)] mt-0.5" aria-hidden="true"/>
+                    <div>
+                      <p className="text-[13px] font-medium text-[var(--ar-text)] capitalize">
+                        {new Date(selected.fecha + 'T12:00').toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })}
+                      </p>
+                      <p className="text-[12px] text-[var(--ar-muted)]">{selected.hora_inicio.slice(0,5)} – {selected.hora_fin.slice(0,5)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <i className="ti ti-user text-[15px] text-[var(--ar-muted)] mt-0.5" aria-hidden="true"/>
+                    <div>
+                      <p className="text-[13px] font-medium text-[var(--ar-text)]">{selected.alumno.nombre} {selected.alumno.apellido}</p>
+                      <p className="text-[12px] text-[var(--ar-muted)]">{selected.alumno.curso}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <i className="ti ti-stethoscope text-[15px] text-[var(--ar-muted)] mt-0.5" aria-hidden="true"/>
+                    <p className="text-[13px] text-[var(--ar-text)]">{selected.profesional.nombre} {selected.profesional.apellido}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <i className="ti ti-tag text-[15px] text-[var(--ar-muted)]" aria-hidden="true"/>
+                    <span className="tag tag-blue">{TIPO_LABELS[selected.tipo_sesion] ?? selected.tipo_sesion}</span>
+                    <span className="tag tag-gray">{MODALIDAD_LABELS[selected.modalidad] ?? selected.modalidad}</span>
+                    <span className="tag tag-gray">{ESTADO_LABELS[selected.estado] ?? selected.estado}</span>
+                  </div>
+                  {selected.observaciones && (
+                    <div className="flex items-start gap-3">
+                      <i className="ti ti-notes text-[15px] text-[var(--ar-muted)] mt-0.5" aria-hidden="true"/>
+                      <p className="text-[12px] text-[var(--ar-muted)] whitespace-pre-wrap">{selected.observaciones}</p>
+                    </div>
+                  )}
+                  {selected.grupo_recurrencia && (
+                    <div className="flex items-center gap-3">
+                      <i className="ti ti-repeat text-[15px] text-[var(--ar-muted)]" aria-hidden="true"/>
+                      <p className="text-[11px] text-[var(--ar-muted)]">Parte de una serie recurrente</p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center justify-between p-4 border-t border-[var(--ar-border)]">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleDeleteSesion(false)} disabled={deleting} className="btn-secondary text-[12px] text-[var(--ar-danger)] disabled:opacity-50">
+                      <i className="ti ti-trash text-[13px]" aria-hidden="true"/> Eliminar
+                    </button>
+                    {selected.grupo_recurrencia && (
+                      <button onClick={() => handleDeleteSesion(true)} disabled={deleting} className="text-[11px] text-[var(--ar-muted)] hover:text-[var(--ar-danger)] underline disabled:opacity-50">
+                        Eliminar serie
+                      </button>
+                    )}
+                  </div>
+                  <button onClick={() => setEditMode(true)} className="btn-primary text-[12px]">
+                    <i className="ti ti-pencil text-[13px]" aria-hidden="true"/> Editar
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* ── MODO EDICIÓN ── */
+              <>
+                <div className="p-4 space-y-4">
+                  <div className="flex items-center gap-3 text-[12px]">
+                    <i className="ti ti-clock text-[14px] text-[var(--ar-muted)]" aria-hidden="true"/>
+                    <input type="date" value={editForm.fecha} onChange={e => setEditForm({...editForm, fecha: e.target.value})} className="border border-[var(--ar-border)] rounded-lg px-2 py-1 text-[12px] font-medium" />
+                    <input type="time" value={editForm.hora_inicio} onChange={e => setEditForm({...editForm, hora_inicio: e.target.value})} className="border border-[var(--ar-border)] rounded-lg px-2 py-1 text-[12px] font-bold w-24" />
+                    <span>–</span>
+                    <input type="time" value={editForm.hora_fin} onChange={e => setEditForm({...editForm, hora_fin: e.target.value})} className="border border-[var(--ar-border)] rounded-lg px-2 py-1 text-[12px] font-bold w-24" />
+                  </div>
+                  <select value={editForm.alumno_id} onChange={e => setEditForm({...editForm, alumno_id: e.target.value})} className="select-base w-full text-[12px]">
+                    <option value="">Seleccionar alumno...</option>
+                    {alumnos.map(a => <option key={a.id} value={a.id}>{a.apellido}, {a.nombre} — {a.curso}</option>)}
+                  </select>
+                  <select value={editForm.profesional_id} onChange={e => setEditForm({...editForm, profesional_id: e.target.value})} className="select-base w-full text-[12px]">
+                    <option value="">Seleccionar profesional...</option>
+                    {profesionales.map(p => <option key={p.id} value={p.id}>{p.nombre} {p.apellido}</option>)}
+                  </select>
+                  <div className="grid grid-cols-2 gap-2">
+                    <select value={editForm.tipo_sesion} onChange={e => setEditForm({...editForm, tipo_sesion: e.target.value})} className="select-base w-full text-[12px]">
+                      <option value="individual">Individual</option><option value="grupal">Grupal</option>
+                      <option value="familiar">Familiar</option><option value="evaluacion">Evaluación</option>
+                    </select>
+                    <select value={editForm.modalidad} onChange={e => setEditForm({...editForm, modalidad: e.target.value})} className="select-base w-full text-[12px]">
+                      <option value="presencial">Presencial</option><option value="remota">Remota</option><option value="domicilio">Domicilio</option>
+                    </select>
+                  </div>
+                  <select value={editForm.estado} onChange={e => setEditForm({...editForm, estado: e.target.value})} className="select-base w-full text-[12px]">
+                    <option value="programada">Programada</option><option value="confirmada">Confirmada</option>
+                    <option value="en_curso">En curso</option><option value="completada">Completada</option>
+                    <option value="cancelada">Cancelada</option><option value="no_asistio">No asistió</option>
+                  </select>
+                  <textarea value={editForm.observaciones} onChange={e => setEditForm({...editForm, observaciones: e.target.value})} placeholder="Observaciones..." rows={3} className="input-base w-full text-[12px] resize-none" />
+                </div>
+                <div className="flex justify-between p-4 border-t border-[var(--ar-border)]">
+                  <button onClick={() => setEditMode(false)} className="btn-secondary text-[12px]">Cancelar</button>
+                  <button onClick={handleUpdateSesion} disabled={saving} className="btn-primary text-[12px] disabled:opacity-50">
+                    {saving ? 'Guardando...' : 'Guardar cambios'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
