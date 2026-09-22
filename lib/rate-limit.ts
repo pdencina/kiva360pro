@@ -115,6 +115,15 @@ export const paymentApiLimiter = createRateLimiter({
 })
 
 /**
+ * Rate limiter for the public booking form (no auth) — protects against
+ * spam/abuse since anyone can hit this endpoint.
+ */
+export const reservaPublicaLimiter = createRateLimiter({
+  interval: 60_000,
+  maxRequests: 5,
+})
+
+/**
  * Helper: Extract client identifier from request for rate limiting.
  * Uses user ID if authenticated, falls back to IP.
  */

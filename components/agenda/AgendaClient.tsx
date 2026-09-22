@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import Link from 'next/link'
 import toast from 'react-hot-toast'
 
 interface Sesion {
@@ -31,6 +32,7 @@ interface Props {
   alumnos: { id: string; nombre: string; apellido: string; curso: string }[]
   profesionales: { id: string; nombre: string; apellido: string; rol: string }[]
   currentUserId: string
+  solicitudesPendientes?: number
 }
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -74,7 +76,7 @@ function timeToY(time: string): number {
   return ((h * 60 + m) - START_HOUR * 60) / 60 * HOUR_HEIGHT
 }
 
-export default function AgendaClient({ alumnos, profesionales, currentUserId }: Props) {
+export default function AgendaClient({ alumnos, profesionales, currentUserId, solicitudesPendientes = 0 }: Props) {
   const [currentWeek, setCurrentWeek] = useState(new Date())
   const [sesiones, setSesiones] = useState<Sesion[]>([])
   const [loading, setLoading] = useState(true)
@@ -318,9 +320,17 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId }: 
           <h1 className="page-title">Agenda</h1>
           <p className="page-subtitle">Sesiones terapéuticas · Click y arrastra para agendar</p>
         </div>
-        <button onClick={() => { setPopupData({ fecha: today, startTime: '09:00', endTime: '09:45' }); setPopupForm({ alumno_id: '', profesional_id: '', tipo_sesion: 'individual', modalidad: 'presencial' }); setShowPopup(true) }} className="btn-primary">
-          <i className="ti ti-plus text-[14px]" aria-hidden="true"/> Nueva sesión
-        </button>
+        <div className="flex items-center gap-2">
+          <Link href="/agenda/solicitudes" className="btn-secondary relative">
+            <i className="ti ti-inbox text-[14px]" aria-hidden="true"/> Solicitudes
+            {solicitudesPendientes > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-[var(--ar-danger)] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{solicitudesPendientes}</span>
+            )}
+          </Link>
+          <button onClick={() => { setPopupData({ fecha: today, startTime: '09:00', endTime: '09:45' }); setPopupForm({ alumno_id: '', profesional_id: '', tipo_sesion: 'individual', modalidad: 'presencial' }); setShowPopup(true) }} className="btn-primary">
+            <i className="ti ti-plus text-[14px]" aria-hidden="true"/> Nueva sesión
+          </button>
+        </div>
       </div>
 
       {/* Controls */}

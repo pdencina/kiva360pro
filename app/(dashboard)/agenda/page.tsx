@@ -27,9 +27,13 @@ export default async function AgendaPage() {
   const colegioId = usuario.colegio_id
 
   // Load alumnos and profesionales for the create modal
-  const [{ data: alumnos }, { data: profesionales }] = await Promise.all([
+  let solicitudesQuery = admin.from('reservas_publicas').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId).eq('estado', 'pendiente')
+  if (usuario.rol === 'tutor') solicitudesQuery = solicitudesQuery.eq('profesional_id', user.id)
+
+  const [{ data: alumnos }, { data: profesionales }, { count: solicitudesPendientes }] = await Promise.all([
     admin.from('alumnos').select('id, nombre, apellido, curso').eq('colegio_id', colegioId).eq('activo', true).order('apellido'),
     admin.from('usuarios').select('id, nombre, apellido, rol').eq('colegio_id', colegioId).eq('activo', true).in('rol', ['tutor', 'admin', 'pastor_campus']).order('apellido'),
+    solicitudesQuery,
   ])
 
   return (
@@ -37,6 +41,7 @@ export default async function AgendaPage() {
       alumnos={(alumnos as any[]) ?? []}
       profesionales={(profesionales as any[]) ?? []}
       currentUserId={user.id}
+      solicitudesPendientes={solicitudesPendientes ?? 0}
     />
   )
 }
