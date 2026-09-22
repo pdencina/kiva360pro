@@ -452,8 +452,8 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId }: 
                             if (dragMovedRef.current) { dragMovedRef.current = false; return }
                             openDetail(s)
                           }}
-                          className="absolute left-1 right-1 rounded-md border-l-[3px] px-1.5 py-1 overflow-hidden cursor-pointer hover:shadow-md hover:brightness-95 transition-all z-10 group"
-                          style={{ top: `${top}px`, height: `${Math.max(height, 20)}px`, borderLeftColor: color, background: color + '18' }}
+                          className="absolute left-1 right-1 rounded-md border-l-[3px] px-1.5 py-1 overflow-hidden cursor-pointer hover:shadow-md hover:brightness-95 transition-shadow duration-150 z-10 group"
+                          style={{ top: `${top}px`, height: `${Math.max(height, 20)}px`, borderLeftColor: color, background: color + '18', contain: 'paint' }}
                         >
                           <div className="flex items-center gap-1">
                             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${ESTADO_DOT[s.estado] || 'bg-slate-400'}`} />
