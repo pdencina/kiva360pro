@@ -57,7 +57,16 @@ export async function GET(request: NextRequest) {
     return { ...a, edad, dia_cumple: diaNac, mes_cumple: mesNac }
   }).sort((a, b) => a.dia_cumple - b.dia_cumple)
 
-  return NextResponse.json(cumpleaneros)
+  // Deduplicar por nombre+apellido+fecha (registros de alumnos duplicados no deben verse repetidos)
+  const vistos = new Set<string>()
+  const sinDuplicados = cumpleaneros.filter(c => {
+    const clave = `${c.nombre}|${c.apellido}|${c.dia_cumple}|${c.mes_cumple}`
+    if (vistos.has(clave)) return false
+    vistos.add(clave)
+    return true
+  })
+
+  return NextResponse.json(sinDuplicados)
 }
 
 // POST: Enviar emails de cumpleaños (llamado por cron)
