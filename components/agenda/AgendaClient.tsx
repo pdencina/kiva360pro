@@ -437,7 +437,7 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId }: 
 
                       return (
                         <div
-                          key={s.id}
+                          key={`${s.id}:${s.tipo_sesion}:${s.modalidad}:${s.estado}:${s.hora_inicio}:${s.hora_fin}:${s.alumno.id}:${s.profesional.id}`}
                           data-appointment="true"
                           draggable
                           onDragStart={e => {
