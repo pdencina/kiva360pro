@@ -1,6 +1,9 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 import { formatMonto } from '@/lib/utils'
 
 interface Props {
@@ -34,10 +37,80 @@ function variacion(actual: number, anterior: number): { pct: number; sube: boole
 }
 
 export default function FinanzasClient({ kpis, deuda, topConceptos, mesActual, configTributaria }: Props) {
+  const router = useRouter()
   const hoy = new Date().toISOString().split('T')[0]
   const varFacturado = variacion(kpis.facturado, kpis.facturadoAnterior)
   const varCobrado = variacion(kpis.cobrado, kpis.cobradoAnterior)
   const sinProveedor = !configTributaria?.proveedor_facturacion || configTributaria.proveedor_facturacion === 'manual'
+
+  const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set())
+  const [showPagoModal, setShowPagoModal] = useState(false)
+  const [montoPago, setMontoPago] = useState(0)
+  const [medioPago, setMedioPago] = useState('transferencia')
+  const [obsPago, setObsPago] = useState('')
+  const [procesandoPago, setProcesandoPago] = useState(false)
+
+  const itemsSeleccionados = deuda.filter(d => seleccionados.has(`${d.origen}-${d.item_id}`))
+  const alumnoIdsSeleccionados = new Set(itemsSeleccionados.map(d => d.alumno_id))
+  const totalSeleccionado = itemsSeleccionados.reduce((a, d) => a + d.saldo, 0)
+
+  function toggleSeleccion(d: any) {
+    const key = `${d.origen}-${d.item_id}`
+    setSeleccionados(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) {
+        next.delete(key)
+      } else {
+        // Solo se puede pagar de a un paciente a la vez
+        const otroAlumno = Array.from(prev).some(k => {
+          const item = deuda.find(x => `${x.origen}-${x.item_id}` === k)
+          return item && item.alumno_id !== d.alumno_id
+        })
+        if (otroAlumno) {
+          toast.error('Selecciona ítems de un solo paciente a la vez')
+          return prev
+        }
+        next.add(key)
+      }
+      return next
+    })
+  }
+
+  function abrirModalPago() {
+    if (alumnoIdsSeleccionados.size !== 1) { toast.error('Selecciona al menos un ítem'); return }
+    setMontoPago(totalSeleccionado)
+    setMedioPago('transferencia')
+    setObsPago('')
+    setShowPagoModal(true)
+  }
+
+  async function registrarPagoMulti() {
+    if (montoPago <= 0) { toast.error('Ingresa un monto válido'); return }
+    setProcesandoPago(true)
+    try {
+      const res = await fetch('/api/pagos/multi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alumno_id: Array.from(alumnoIdsSeleccionados)[0],
+          items: itemsSeleccionados.map(d => ({ origen: d.origen, item_id: d.item_id })),
+          monto: montoPago,
+          medio_pago: medioPago,
+          observaciones: obsPago || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      toast.success(`Pago registrado — cubrió ${data.items_cubiertos} ítem${data.items_cubiertos !== 1 ? 's' : ''}`)
+      setShowPagoModal(false)
+      setSeleccionados(new Set())
+      router.refresh()
+    } catch (err: any) {
+      toast.error(err.message || 'Error al registrar el pago')
+    } finally {
+      setProcesandoPago(false)
+    }
+  }
 
   return (
     <div className="p-6 max-w-6xl">
@@ -144,6 +217,7 @@ export default function FinanzasClient({ kpis, deuda, topConceptos, mesActual, c
           <table className="w-full">
             <thead className="table-head">
               <tr>
+                <th className="w-8"></th>
                 <th>Paciente</th>
                 <th>Concepto</th>
                 <th>Vencimiento</th>
@@ -155,8 +229,12 @@ export default function FinanzasClient({ kpis, deuda, topConceptos, mesActual, c
             <tbody>
               {deuda.slice(0, 30).map(d => {
                 const vencido = d.fecha_vencimiento && d.fecha_vencimiento < hoy && d.estado !== 'pagado'
+                const key = `${d.origen}-${d.item_id}`
                 return (
-                  <tr key={`${d.origen}-${d.item_id}`} className="table-row">
+                  <tr key={key} className="table-row">
+                    <td>
+                      <input type="checkbox" checked={seleccionados.has(key)} onChange={() => toggleSeleccion(d)} />
+                    </td>
                     <td>
                       <div className="font-medium text-[var(--ar-text)]">{d.alumno?.nombre} {d.alumno?.apellido}</div>
                       <div className="text-[11px] text-[var(--ar-muted)]">{d.familia?.nombre_apoderado} {d.familia?.apellido_apoderado}</div>
@@ -179,6 +257,54 @@ export default function FinanzasClient({ kpis, deuda, topConceptos, mesActual, c
           </table>
         )}
       </div>
+
+      {/* Panel flotante de selección */}
+      {itemsSeleccionados.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[var(--ar-navy)] text-white rounded-xl shadow-2xl px-5 py-3 flex items-center gap-4 z-40">
+          <span className="text-[13px]">{itemsSeleccionados.length} ítem{itemsSeleccionados.length !== 1 ? 's' : ''} seleccionado{itemsSeleccionados.length !== 1 ? 's' : ''} · <strong>{formatMonto(totalSeleccionado)}</strong></span>
+          <button onClick={() => setSeleccionados(new Set())} className="text-[12px] text-white/70 hover:text-white">Cancelar</button>
+          <button onClick={abrirModalPago} className="bg-white text-[var(--ar-navy)] text-[12px] font-semibold px-3 py-1.5 rounded-lg hover:bg-white/90">Registrar pago →</button>
+        </div>
+      )}
+
+      {/* Modal: registrar pago multi-prestación */}
+      {showPagoModal && (
+        <div className="fixed inset-0 z-50 bg-black/20" onClick={() => setShowPagoModal(false)}>
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 bg-white rounded-2xl shadow-2xl border border-[var(--ar-border)] w-[90vw] md:w-96" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-[var(--ar-border)]">
+              <h3 className="font-bold text-[15px] text-[var(--ar-text)]">Registrar pago</h3>
+              <button onClick={() => setShowPagoModal(false)} className="text-[var(--ar-muted)] hover:text-[var(--ar-text)] text-xl">×</button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="text-[12px] text-[var(--ar-muted)]">
+                {itemsSeleccionados[0]?.alumno?.nombre} {itemsSeleccionados[0]?.alumno?.apellido} · cubre {itemsSeleccionados.length} ítem{itemsSeleccionados.length !== 1 ? 's' : ''} por {formatMonto(totalSeleccionado)}
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-[var(--ar-muted)] uppercase tracking-wide block mb-1.5">Monto a pagar</label>
+                <input type="number" value={montoPago} onChange={e => setMontoPago(Number(e.target.value))} className="input-base w-full text-[12px]" />
+                {montoPago < totalSeleccionado && <p className="text-[11px] text-[var(--ar-accent)] mt-1">Pago parcial: se cubrirán los ítems más antiguos primero.</p>}
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-[var(--ar-muted)] uppercase tracking-wide block mb-1.5">Medio de pago</label>
+                <select value={medioPago} onChange={e => setMedioPago(e.target.value)} className="select-base w-full text-[12px]">
+                  <option value="transferencia">Transferencia</option>
+                  <option value="efectivo">Efectivo</option>
+                  <option value="webpay">Webpay / débito</option>
+                  <option value="cheque">Cheque</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-[var(--ar-muted)] uppercase tracking-wide block mb-1.5">Observaciones</label>
+                <input value={obsPago} onChange={e => setObsPago(e.target.value)} className="input-base w-full text-[12px]" placeholder="Opcional" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 p-4 border-t border-[var(--ar-border)]">
+              <button onClick={() => setShowPagoModal(false)} className="btn-secondary text-[12px]">Cancelar</button>
+              <button onClick={registrarPagoMulti} disabled={procesandoPago} className="btn-primary text-[12px] disabled:opacity-50">{procesandoPago ? 'Registrando...' : 'Confirmar pago'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
