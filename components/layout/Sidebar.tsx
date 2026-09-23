@@ -2,82 +2,83 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 type Rol = 'super_admin' | 'admin' | 'pastor_campus' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno' | 'postulante' | 'finanzas' | 'recepcion'
 
 interface NavItem {
-  label: string; href: string; icon: string; badge?: number; roles: Rol[]
+  label: string; href: string; icon: string; badge?: number; roles: Rol[]; description?: string
 }
 
 const NAV_PRINCIPAL: NavItem[] = [
-  { label: 'Inicio',          href: '/inicio',          icon: 'ti-home',             roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'] },
-  { label: 'Matrícula',       href: '/matricula',       icon: 'ti-user-plus',        roles: ['super_admin','admin','gestor_admision'] },
-  { label: 'Admisión',        href: '/admision',        icon: 'ti-inbox',            roles: ['super_admin','admin','gestor_admision'] },
-  { label: 'Mis alumnos',     href: '/alumnos',         icon: 'ti-users',            roles: ['tutor'] },
-  { label: 'Alumnos',         href: '/alumnos',         icon: 'ti-users',            roles: ['super_admin','admin','gestor_admision','finanzas','recepcion'] },
-  { label: 'Planificación',   href: '/planificacion',   icon: 'ti-layout-board',     roles: ['super_admin','admin','tutor'] },
-  { label: 'Programas',       href: '/programas',       icon: 'ti-category',         roles: ['super_admin','admin','tutor'] },
-  { label: 'Horario alumno',  href: '/horario-alumno',  icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor'] },
-  { label: 'Asistencias',     href: '/asistencias',     icon: 'ti-clipboard-check',  roles: ['super_admin','admin','tutor'] },
-  { label: 'Evaluaciones',   href: '/calificaciones',  icon: 'ti-chart-bar',        roles: ['super_admin','admin','tutor'] },
-  { label: 'Comunicados',     href: '/comunicados',     icon: 'ti-speakerphone',     roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'] },
-  { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'] },
-  { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','tutor'] },
-  { label: 'Incidentes',    href: '/incidentes',     icon: 'ti-alert-circle',     roles: ['super_admin','admin','tutor'] },
-  { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','tutor'] },
-  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor','recepcion'] },
-  { label: 'Tareas',         href: '/tareas',         icon: 'ti-checklist',        roles: ['super_admin','admin','tutor'] },
+  { label: 'Inicio',          href: '/inicio',          icon: 'ti-home',             roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'], description: 'Resumen del día: agenda, pendientes y avisos importantes.' },
+  { label: 'Matrícula',       href: '/matricula',       icon: 'ti-user-plus',        roles: ['super_admin','admin','gestor_admision'], description: 'Postulaciones, matrículas y el estado de cada proceso de ingreso.' },
+  { label: 'Admisión',        href: '/admision',        icon: 'ti-inbox',            roles: ['super_admin','admin','gestor_admision'], description: 'Seguimiento de prospectos y familias interesadas en el centro.' },
+  { label: 'Mis alumnos',     href: '/alumnos',         icon: 'ti-users',            roles: ['tutor'], description: 'Ficha completa de tus alumnos: datos, historial y documentos.' },
+  { label: 'Alumnos',         href: '/alumnos',         icon: 'ti-users',            roles: ['super_admin','admin','gestor_admision','finanzas','recepcion'], description: 'Ficha completa de cada alumno: datos, historial y documentos.' },
+  { label: 'Planificación',   href: '/planificacion',   icon: 'ti-layout-board',     roles: ['super_admin','admin','tutor'], description: 'Organiza las planificaciones de clases y actividades pedagógicas.' },
+  { label: 'Programas',       href: '/programas',       icon: 'ti-category',         roles: ['super_admin','admin','tutor'], description: 'Gestiona los programas y niveles que ofrece el centro.' },
+  { label: 'Horario alumno',  href: '/horario-alumno',  icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor'], description: 'Define y consulta el horario semanal de cada alumno.' },
+  { label: 'Asistencias',     href: '/asistencias',     icon: 'ti-clipboard-check',  roles: ['super_admin','admin','tutor'], description: 'Registra y revisa la asistencia diaria de los alumnos.' },
+  { label: 'Evaluaciones',   href: '/calificaciones',  icon: 'ti-chart-bar',        roles: ['super_admin','admin','tutor'], description: 'Calificaciones y evaluaciones registradas por curso y alumno.' },
+  { label: 'Comunicados',     href: '/comunicados',     icon: 'ti-speakerphone',     roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'], description: 'Envía avisos y comunicados a familias o al equipo.' },
+  { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'], description: 'Chat directo con otros usuarios del centro.' },
+  { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','tutor'], description: 'Bitácora diaria que se envía a las familias sobre el día del alumno.' },
+  { label: 'Incidentes',    href: '/incidentes',     icon: 'ti-alert-circle',     roles: ['super_admin','admin','tutor'], description: 'Registra incidentes o situaciones relevantes con firma digital.' },
+  { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','tutor'], description: 'Planes de intervención y seguimiento terapéutico de cada alumno.' },
+  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor','recepcion'], description: 'Sesiones terapéuticas agendadas y horas disponibles por profesional.' },
+  { label: 'Tareas',         href: '/tareas',         icon: 'ti-checklist',        roles: ['super_admin','admin','tutor'], description: 'Asigna y revisa tareas pendientes para el equipo o los alumnos.' },
 ]
 
 const NAV_GESTION: NavItem[] = [
-  { label: 'Finanzas',           href: '/finanzas',       icon: 'ti-report-analytics', roles: ['super_admin','admin','pastor_campus','finanzas'] },
-  { label: 'Valores Programas',   href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision','finanzas'] },
-  { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin','finanzas'] },
-  { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin','finanzas'] },
-  { label: 'Documentos',         href: '/documentos',   icon: 'ti-folder',           roles: ['super_admin','admin','gestor_admision','tutor'] },
-  { label: 'Becas',              href: '/becas',          icon: 'ti-school',           roles: ['super_admin','admin','gestor_admision'] },
-  { label: 'Calendario',         href: '/calendario',   icon: 'ti-calendar',         roles: ['super_admin','admin','gestor_admision','tutor'] },
-  { label: 'Fichas pedagógicas', href: '/fichas',       icon: 'ti-books',            roles: ['super_admin','admin','tutor'] },
-  { label: 'Reportes',           href: '/reportes',     icon: 'ti-file-analytics',   roles: ['super_admin','admin','finanzas'] },
+  { label: 'Finanzas',           href: '/finanzas',       icon: 'ti-report-analytics', roles: ['super_admin','admin','pastor_campus','finanzas'], description: 'Dashboard financiero: facturación, cobros y documentos tributarios.' },
+  { label: 'Valores Programas',   href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision','finanzas'], description: 'Define los precios de aranceles, matrículas y mensualidades.' },
+  { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin','finanzas'], description: 'Seguimiento de pagos pendientes y morosidad de las familias.' },
+  { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin','finanzas'], description: 'Cobro individual por sesión terapéutica y planes prepagados.' },
+  { label: 'Documentos',         href: '/documentos',   icon: 'ti-folder',           roles: ['super_admin','admin','gestor_admision','tutor'], description: 'Documentos oficiales y archivos compartidos con las familias.' },
+  { label: 'Becas',              href: '/becas',          icon: 'ti-school',           roles: ['super_admin','admin','gestor_admision'], description: 'Postulación y administración de becas y descuentos.' },
+  { label: 'Calendario',         href: '/calendario',   icon: 'ti-calendar',         roles: ['super_admin','admin','gestor_admision','tutor'], description: 'Calendario general de actividades y fechas importantes del centro.' },
+  { label: 'Fichas pedagógicas', href: '/fichas',       icon: 'ti-books',            roles: ['super_admin','admin','tutor'], description: 'Material y fichas de apoyo para el trabajo pedagógico.' },
+  { label: 'Reportes',           href: '/reportes',     icon: 'ti-file-analytics',   roles: ['super_admin','admin','finanzas'], description: 'Reportes y estadísticas generales del centro.' },
 ]
 
 const NAV_CUENTA: NavItem[] = [
-  { label: 'Panel Kiva360',   href: '/super-admin',          icon: 'ti-dashboard', roles: ['super_admin'] },
-  { label: 'Suscripciones',  href: '/super-admin/suscripciones', icon: 'ti-credit-card', roles: ['super_admin'] },
-  { label: 'Propuestas',      href: '/super-admin/propuestas/nueva', icon: 'ti-file-invoice', roles: ['super_admin'] },
-  { label: 'Usuarios',        href: '/usuarios',             icon: 'ti-user-cog',        roles: ['admin'] },
-  { label: 'Usuarios',        href: '/super-admin/usuarios', icon: 'ti-user-cog',        roles: ['super_admin'] },
-  { label: 'Tabla de aportes', href: '/super-admin/aportes', icon: 'ti-table',           roles: ['super_admin'] },
-  { label: 'Configuración',   href: '/configuracion',        icon: 'ti-settings',        roles: ['super_admin','admin'] },
+  { label: 'Panel Kiva360',   href: '/super-admin',          icon: 'ti-dashboard', roles: ['super_admin'], description: 'Panel general para administrar todos los colegios de la plataforma.' },
+  { label: 'Suscripciones',  href: '/super-admin/suscripciones', icon: 'ti-credit-card', roles: ['super_admin'], description: 'Estado de las suscripciones de cada colegio a Kiva360.' },
+  { label: 'Propuestas',      href: '/super-admin/propuestas/nueva', icon: 'ti-file-invoice', roles: ['super_admin'], description: 'Crea propuestas comerciales para nuevos centros.' },
+  { label: 'Usuarios',        href: '/usuarios',             icon: 'ti-user-cog',        roles: ['admin'], description: 'Administra los usuarios y roles de tu equipo.' },
+  { label: 'Usuarios',        href: '/super-admin/usuarios', icon: 'ti-user-cog',        roles: ['super_admin'], description: 'Administra los usuarios de todos los colegios.' },
+  { label: 'Tabla de aportes', href: '/super-admin/aportes', icon: 'ti-table',           roles: ['super_admin'], description: 'Configura los montos de aportes por nivel y sede.' },
+  { label: 'Configuración',   href: '/configuracion',        icon: 'ti-settings',        roles: ['super_admin','admin'], description: 'Datos del colegio, permisos y configuración tributaria.' },
 ]
 
 const NAV_APODERADO: NavItem[] = [
-  { label: 'Inicio',          href: '/portal',                icon: 'ti-home',            roles: ['apoderado'] },
-  { label: 'Avances',         href: '/portal/intervencion',   icon: 'ti-heart-handshake', roles: ['apoderado'] },
-  { label: 'Informes',        href: '/portal/informes',       icon: 'ti-file-report',     roles: ['apoderado'] },
-  { label: 'Agenda',          href: '/portal/agenda',         icon: 'ti-calendar-time',   roles: ['apoderado'] },
-  { label: 'Horario',         href: '/portal/horario',        icon: 'ti-table',           roles: ['apoderado'] },
-  { label: 'Reporte del día', href: '/portal/reporte-diario', icon: 'ti-clipboard-heart', roles: ['apoderado'] },
-  { label: 'Mensajes',        href: '/portal/mensajes',       icon: 'ti-message-2',       roles: ['apoderado'] },
-  { label: 'Comunicados',     href: '/portal/comunicados',    icon: 'ti-speakerphone',    roles: ['apoderado'] },
-  { label: 'Documentos',      href: '/portal/documentos',     icon: 'ti-file-certificate', roles: ['apoderado'] },
-  { label: 'Asistencias',     href: '/portal/asistencias',    icon: 'ti-clipboard-check', roles: ['apoderado'] },
-  { label: 'Evaluaciones',   href: '/portal/calificaciones', icon: 'ti-chart-bar',       roles: ['apoderado'] },
-  { label: 'Estado de pagos', href: '/portal/pagos',          icon: 'ti-cash',            roles: ['apoderado'] },
-  { label: 'Mi perfil',       href: '/portal/perfil',         icon: 'ti-user',            roles: ['apoderado'] },
+  { label: 'Inicio',          href: '/portal',                icon: 'ti-home',            roles: ['apoderado'], description: 'Resumen de la actividad de tu hijo/a en el centro.' },
+  { label: 'Avances',         href: '/portal/intervencion',   icon: 'ti-heart-handshake', roles: ['apoderado'], description: 'Seguimiento de los avances de su plan de intervención.' },
+  { label: 'Informes',        href: '/portal/informes',       icon: 'ti-file-report',     roles: ['apoderado'], description: 'Informes terapéuticos y pedagógicos compartidos contigo.' },
+  { label: 'Agenda',          href: '/portal/agenda',         icon: 'ti-calendar-time',   roles: ['apoderado'], description: 'Próximas sesiones y horas agendadas.' },
+  { label: 'Horario',         href: '/portal/horario',        icon: 'ti-table',           roles: ['apoderado'], description: 'Horario semanal de tu hijo/a.' },
+  { label: 'Reporte del día', href: '/portal/reporte-diario', icon: 'ti-clipboard-heart', roles: ['apoderado'], description: 'Cómo le fue hoy a tu hijo/a en el centro.' },
+  { label: 'Mensajes',        href: '/portal/mensajes',       icon: 'ti-message-2',       roles: ['apoderado'], description: 'Chat directo con el equipo del centro.' },
+  { label: 'Comunicados',     href: '/portal/comunicados',    icon: 'ti-speakerphone',    roles: ['apoderado'], description: 'Avisos y comunicados enviados por el centro.' },
+  { label: 'Documentos',      href: '/portal/documentos',     icon: 'ti-file-certificate', roles: ['apoderado'], description: 'Documentos y certificados disponibles para descargar.' },
+  { label: 'Asistencias',     href: '/portal/asistencias',    icon: 'ti-clipboard-check', roles: ['apoderado'], description: 'Historial de asistencia de tu hijo/a.' },
+  { label: 'Evaluaciones',   href: '/portal/calificaciones', icon: 'ti-chart-bar',       roles: ['apoderado'], description: 'Calificaciones y evaluaciones de tu hijo/a.' },
+  { label: 'Estado de pagos', href: '/portal/pagos',          icon: 'ti-cash',            roles: ['apoderado'], description: 'Aportes pendientes, boletas y progreso de paquetes de sesiones.' },
+  { label: 'Mi perfil',       href: '/portal/perfil',         icon: 'ti-user',            roles: ['apoderado'], description: 'Tus datos de contacto y preferencias de cuenta.' },
 ]
 
 const NAV_ALUMNO: NavItem[] = [
-  { label: 'Inicio',          href: '/portal',                icon: 'ti-home',            roles: ['alumno'] },
-  { label: 'Mis evaluaciones', href: '/portal/calificaciones', icon: 'ti-chart-bar',       roles: ['alumno'] },
-  { label: 'Asistencias',     href: '/portal/asistencias',    icon: 'ti-clipboard-check', roles: ['alumno'] },
-  { label: 'Tareas',          href: '/portal/tareas',         icon: 'ti-checklist',       roles: ['alumno'] },
-  { label: 'Comunicados',     href: '/portal/comunicados',    icon: 'ti-speakerphone',    roles: ['alumno'] },
-  { label: 'Mi perfil',       href: '/portal/perfil',         icon: 'ti-user',            roles: ['alumno'] },
+  { label: 'Inicio',          href: '/portal',                icon: 'ti-home',            roles: ['alumno'], description: 'Resumen de tu actividad en el centro.' },
+  { label: 'Mis evaluaciones', href: '/portal/calificaciones', icon: 'ti-chart-bar',       roles: ['alumno'], description: 'Tus calificaciones y evaluaciones.' },
+  { label: 'Asistencias',     href: '/portal/asistencias',    icon: 'ti-clipboard-check', roles: ['alumno'], description: 'Tu historial de asistencia.' },
+  { label: 'Tareas',          href: '/portal/tareas',         icon: 'ti-checklist',       roles: ['alumno'], description: 'Tareas pendientes asignadas por tus profesores.' },
+  { label: 'Comunicados',     href: '/portal/comunicados',    icon: 'ti-speakerphone',    roles: ['alumno'], description: 'Avisos del centro para ti.' },
+  { label: 'Mi perfil',       href: '/portal/perfil',         icon: 'ti-user',            roles: ['alumno'], description: 'Tus datos de cuenta.' },
 ]
 
 const NAV_POSTULANTE: NavItem[] = [
-  { label: 'Mi postulación',  href: '/portal/postulacion',    icon: 'ti-file-search',     roles: ['postulante'] },
+  { label: 'Mi postulación',  href: '/portal/postulacion',    icon: 'ti-file-search',     roles: ['postulante'], description: 'Estado de tu proceso de postulación al centro.' },
 ]
 
 const ROL_BADGE: Record<string, { label: string; color: string; icon: string; accent: string; activeBg: string; activeIndicator: string }> = {
@@ -145,6 +146,15 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null, coll
   // Mensajes no leídos
   const [unreadMessages, setUnreadMessages] = useState(0)
 
+  // Tooltip descriptivo al pasar el mouse por un ítem del menú.
+  // Se renderiza vía portal en document.body porque el <nav> tiene
+  // overflow-x-hidden (para el scroll vertical de la lista) y eso
+  // recortaría un tooltip posicionado con CSS normal.
+  const [hovered, setHovered] = useState<{ item: NavItem; rect: DOMRect } | null>(null)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => { setHovered(null) }, [pathname])
+
   useEffect(() => {
     let mounted = true
 
@@ -192,7 +202,10 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null, coll
         {visibles.map(item => {
           const active = pathname === item.href || (item.href !== '/inicio' && item.href !== '/portal' && pathname.startsWith(item.href))
           return (
-            <Link key={item.href + item.label} href={item.href} title={collapsed ? item.label : undefined}
+            <Link key={item.href + item.label} href={item.href}
+              title={item.description ? undefined : (collapsed ? item.label : undefined)}
+              onMouseEnter={e => item.description && setHovered({ item, rect: e.currentTarget.getBoundingClientRect() })}
+              onMouseLeave={() => setHovered(null)}
               className={`group relative flex items-center gap-2.5 rounded-lg text-[13px] font-medium mb-[2px] transition-all duration-150 ${collapsed ? 'justify-center px-2 py-[9px]' : 'px-3 py-[9px]'} ${
                 active
                   ? 'text-white'
@@ -260,6 +273,17 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null, coll
         <div className="px-4 py-3 border-t border-[#f3f4f6]">
           <div className="text-[10px] text-[var(--ar-muted)] tracking-wide">Kiva360 v1.0</div>
         </div>
+      )}
+
+      {mounted && hovered && createPortal(
+        <div
+          className="pointer-events-none fixed z-[100] w-56 rounded-lg bg-[#1a2332] px-3 py-2 text-[11px] leading-snug text-white shadow-lg"
+          style={{ top: hovered.rect.top + hovered.rect.height / 2, left: hovered.rect.right + 10, transform: 'translateY(-50%)' }}
+        >
+          {collapsed && <div className="mb-0.5 font-semibold">{hovered.item.label}</div>}
+          {hovered.item.description}
+        </div>,
+        document.body
       )}
     </aside>
   )
