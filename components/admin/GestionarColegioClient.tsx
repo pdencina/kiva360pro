@@ -16,9 +16,16 @@ const ROL_CONFIG: Record<string, { label: string; color: string; bg: string }> =
   alumno:      { label: 'alumno',      color: 'text-amber-700',   bg: 'bg-amber-50' },
 }
 
+const MODULOS_CONFIG: { key: string; label: string; desc: string }[] = [
+  { key: 'finanzas', label: 'Finanzas y Facturación', desc: 'Dashboard financiero, cuenta corriente y emisión de documentos tributarios' },
+  { key: 'salud', label: 'Kiva360 Salud', desc: 'Reserva online pública y ficha clínica ampliada' },
+]
+
 export default function GestionarColegioClient({ colegio, usuarios, alumnos }: Props) {
   const router = useRouter()
   const [tab, setTab] = useState<'resumen'|'usuarios'|'alumnos'>('resumen')
+  const [modulosActivos, setModulosActivos] = useState<string[]>(colegio.modulos_activos ?? [])
+  const [savingModulo, setSavingModulo] = useState<string | null>(null)
 
   async function handleCambiarRol(usuarioId: string, rol: string) {
     const res = await fetch(`/api/admin/usuarios/${usuarioId}`, {
@@ -27,6 +34,21 @@ export default function GestionarColegioClient({ colegio, usuarios, alumnos }: P
     })
     if (res.ok) { toast.success('Rol actualizado'); router.refresh() }
     else toast.error('Error al actualizar rol')
+  }
+
+  async function handleToggleModulo(modulo: string, activo: boolean) {
+    setSavingModulo(modulo)
+    const res = await fetch(`/api/admin/colegios/${colegio.id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ modulo, activo }),
+    })
+    if (res.ok) {
+      setModulosActivos(prev => activo ? [...prev, modulo] : prev.filter(m => m !== modulo))
+      toast.success(activo ? 'Módulo activado' : 'Módulo desactivado')
+    } else {
+      toast.error('Error al actualizar el módulo')
+    }
+    setSavingModulo(null)
   }
 
   const cursos = [...new Set(alumnos.map(a => a.curso))].sort()
@@ -129,6 +151,32 @@ export default function GestionarColegioClient({ colegio, usuarios, alumnos }: P
                   <span className="font-semibold text-slate-700">{alumnos.filter(a => a.curso === c).length}</span>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Módulos contratados (add-ons) */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 col-span-2">
+            <h3 className="font-display font-semibold text-slate-800 mb-1">Módulos contratados</h3>
+            <p className="text-[12px] text-slate-400 mb-4">Add-ons vendidos aparte del plan base. Independiente de los permisos por rol.</p>
+            <div className="space-y-3">
+              {MODULOS_CONFIG.map(m => {
+                const activo = modulosActivos.includes(m.key)
+                return (
+                  <div key={m.key} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                    <div>
+                      <div className="text-sm font-medium text-slate-800">{m.label}</div>
+                      <div className="text-[11px] text-slate-400">{m.desc}</div>
+                    </div>
+                    <button
+                      onClick={() => handleToggleModulo(m.key, !activo)}
+                      disabled={savingModulo === m.key}
+                      className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-50 ${activo ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                    >
+                      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${activo ? 'translate-x-[22px]' : 'translate-x-0.5'}`}/>
+                    </button>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

@@ -24,6 +24,17 @@ export default function ConfiguracionClient({ usuario, stats, horariosJornada }:
     telefono: colegio?.telefono ?? '',
   })
 
+  // Datos tributarios
+  const [editandoTributario, setEditandoTributario] = useState(false)
+  const [savingTributario, setSavingTributario] = useState(false)
+  const [formTributario, setFormTributario] = useState({
+    razon_social: colegio?.razon_social ?? '',
+    giro: colegio?.giro ?? '',
+    comuna: colegio?.comuna ?? '',
+    email_tributario: colegio?.email_tributario ?? '',
+    emision_documentos: colegio?.emision_documentos ?? 'manual',
+  })
+
   // Cambiar contraseña
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [passwords, setPasswords] = useState({ nueva: '', confirmar: '' })
@@ -92,6 +103,24 @@ export default function ConfiguracionClient({ usuario, stats, horariosJornada }:
       toast.error(data.error ?? 'Error al guardar')
     }
     setSaving(false)
+  }
+
+  async function handleGuardarTributario() {
+    setSavingTributario(true)
+    const res = await fetch('/api/colegios', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formTributario),
+    })
+    if (res.ok) {
+      toast.success('Datos tributarios actualizados')
+      setEditandoTributario(false)
+      router.refresh()
+    } else {
+      const data = await res.json()
+      toast.error(data.error ?? 'Error al guardar')
+    }
+    setSavingTributario(false)
   }
 
   async function handleCambiarPassword() {
@@ -173,6 +202,73 @@ export default function ConfiguracionClient({ usuario, stats, horariosJornada }:
                   { label: 'Teléfono', val: colegio.telefono ?? '—' },
                   { label: 'Plan', val: colegio.plan ?? '—' },
                   { label: 'Creado', val: new Date(colegio.created_at).toLocaleDateString('es-CL') },
+                ].map((f, i) => (
+                  <div key={i}>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{f.label}</div>
+                    <div className="text-slate-800 font-medium">{f.val}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Datos tributarios */}
+        {colegio && canEdit && (
+          <div className="bg-white border border-slate-200 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="font-semibold text-slate-800 font-display">Datos tributarios</h2>
+              {!editandoTributario && (
+                <button onClick={() => setEditandoTributario(true)} className="btn-secondary text-xs">
+                  <i className="ti ti-pencil text-xs" aria-hidden="true"/> Editar
+                </button>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-400 mb-4">Se usan al emitir boletas y facturas desde Finanzas. Valídalos con tu contador.</p>
+
+            {editandoTributario ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Razón social</label>
+                    <input value={formTributario.razon_social} onChange={e => setFormTributario(p => ({...p, razon_social: e.target.value}))} className="input-base" placeholder="Ej: Bright House SpA"/>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Giro</label>
+                    <input value={formTributario.giro} onChange={e => setFormTributario(p => ({...p, giro: e.target.value}))} className="input-base" placeholder="Ej: Servicios de salud"/>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Comuna</label>
+                    <input value={formTributario.comuna} onChange={e => setFormTributario(p => ({...p, comuna: e.target.value}))} className="input-base"/>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Email de contacto tributario</label>
+                    <input type="email" value={formTributario.email_tributario} onChange={e => setFormTributario(p => ({...p, email_tributario: e.target.value}))} className="input-base" placeholder="facturacion@..."/>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Emisión de documentos</label>
+                    <select value={formTributario.emision_documentos} onChange={e => setFormTributario(p => ({...p, emision_documentos: e.target.value}))} className="select-base w-full">
+                      <option value="manual">Manual (completas el folio a mano)</option>
+                      <option value="automatica" disabled>Automática (requiere proveedor DTE conectado)</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <button onClick={handleGuardarTributario} disabled={savingTributario} className="btn-primary text-sm disabled:opacity-60">
+                    {savingTributario ? 'Guardando...' : 'Guardar'}
+                  </button>
+                  <button onClick={() => setEditandoTributario(false)} className="btn-secondary text-sm">Cancelar</button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                {[
+                  { label: 'Razón social', val: colegio.razon_social ?? '—' },
+                  { label: 'Giro', val: colegio.giro ?? '—' },
+                  { label: 'Comuna', val: colegio.comuna ?? '—' },
+                  { label: 'Email tributario', val: colegio.email_tributario ?? '—' },
+                  { label: 'Emisión de documentos', val: colegio.emision_documentos === 'automatica' ? 'Automática' : 'Manual' },
+                  { label: 'Proveedor de facturación', val: colegio.proveedor_facturacion && colegio.proveedor_facturacion !== 'manual' ? colegio.proveedor_facturacion : 'Sin conectar' },
                 ].map((f, i) => (
                   <div key={i}>
                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{f.label}</div>
