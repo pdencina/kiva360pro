@@ -21,7 +21,7 @@ export default async function CobranzaPage() {
 
   const admin = getAdmin()
   const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
-  if (!['super_admin', 'admin', 'pastor_campus'].includes((ur as any)?.rol)) redirect('/inicio')
+  if (!['super_admin', 'admin', 'pastor_campus', 'finanzas'].includes((ur as any)?.rol)) redirect('/inicio')
 
   const colegioId = (ur as any)?.colegio_id
   const anio = new Date().getFullYear()

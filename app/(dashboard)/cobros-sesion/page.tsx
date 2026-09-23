@@ -22,7 +22,7 @@ export default async function CobrosSesionPage() {
   const admin = getAdmin()
   const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
   const usuario = ur as any
-  if (!['super_admin', 'admin', 'pastor_campus'].includes(usuario?.rol)) redirect('/inicio')
+  if (!['super_admin', 'admin', 'pastor_campus', 'finanzas'].includes(usuario?.rol)) redirect('/inicio')
 
   const colegioId = usuario.colegio_id
 

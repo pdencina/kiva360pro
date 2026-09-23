@@ -22,7 +22,7 @@ export default async function SolicitudesReservaPage() {
   const admin = getAdmin()
   const { data: ur } = await admin.from('usuarios').select('rol, colegio_id').eq('id', user.id).single()
   const usuario = ur as any
-  if (!['super_admin', 'admin', 'pastor_campus', 'tutor'].includes(usuario?.rol)) redirect('/agenda')
+  if (!['super_admin', 'admin', 'pastor_campus', 'tutor', 'recepcion'].includes(usuario?.rol)) redirect('/agenda')
 
   let query = admin
     .from('reservas_publicas')

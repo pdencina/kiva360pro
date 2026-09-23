@@ -3,42 +3,42 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-type Rol = 'super_admin' | 'admin' | 'pastor_campus' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno' | 'postulante'
+type Rol = 'super_admin' | 'admin' | 'pastor_campus' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno' | 'postulante' | 'finanzas' | 'recepcion'
 
 interface NavItem {
   label: string; href: string; icon: string; badge?: number; roles: Rol[]
 }
 
 const NAV_PRINCIPAL: NavItem[] = [
-  { label: 'Inicio',          href: '/inicio',          icon: 'ti-home',             roles: ['super_admin','admin','gestor_admision','tutor'] },
+  { label: 'Inicio',          href: '/inicio',          icon: 'ti-home',             roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'] },
   { label: 'Matrícula',       href: '/matricula',       icon: 'ti-user-plus',        roles: ['super_admin','admin','gestor_admision'] },
   { label: 'Admisión',        href: '/admision',        icon: 'ti-inbox',            roles: ['super_admin','admin','gestor_admision'] },
   { label: 'Mis alumnos',     href: '/alumnos',         icon: 'ti-users',            roles: ['tutor'] },
-  { label: 'Alumnos',         href: '/alumnos',         icon: 'ti-users',            roles: ['super_admin','admin','gestor_admision'] },
+  { label: 'Alumnos',         href: '/alumnos',         icon: 'ti-users',            roles: ['super_admin','admin','gestor_admision','finanzas','recepcion'] },
   { label: 'Planificación',   href: '/planificacion',   icon: 'ti-layout-board',     roles: ['super_admin','admin','tutor'] },
   { label: 'Programas',       href: '/programas',       icon: 'ti-category',         roles: ['super_admin','admin','tutor'] },
   { label: 'Horario alumno',  href: '/horario-alumno',  icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor'] },
   { label: 'Asistencias',     href: '/asistencias',     icon: 'ti-clipboard-check',  roles: ['super_admin','admin','tutor'] },
   { label: 'Evaluaciones',   href: '/calificaciones',  icon: 'ti-chart-bar',        roles: ['super_admin','admin','tutor'] },
-  { label: 'Comunicados',     href: '/comunicados',     icon: 'ti-speakerphone',     roles: ['super_admin','admin','gestor_admision','tutor'] },
-  { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','gestor_admision','tutor'] },
+  { label: 'Comunicados',     href: '/comunicados',     icon: 'ti-speakerphone',     roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'] },
+  { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'] },
   { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','tutor'] },
   { label: 'Incidentes',    href: '/incidentes',     icon: 'ti-alert-circle',     roles: ['super_admin','admin','tutor'] },
   { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','tutor'] },
-  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor'] },
+  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor','recepcion'] },
   { label: 'Tareas',         href: '/tareas',         icon: 'ti-checklist',        roles: ['super_admin','admin','tutor'] },
 ]
 
 const NAV_GESTION: NavItem[] = [
-  { label: 'Finanzas',           href: '/finanzas',       icon: 'ti-report-analytics', roles: ['super_admin','admin','pastor_campus'] },
-  { label: 'Valores Programas',   href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision'] },
-  { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin'] },
-  { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin'] },
+  { label: 'Finanzas',           href: '/finanzas',       icon: 'ti-report-analytics', roles: ['super_admin','admin','pastor_campus','finanzas'] },
+  { label: 'Valores Programas',   href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision','finanzas'] },
+  { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin','finanzas'] },
+  { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin','finanzas'] },
   { label: 'Documentos',         href: '/documentos',   icon: 'ti-folder',           roles: ['super_admin','admin','gestor_admision','tutor'] },
   { label: 'Becas',              href: '/becas',          icon: 'ti-school',           roles: ['super_admin','admin','gestor_admision'] },
   { label: 'Calendario',         href: '/calendario',   icon: 'ti-calendar',         roles: ['super_admin','admin','gestor_admision','tutor'] },
   { label: 'Fichas pedagógicas', href: '/fichas',       icon: 'ti-books',            roles: ['super_admin','admin','tutor'] },
-  { label: 'Reportes',           href: '/reportes',     icon: 'ti-file-analytics',   roles: ['super_admin','admin'] },
+  { label: 'Reportes',           href: '/reportes',     icon: 'ti-file-analytics',   roles: ['super_admin','admin','finanzas'] },
 ]
 
 const NAV_CUENTA: NavItem[] = [
@@ -88,6 +88,8 @@ const ROL_BADGE: Record<string, { label: string; color: string; icon: string; ac
   apoderado:       { label: 'Apoderado',       color: 'bg-[#EDF6FA] text-[#3D7A94] border border-[#3D7A94]/15', icon: 'ti-heart-handshake',   accent: '#3D7A94', activeBg: 'bg-[#3D7A94]', activeIndicator: '#3D7A94' },
   alumno:          { label: 'Alumno',          color: 'bg-[#F3EFFE] text-[#6B4C9A] border border-[#6B4C9A]/20', icon: 'ti-backpack',          accent: '#6B4C9A', activeBg: 'bg-[#6B4C9A]', activeIndicator: '#6B4C9A' },
   postulante:      { label: 'Postulante',      color: 'bg-[#FEF9EC] text-[#8B6914] border border-[#8B6914]/20', icon: 'ti-file-search',       accent: '#8B6914', activeBg: 'bg-[#8B6914]', activeIndicator: '#8B6914' },
+  finanzas:        { label: 'Finanzas',        color: 'bg-[#EDF7F2] text-[#2D7A54] border border-[#2D7A54]/20', icon: 'ti-report-analytics',  accent: '#2D7A54', activeBg: 'bg-[#2D7A54]', activeIndicator: '#2D7A54' },
+  recepcion:       { label: 'Recepción',       color: 'bg-[#F3F0F9] text-[#5B3E9E] border border-[#5B3E9E]/20', icon: 'ti-headset',           accent: '#5B3E9E', activeBg: 'bg-[#5B3E9E]', activeIndicator: '#5B3E9E' },
 }
 
 interface Props { rol?: string; modulosHabilitados?: string[] | null; collapsed?: boolean; onToggleCollapse?: () => void }

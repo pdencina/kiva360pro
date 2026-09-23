@@ -10,7 +10,7 @@
  * - alumno: solo ve sus propios datos básicos
  */
 
-export type Rol = 'super_admin' | 'admin' | 'pastor_campus' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno'
+export type Rol = 'super_admin' | 'admin' | 'pastor_campus' | 'gestor_admision' | 'tutor' | 'apoderado' | 'alumno' | 'finanzas' | 'recepcion'
 
 export interface PermisoConfig {
   rol: Rol
@@ -50,7 +50,12 @@ export function puedeEliminar(rol: string): boolean {
 
 // ¿Puede gestionar cobranzas y pagos?
 export function accesoFinanzas(rol: string): boolean {
-  return ['super_admin', 'admin', 'pastor_campus'].includes(rol)
+  return ['super_admin', 'admin', 'pastor_campus', 'finanzas'].includes(rol)
+}
+
+// ¿Puede acceder a la agenda y reserva online (recepción)?
+export function accesoRecepcion(rol: string): boolean {
+  return ['super_admin', 'admin', 'pastor_campus', 'tutor', 'recepcion'].includes(rol)
 }
 
 // ¿Puede ver configuración y usuarios?
@@ -107,5 +112,11 @@ export const MODULOS_POR_ROL: Record<string, string[]> = {
   ],
   alumno: [
     'inicio', 'evaluaciones', 'asistencias', 'tareas', 'comunicados', 'perfil',
+  ],
+  finanzas: [
+    'inicio', 'alumnos', 'matricula', 'cobranzas', 'finanzas', 'reportes', 'comunicados', 'mensajes',
+  ],
+  recepcion: [
+    'inicio', 'agenda', 'comunicados', 'mensajes', 'alumnos',
   ],
 }
