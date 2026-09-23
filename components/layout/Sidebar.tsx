@@ -152,17 +152,17 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/portal/tareas': 'tareas',
 }
 
-const SECTION_META: Record<string, { icon: string }> = {
-  'Principal':     { icon: 'ti-layout-dashboard' },
-  'Personas':      { icon: 'ti-users' },
-  'Clínico':       { icon: 'ti-heart-handshake' },
-  'Académico':     { icon: 'ti-book-2' },
-  'Comunicación':  { icon: 'ti-message-2' },
-  'Finanzas':      { icon: 'ti-report-analytics' },
-  'Recursos':      { icon: 'ti-folder' },
-  'Cuenta':        { icon: 'ti-settings' },
-  'Mi espacio':    { icon: 'ti-home' },
-  'Mi postulación': { icon: 'ti-file-search' },
+const SECTION_META: Record<string, { icon: string; color: string }> = {
+  'Principal':      { icon: 'ti-layout-dashboard',  color: '#1B3A5C' },
+  'Personas':       { icon: 'ti-users',              color: '#2B6CB0' },
+  'Clínico':        { icon: 'ti-heart-handshake',    color: '#2D5A3F' },
+  'Académico':      { icon: 'ti-book-2',             color: '#6B4C9A' },
+  'Comunicación':   { icon: 'ti-message-2',          color: '#C45A1A' },
+  'Finanzas':       { icon: 'ti-report-analytics',   color: '#2D7A54' },
+  'Recursos':       { icon: 'ti-folder',             color: '#0E7490' },
+  'Cuenta':         { icon: 'ti-settings',           color: '#5B3E9E' },
+  'Mi espacio':     { icon: 'ti-home',                color: '#1B3A5C' },
+  'Mi postulación': { icon: 'ti-file-search',        color: '#8B6914' },
 }
 
 const SIDEBAR_COLLAPSED_SECTIONS_KEY = 'kiva360_sidebar_collapsed_sections'
@@ -255,7 +255,8 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null, coll
         {!collapsed && (
           <button
             onClick={() => toggleSection(section)}
-            className="w-full flex items-center gap-1.5 px-3 py-[7px] mb-0.5 rounded-md text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-[0.08em] hover:bg-[#f4f5f7] hover:text-[var(--ar-text)] transition-colors"
+            className="w-full flex items-center gap-1.5 px-3 py-[7px] mb-1 rounded-md text-[10px] font-bold uppercase tracking-[0.08em] transition-opacity hover:opacity-75"
+            style={{ color: meta?.color, backgroundColor: meta ? `${meta.color}17` : undefined }}
             aria-expanded={isOpen}
           >
             {meta && <i className={`ti ${meta.icon} text-[12px]`} aria-hidden="true"/>}
