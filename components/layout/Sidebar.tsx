@@ -12,29 +12,44 @@ interface NavItem {
 
 const NAV_PRINCIPAL: NavItem[] = [
   { label: 'Inicio',          href: '/inicio',          icon: 'ti-home',             roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'], description: 'Resumen del día: agenda, pendientes y avisos importantes.' },
+]
+
+const NAV_PERSONAS: NavItem[] = [
   { label: 'Matrícula',       href: '/matricula',       icon: 'ti-user-plus',        roles: ['super_admin','admin','gestor_admision'], description: 'Postulaciones, matrículas y el estado de cada proceso de ingreso.' },
   { label: 'Admisión',        href: '/admision',        icon: 'ti-inbox',            roles: ['super_admin','admin','gestor_admision'], description: 'Seguimiento de prospectos y familias interesadas en el centro.' },
   { label: 'Mis alumnos',     href: '/alumnos',         icon: 'ti-users',            roles: ['tutor'], description: 'Ficha completa de tus alumnos: datos, historial y documentos.' },
   { label: 'Alumnos',         href: '/alumnos',         icon: 'ti-users',            roles: ['super_admin','admin','gestor_admision','finanzas','recepcion'], description: 'Ficha completa de cada alumno: datos, historial y documentos.' },
+]
+
+const NAV_CLINICO: NavItem[] = [
+  { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','tutor'], description: 'Planes de intervención y seguimiento terapéutico de cada alumno.' },
+  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor','recepcion'], description: 'Sesiones terapéuticas agendadas y horas disponibles por profesional.' },
+  { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','tutor'], description: 'Bitácora diaria que se envía a las familias sobre el día del alumno.' },
+  { label: 'Incidentes',    href: '/incidentes',     icon: 'ti-alert-circle',     roles: ['super_admin','admin','tutor'], description: 'Registra incidentes o situaciones relevantes con firma digital.' },
+]
+
+const NAV_ACADEMICO: NavItem[] = [
   { label: 'Planificación',   href: '/planificacion',   icon: 'ti-layout-board',     roles: ['super_admin','admin','tutor'], description: 'Organiza las planificaciones de clases y actividades pedagógicas.' },
   { label: 'Programas',       href: '/programas',       icon: 'ti-category',         roles: ['super_admin','admin','tutor'], description: 'Gestiona los programas y niveles que ofrece el centro.' },
   { label: 'Horario alumno',  href: '/horario-alumno',  icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor'], description: 'Define y consulta el horario semanal de cada alumno.' },
   { label: 'Asistencias',     href: '/asistencias',     icon: 'ti-clipboard-check',  roles: ['super_admin','admin','tutor'], description: 'Registra y revisa la asistencia diaria de los alumnos.' },
   { label: 'Evaluaciones',   href: '/calificaciones',  icon: 'ti-chart-bar',        roles: ['super_admin','admin','tutor'], description: 'Calificaciones y evaluaciones registradas por curso y alumno.' },
-  { label: 'Comunicados',     href: '/comunicados',     icon: 'ti-speakerphone',     roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'], description: 'Envía avisos y comunicados a familias o al equipo.' },
-  { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'], description: 'Chat directo con otros usuarios del centro.' },
-  { label: 'Reporte diario', href: '/reporte-diario', icon: 'ti-clipboard-heart',  roles: ['super_admin','admin','tutor'], description: 'Bitácora diaria que se envía a las familias sobre el día del alumno.' },
-  { label: 'Incidentes',    href: '/incidentes',     icon: 'ti-alert-circle',     roles: ['super_admin','admin','tutor'], description: 'Registra incidentes o situaciones relevantes con firma digital.' },
-  { label: 'Intervención NEE', href: '/intervencion', icon: 'ti-heart-handshake', roles: ['super_admin','admin','tutor'], description: 'Planes de intervención y seguimiento terapéutico de cada alumno.' },
-  { label: 'Agenda',           href: '/agenda',        icon: 'ti-calendar-time',    roles: ['super_admin','admin','tutor','recepcion'], description: 'Sesiones terapéuticas agendadas y horas disponibles por profesional.' },
   { label: 'Tareas',         href: '/tareas',         icon: 'ti-checklist',        roles: ['super_admin','admin','tutor'], description: 'Asigna y revisa tareas pendientes para el equipo o los alumnos.' },
 ]
 
-const NAV_GESTION: NavItem[] = [
+const NAV_COMUNICACION: NavItem[] = [
+  { label: 'Comunicados',     href: '/comunicados',     icon: 'ti-speakerphone',     roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'], description: 'Envía avisos y comunicados a familias o al equipo.' },
+  { label: 'Mensajes',        href: '/mensajes',        icon: 'ti-message-2',        roles: ['super_admin','admin','gestor_admision','tutor','finanzas','recepcion'], description: 'Chat directo con otros usuarios del centro.' },
+]
+
+const NAV_FINANZAS: NavItem[] = [
   { label: 'Finanzas',           href: '/finanzas',       icon: 'ti-report-analytics', roles: ['super_admin','admin','pastor_campus','finanzas'], description: 'Dashboard financiero: facturación, cobros y documentos tributarios.' },
   { label: 'Valores Programas',   href: '/contable',       icon: 'ti-cash',             roles: ['super_admin','admin','gestor_admision','finanzas'], description: 'Define los precios de aranceles, matrículas y mensualidades.' },
   { label: 'Cobranza',           href: '/cobranza',       icon: 'ti-report-money',     roles: ['super_admin','admin','finanzas'], description: 'Seguimiento de pagos pendientes y morosidad de las familias.' },
   { label: 'Cobros sesión',      href: '/cobros-sesion',  icon: 'ti-receipt-2',        roles: ['super_admin','admin','finanzas'], description: 'Cobro individual por sesión terapéutica y planes prepagados.' },
+]
+
+const NAV_RECURSOS: NavItem[] = [
   { label: 'Documentos',         href: '/documentos',   icon: 'ti-folder',           roles: ['super_admin','admin','gestor_admision','tutor'], description: 'Documentos oficiales y archivos compartidos con las familias.' },
   { label: 'Becas',              href: '/becas',          icon: 'ti-school',           roles: ['super_admin','admin','gestor_admision'], description: 'Postulación y administración de becas y descuentos.' },
   { label: 'Calendario',         href: '/calendario',   icon: 'ti-calendar',         roles: ['super_admin','admin','gestor_admision','tutor'], description: 'Calendario general de actividades y fechas importantes del centro.' },
@@ -137,6 +152,21 @@ const HREF_TO_MODULO: Record<string, string> = {
   '/portal/tareas': 'tareas',
 }
 
+const SECTION_META: Record<string, { icon: string }> = {
+  'Principal':     { icon: 'ti-layout-dashboard' },
+  'Personas':      { icon: 'ti-users' },
+  'Clínico':       { icon: 'ti-heart-handshake' },
+  'Académico':     { icon: 'ti-book-2' },
+  'Comunicación':  { icon: 'ti-message-2' },
+  'Finanzas':      { icon: 'ti-report-analytics' },
+  'Recursos':      { icon: 'ti-folder' },
+  'Cuenta':        { icon: 'ti-settings' },
+  'Mi espacio':    { icon: 'ti-home' },
+  'Mi postulación': { icon: 'ti-file-search' },
+}
+
+const SIDEBAR_COLLAPSED_SECTIONS_KEY = 'kiva360_sidebar_collapsed_sections'
+
 export default function Sidebar({ rol = 'admin', modulosHabilitados = null, collapsed = false, onToggleCollapse }: Props) {
   const pathname  = usePathname()
   const rolTyped  = rol as Rol
@@ -145,6 +175,25 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null, coll
 
   // Mensajes no leídos
   const [unreadMessages, setUnreadMessages] = useState(0)
+
+  // Secciones del menú colapsadas (acordeón), persistido por navegador.
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SIDEBAR_COLLAPSED_SECTIONS_KEY)
+      if (raw) setCollapsedSections(new Set(JSON.parse(raw)))
+    } catch { /* localStorage no disponible */ }
+  }, [])
+
+  function toggleSection(section: string) {
+    setCollapsedSections(prev => {
+      const next = new Set(prev)
+      if (next.has(section)) next.delete(section)
+      else next.add(section)
+      try { localStorage.setItem(SIDEBAR_COLLAPSED_SECTIONS_KEY, JSON.stringify(Array.from(next))) } catch { /* ignore */ }
+      return next
+    })
+  }
 
   // Tooltip descriptivo al pasar el mouse por un ítem del menú.
   // Se renderiza vía portal en document.body porque el <nav> tiene
@@ -195,10 +244,27 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null, coll
     if (!visibles.length) return null
 
     const roleAccent = badge?.accent || '#1B3A5C'
+    const containsActive = visibles.some(item =>
+      pathname === item.href || (item.href !== '/inicio' && item.href !== '/portal' && pathname.startsWith(item.href))
+    )
+    const isOpen = collapsed || containsActive || !collapsedSections.has(section)
+    const meta = SECTION_META[section]
 
     return (
-      <div className="mb-6">
-        {!collapsed && <div className="px-3 py-1 text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-[0.1em] mb-2">{section}</div>}
+      <div className="mb-2">
+        {!collapsed && (
+          <button
+            onClick={() => toggleSection(section)}
+            className="w-full flex items-center gap-1.5 px-3 py-[7px] mb-0.5 rounded-md text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-[0.08em] hover:bg-[#f4f5f7] hover:text-[var(--ar-text)] transition-colors"
+            aria-expanded={isOpen}
+          >
+            {meta && <i className={`ti ${meta.icon} text-[12px]`} aria-hidden="true"/>}
+            <span className="flex-1 text-left">{section}</span>
+            <i className={`ti ti-chevron-down text-[11px] transition-transform duration-200 ${isOpen ? '' : '-rotate-90'}`} aria-hidden="true"/>
+          </button>
+        )}
+        <div className="grid transition-[grid-template-rows] duration-200 ease-out" style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}>
+          <div className="overflow-hidden">
         {visibles.map(item => {
           const active = pathname === item.href || (item.href !== '/inicio' && item.href !== '/portal' && pathname.startsWith(item.href))
           return (
@@ -222,6 +288,8 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null, coll
             </Link>
           )
         })}
+          </div>
+        </div>
       </div>
     )
   }
@@ -263,9 +331,14 @@ export default function Sidebar({ rol = 'admin', modulosHabilitados = null, coll
         {rolTyped === 'postulante' && renderGroup(NAV_POSTULANTE, 'Mi postulación')}
         {!isPortal && (
           <>
-            {renderGroup(NAV_PRINCIPAL, 'Principal')}
-            {renderGroup(NAV_GESTION,   'Gestión')}
-            {renderGroup(NAV_CUENTA,    'Cuenta')}
+            {renderGroup(NAV_PRINCIPAL,    'Principal')}
+            {renderGroup(NAV_PERSONAS,     'Personas')}
+            {renderGroup(NAV_CLINICO,      'Clínico')}
+            {renderGroup(NAV_ACADEMICO,    'Académico')}
+            {renderGroup(NAV_COMUNICACION, 'Comunicación')}
+            {renderGroup(NAV_FINANZAS,     'Finanzas')}
+            {renderGroup(NAV_RECURSOS,     'Recursos')}
+            {renderGroup(NAV_CUENTA,       'Cuenta')}
           </>
         )}
       </nav>
