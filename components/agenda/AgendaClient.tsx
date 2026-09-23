@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { formatMonto } from '@/lib/utils'
 
 interface Sesion {
   id: string; fecha: string; hora_inicio: string; hora_fin: string
@@ -291,7 +292,12 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
         }),
       })
       if (!res.ok) throw new Error((await res.json()).error)
-      toast.success('Sesión actualizada')
+      const data = await res.json()
+      if (data.cobro_generado) {
+        toast.success(`Sesión completada — cobro de ${formatMonto(data.cobro_generado.monto_final)} generado automáticamente`)
+      } else {
+        toast.success('Sesión actualizada')
+      }
       closeDetail()
       fetchSesiones()
     } catch (err: any) { toast.error(err.message || 'Error al actualizar') } finally { setSaving(false) }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { generarCobroSesion } from '@/lib/generar-cobro-sesion'
 
 function getAdmin() {
   return createAdminClient(
@@ -81,71 +82,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'alumno_id, profesional_id y fecha_sesion requeridos' }, { status: 400 })
   }
 
-  // Get tarifa if provided
-  let monto = monto_override || 0
-  let descripcion = 'Sesión terapéutica'
-
-  if (tarifa_id) {
-    const { data: tarifa } = await admin.from('tarifas_sesion').select('*').eq('id', tarifa_id).single()
-    if (tarifa) {
-      monto = monto_override || (tarifa as any).monto
-      descripcion = `${(tarifa as any).nombre} — ${new Date(fecha_sesion + 'T12:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' })}`
-    }
+  try {
+    const { cobro } = await generarCobroSesion({
+      admin, colegioId: usuario.colegio_id, alumnoId: alumno_id, profesionalId: profesional_id,
+      fechaSesion: fecha_sesion, tarifaId: tarifa_id, montoOverride: monto_override, descuentoManual: descuento,
+      agendaSesionId: agenda_sesion_id, sesionTerapeuticaId: sesion_terapeutica_id,
+    })
+    return NextResponse.json(cobro, { status: 201 })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 400 })
   }
-
-  if (!monto) return NextResponse.json({ error: 'Debe indicar monto o tarifa' }, { status: 400 })
-
-  // Check if alumno has an active pack for discount
-  let descuentoFinal = descuento || 0
-  let paqueteVendidoId: string | null = null
-  let sesionesUsadasActuales = 0
-
-  const { data: packsActivos } = await admin
-    .from('paquetes_vendidos')
-    .select('id, sesiones_total, sesiones_usadas, paquete:paquetes_sesion(descuento_pct)')
-    .eq('alumno_id', alumno_id)
-    .eq('activo', true)
-    .eq('estado_pago', 'pagado')
-    .order('created_at', { ascending: true })
-
-  const packConCupo = ((packsActivos as any[]) ?? []).find(p => p.sesiones_usadas < p.sesiones_total)
-  if (packConCupo) {
-    descuentoFinal = Math.round(monto * ((packConCupo.paquete?.descuento_pct || 100) / 100))
-    paqueteVendidoId = packConCupo.id
-    sesionesUsadasActuales = packConCupo.sesiones_usadas
-  }
-
-  const montoFinal = Math.max(0, monto - descuentoFinal)
-
-  // Get familia_id for this alumno
-  const { data: familia } = await admin.from('familias').select('id').eq('alumno_id', alumno_id).limit(1).single()
-
-  const { data, error } = await admin.from('cobros_sesion').insert({
-    colegio_id: usuario.colegio_id,
-    alumno_id,
-    profesional_id,
-    tarifa_id: tarifa_id || null,
-    familia_id: (familia as any)?.id || null,
-    agenda_sesion_id: agenda_sesion_id || null,
-    sesion_terapeutica_id: sesion_terapeutica_id || null,
-    fecha_sesion,
-    descripcion,
-    monto,
-    descuento: descuentoFinal,
-    monto_final: montoFinal,
-    estado: paqueteVendidoId ? 'pagado' : 'pendiente', // If from pack, mark as paid
-  }).select(`*, alumno:alumnos(id, nombre, apellido, curso), profesional:usuarios!profesional_id(id, nombre, apellido)`).single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  // If pack was used, increment sesiones_usadas
-  if (paqueteVendidoId) {
-    await admin.from('paquetes_vendidos')
-      .update({ sesiones_usadas: sesionesUsadasActuales + 1 })
-      .eq('id', paqueteVendidoId)
-  }
-
-  return NextResponse.json(data, { status: 201 })
 }
 
 // PATCH: Marcar como pagado

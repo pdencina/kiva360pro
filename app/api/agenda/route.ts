@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { generarCobroSesion } from '@/lib/generar-cobro-sesion'
+import { registrarAuditoriaFinanciera } from '@/lib/auditoria-financiera'
 
 function getAdmin() {
   return createAdminClient(
@@ -139,6 +141,8 @@ export async function PATCH(request: NextRequest) {
   const { id, ...updates } = body
   if (!id) return NextResponse.json({ error: 'id requerido' }, { status: 400 })
 
+  const { data: sesionAnterior } = await admin.from('agenda_sesiones').select('estado, tipo_sesion, alumno_id, profesional_id, fecha').eq('id', id).eq('colegio_id', usuario.colegio_id).single()
+
   const { data, error } = await admin
     .from('agenda_sesiones')
     .update(updates)
@@ -148,7 +152,45 @@ export async function PATCH(request: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+
+  // Automatización: al marcar una sesión como completada (atención realizada),
+  // generar el cobro correspondiente si hay una única tarifa activa para ese
+  // tipo de sesión — sin adivinar el monto si hay ambigüedad o ninguna tarifa.
+  let cobroGenerado: any = null
+  const anterior = sesionAnterior as any
+  if (updates.estado === 'completada' && anterior && anterior.estado !== 'completada') {
+    const { data: yaExiste } = await admin.from('cobros_sesion').select('id').eq('agenda_sesion_id', id).maybeSingle()
+
+    if (!yaExiste) {
+      const { data: tarifasAplicables } = await admin
+        .from('tarifas_sesion')
+        .select('id')
+        .eq('colegio_id', usuario.colegio_id)
+        .eq('tipo_sesion', anterior.tipo_sesion)
+        .eq('activo', true)
+
+      if (tarifasAplicables && tarifasAplicables.length === 1) {
+        try {
+          const { cobro } = await generarCobroSesion({
+            admin, colegioId: usuario.colegio_id,
+            alumnoId: anterior.alumno_id, profesionalId: anterior.profesional_id,
+            fechaSesion: anterior.fecha, tarifaId: (tarifasAplicables[0] as any).id,
+            agendaSesionId: id,
+          })
+          cobroGenerado = cobro
+          await registrarAuditoriaFinanciera({
+            admin, colegioId: usuario.colegio_id, usuarioId: user.id,
+            accion: 'cobro_generado', entidad: 'cobros_sesion', entidadId: cobro.id,
+            valorNuevo: { origen: 'agenda_completada', agenda_sesion_id: id, monto_final: cobro.monto_final },
+          })
+        } catch {
+          // Sin tarifa válida o error al generar: se deja para gestión manual
+        }
+      }
+    }
+  }
+
+  return NextResponse.json({ ...data, cobro_generado: cobroGenerado })
 }
 
 // DELETE: Eliminar sesión o serie
