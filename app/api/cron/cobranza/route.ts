@@ -10,24 +10,22 @@ function getAdmin() {
   )
 }
 
-// POST /api/cron/cobranza
-// Ejecutar diariamente (via Vercel Cron o llamada manual)
+// GET /api/cron/cobranza — Vercel Cron siempre invoca por GET.
+// Ejecutar diariamente.
 // 1. Calcula días de atraso para cobros vencidos
 // 2. Actualiza semáforo de morosidad
 // 3. Envía recordatorios pre-vencimiento (5, 3, 1 días antes)
 // 4. Envía alertas post-vencimiento escalonadas (día 6, 10, 15, 20)
 // 5. Notifica al admin sobre morosidad
-export async function POST(request: NextRequest) {
-  // Verificar que viene de cron autorizado o admin
+async function ejecutarCronCobranza(request: NextRequest) {
+  // Verificar que viene de cron autorizado
   const authHeader = request.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET || 'arschool-cron-2027'
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'CRON_SECRET no configurado en el servidor' }, { status: 500 })
+  }
   if (authHeader !== `Bearer ${cronSecret}`) {
-    // Permitir también si es un usuario super_admin
-    const admin = getAdmin()
-    // Si no hay auth header válido, rechazar
-    if (!authHeader) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   const admin = getAdmin()
@@ -215,3 +213,6 @@ export async function POST(request: NextRequest) {
     resultados,
   })
 }
+
+export async function GET(request: NextRequest) { return ejecutarCronCobranza(request) }
+export async function POST(request: NextRequest) { return ejecutarCronCobranza(request) }

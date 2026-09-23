@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { generarCobroSesion } from '@/lib/generar-cobro-sesion'
+import { generarDocumentoPendiente } from '@/lib/generar-documento-pendiente'
 
 function getAdmin() {
   return createAdminClient(
@@ -124,9 +125,20 @@ export async function PATCH(request: NextRequest) {
     .update(updates)
     .eq('id', id)
     .eq('colegio_id', usuario.colegio_id)
-    .select(`*, alumno:alumnos(id, nombre, apellido), profesional:usuarios!profesional_id(id, nombre, apellido)`)
+    .select(`*, alumno:alumnos(id, nombre, apellido), familia:familias(nombre_apoderado, apellido_apoderado, email), profesional:usuarios!profesional_id(id, nombre, apellido)`)
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  if (estado === 'pagado' && data) {
+    const d = data as any
+    await generarDocumentoPendiente({
+      admin, colegioId: usuario.colegio_id, alumnoId: d.alumno_id, familiaId: d.familia_id,
+      cobroSesionId: d.id, montoTotal: d.monto_final, descripcion: d.descripcion,
+      receptorNombre: `${d.familia?.nombre_apoderado ?? ''} ${d.familia?.apellido_apoderado ?? ''}`.trim() || 'Apoderado',
+      receptorEmail: d.familia?.email ?? null,
+    }).catch(err => console.error('Error generando documento pendiente:', err))
+  }
+
   return NextResponse.json(data)
 }

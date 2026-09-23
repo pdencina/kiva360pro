@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { enviarEmail } from '@/lib/email'
 
 interface GenerarCobroSesionInput {
   admin: SupabaseClient
@@ -65,7 +66,7 @@ export async function generarCobroSesion(input: GenerarCobroSesionInput): Promis
 
   const montoFinal = Math.max(0, monto - descuentoFinal)
 
-  const { data: familia } = await admin.from('familias').select('id').eq('alumno_id', alumnoId).limit(1).single()
+  const { data: familia } = await admin.from('familias').select('id, email, nombre_apoderado').eq('alumno_id', alumnoId).limit(1).single()
 
   const { data: cobro, error } = await admin.from('cobros_sesion').insert({
     colegio_id: colegioId,
@@ -89,6 +90,19 @@ export async function generarCobroSesion(input: GenerarCobroSesionInput): Promis
     await admin.from('paquetes_vendidos')
       .update({ sesiones_usadas: sesionesUsadasActuales + 1 })
       .eq('id', paqueteVendidoId)
+  }
+
+  // Avisar a la familia por email para que pague sin que un administrativo
+  // tenga que acordarse de notificarla — el pago en sí lo hace la familia
+  // desde el portal (Webpay), no requiere otra acción del centro.
+  const email = (familia as any)?.email
+  if (!paqueteVendidoId && email && montoFinal > 0) {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kiva360.cl'
+    enviarEmail({
+      to: email,
+      subject: `Cobro pendiente — ${descripcion}`,
+      html: `<p>Hola ${(familia as any)?.nombre_apoderado ?? ''},</p><p>Se generó un cobro de <strong>$${montoFinal.toLocaleString('es-CL')}</strong> por: ${descripcion}.</p><p><a href="${baseUrl}/portal/pagos">Pagar ahora desde el portal →</a></p>`,
+    }).catch(err => console.error('Error enviando aviso de cobro:', err))
   }
 
   return { cobro, paqueteAplicado: !!paqueteVendidoId }

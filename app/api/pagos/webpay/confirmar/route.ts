@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdminClient, SupabaseClient } from '@supabase/supabase-js'
 import { getWebpayTransaction } from '@/lib/transbank'
+import { generarDocumentoPendiente } from '@/lib/generar-documento-pendiente'
 
 function getAdmin() {
   return createAdminClient(
@@ -21,7 +22,7 @@ async function procesarConfirmacion(admin: SupabaseClient, tokenWs: string, base
 
   const { data: pago } = await admin
     .from('pagos')
-    .select('id, cobro_id, monto, estado')
+    .select('id, cobro_id, cobro_sesion_id, monto, estado')
     .eq('referencia', result.buy_order)
     .single()
 
@@ -56,17 +57,54 @@ async function procesarConfirmacion(admin: SupabaseClient, tokenWs: string, base
   }).eq('id', p.id).eq('estado', 'pendiente').select('id').single()
 
   if (pagoActualizado) {
-    // Esta es la primera vez que se confirma este pago: aplicar el monto al cobro.
-    const { data: cobro } = await admin.from('cobros').select('monto, monto_pagado').eq('id', p.cobro_id).single()
-    if (cobro) {
-      const nuevoMontoPagado = ((cobro as any).monto_pagado ?? 0) + p.monto
-      const nuevoEstado = nuevoMontoPagado >= (cobro as any).monto ? 'pagado' : 'parcial'
-      await admin.from('cobros').update({
-        monto_pagado: nuevoMontoPagado,
-        estado: nuevoEstado,
-        medio_pago: 'webpay',
-        fecha_pago: new Date().toISOString().split('T')[0],
-      }).eq('id', p.cobro_id)
+    // Esta es la primera vez que se confirma este pago: aplicar el monto al
+    // cobro correspondiente (mensualidad o sesión individual) y dejar lista
+    // la solicitud del documento tributario, sin intervención humana.
+    if (p.cobro_id) {
+      const { data: cobro } = await admin.from('cobros')
+        .select('monto, monto_pagado, alumno_id, familia_id, colegio_id, concepto:conceptos_cobro(nombre), familia:familias(nombre_apoderado, apellido_apoderado, email)')
+        .eq('id', p.cobro_id).single()
+      if (cobro) {
+        const c = cobro as any
+        const nuevoMontoPagado = (c.monto_pagado ?? 0) + p.monto
+        const nuevoEstado = nuevoMontoPagado >= c.monto ? 'pagado' : 'parcial'
+        await admin.from('cobros').update({
+          monto_pagado: nuevoMontoPagado,
+          estado: nuevoEstado,
+          medio_pago: 'webpay',
+          fecha_pago: new Date().toISOString().split('T')[0],
+        }).eq('id', p.cobro_id)
+
+        if (nuevoEstado === 'pagado') {
+          await generarDocumentoPendiente({
+            admin, colegioId: c.colegio_id, alumnoId: c.alumno_id, familiaId: c.familia_id,
+            cobroId: p.cobro_id, montoTotal: c.monto,
+            descripcion: c.concepto?.nombre ?? 'Mensualidad',
+            receptorNombre: `${c.familia?.nombre_apoderado ?? ''} ${c.familia?.apellido_apoderado ?? ''}`.trim() || 'Apoderado',
+            receptorEmail: c.familia?.email ?? null,
+          }).catch(err => console.error('Error generando documento pendiente:', err))
+        }
+      }
+    } else if (p.cobro_sesion_id) {
+      const { data: cobroSesion } = await admin.from('cobros_sesion')
+        .select('monto_final, descripcion, alumno_id, familia_id, colegio_id, familia:familias(nombre_apoderado, apellido_apoderado, email)')
+        .eq('id', p.cobro_sesion_id).single()
+      if (cobroSesion) {
+        const cs = cobroSesion as any
+        await admin.from('cobros_sesion').update({
+          estado: 'pagado',
+          medio_pago: 'webpay',
+          fecha_pago: new Date().toISOString().split('T')[0],
+        }).eq('id', p.cobro_sesion_id)
+
+        await generarDocumentoPendiente({
+          admin, colegioId: cs.colegio_id, alumnoId: cs.alumno_id, familiaId: cs.familia_id,
+          cobroSesionId: p.cobro_sesion_id, montoTotal: cs.monto_final,
+          descripcion: cs.descripcion,
+          receptorNombre: `${cs.familia?.nombre_apoderado ?? ''} ${cs.familia?.apellido_apoderado ?? ''}`.trim() || 'Apoderado',
+          receptorEmail: cs.familia?.email ?? null,
+        }).catch(err => console.error('Error generando documento pendiente:', err))
+      }
     }
   }
 

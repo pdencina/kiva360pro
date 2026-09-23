@@ -6,9 +6,9 @@ import toast from 'react-hot-toast'
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
-interface Props { cobros: any[]; documentos?: any[]; paquetesVendidos?: any[] }
+interface Props { cobros: any[]; cobrosSesion?: any[]; documentos?: any[]; paquetesVendidos?: any[] }
 
-export default function PortalPagosClient({ cobros, documentos = [], paquetesVendidos = [] }: Props) {
+export default function PortalPagosClient({ cobros, cobrosSesion = [], documentos = [], paquetesVendidos = [] }: Props) {
   const searchParams = useSearchParams()
   const resultado = searchParams.get('resultado')
 
@@ -22,13 +22,13 @@ export default function PortalPagosClient({ cobros, documentos = [], paquetesVen
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [qrLoading, setQrLoading] = useState(false)
 
-  async function pagarConWebpay(cobroId: string) {
-    setPagandoWebpay(cobroId)
+  async function pagarConWebpay(id: string, origen: 'mensualidad' | 'sesion' = 'mensualidad') {
+    setPagandoWebpay(id)
     try {
       const res = await fetch('/api/pagos/webpay/crear', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cobro_id: cobroId }),
+        body: JSON.stringify(origen === 'mensualidad' ? { cobro_id: id } : { cobro_sesion_id: id }),
       })
       const data = await res.json()
       if (res.ok && data.url && data.token) {
@@ -53,15 +53,15 @@ export default function PortalPagosClient({ cobros, documentos = [], paquetesVen
     }
   }
 
-  async function generarQR(cobroId: string) {
-    setQrCobroId(cobroId)
+  async function generarQR(id: string, origen: 'mensualidad' | 'sesion' = 'mensualidad') {
+    setQrCobroId(id)
     setQrLoading(true)
     setQrDataUrl(null)
     try {
       const res = await fetch('/api/pagos/webpay/crear', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cobro_id: cobroId }),
+        body: JSON.stringify(origen === 'mensualidad' ? { cobro_id: id } : { cobro_sesion_id: id }),
       })
       const data = await res.json()
       if (res.ok && data.url && data.token) {
@@ -83,7 +83,9 @@ export default function PortalPagosClient({ cobros, documentos = [], paquetesVen
 
   const pendientes = cobros.filter(c => c.estado !== 'pagado')
   const pagados = cobros.filter(c => c.estado === 'pagado')
+  const sesionesPendientes = cobrosSesion.filter(c => !['pagado', 'anulado', 'condonado'].includes(c.estado))
   const totalPendiente = pendientes.reduce((a, c) => a + (c.monto - (c.monto_pagado ?? 0)), 0)
+    + sesionesPendientes.reduce((a, c) => a + c.monto_final, 0)
 
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -173,6 +175,50 @@ export default function PortalPagosClient({ cobros, documentos = [], paquetesVen
           <div>
             <div className="text-[13px] font-bold text-emerald-800">¡Estás al día!</div>
             <div className="text-[11px] text-emerald-700">Todos tus aportes están pagados.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Prestaciones (sesiones) pendientes */}
+      {sesionesPendientes.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-[14px] font-bold text-[#1B3A5C] mb-3 flex items-center gap-2">
+            <i className="ti ti-stethoscope text-[#E8722A]" aria-hidden="true"/> Sesiones pendientes de pago
+          </h2>
+          <div className="space-y-2">
+            {sesionesPendientes.map(c => (
+              <div key={c.id} className="bg-white border border-[var(--ar-border)] rounded-xl p-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center">
+                      <i className="ti ti-stethoscope text-amber-700" aria-hidden="true"/>
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-medium text-[#1B3A5C]">{c.descripcion}</div>
+                      <div className="text-[11px] text-[#9ca3af]">
+                        {c.alumno?.nombre} {c.alumno?.apellido} · {c.profesional?.nombre} {c.profesional?.apellido} · {new Date(c.fecha_sesion + 'T12:00').toLocaleDateString('es-CL')}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-[15px] font-bold text-[#1B3A5C]">${c.monto_final.toLocaleString('es-CL')}</div>
+                      <span className="inline-flex items-center px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[9px] font-bold rounded uppercase">{c.estado === 'parcial' ? 'Parcial' : 'Pendiente'}</span>
+                    </div>
+                    <button onClick={() => generarQR(c.id, 'sesion')} className="btn-secondary text-[11px] py-2 px-3">
+                      <i className="ti ti-qrcode text-xs" aria-hidden="true"/> QR
+                    </button>
+                    <button onClick={() => pagarConWebpay(c.id, 'sesion')} disabled={pagandoWebpay === c.id} className="btn-primary text-[11px] py-2 px-3 disabled:opacity-60">
+                      {pagandoWebpay === c.id ? (
+                        <><i className="ti ti-loader text-xs animate-spin" aria-hidden="true"/> Procesando...</>
+                      ) : (
+                        <><i className="ti ti-credit-card text-xs" aria-hidden="true"/> Pagar con tarjeta</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

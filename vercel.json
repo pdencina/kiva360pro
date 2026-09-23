@@ -3,5 +3,9 @@
   "buildCommand": "next build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
-  "regions": ["gru1"]
+  "regions": ["gru1"],
+  "crons": [
+    { "path": "/api/cron/sesiones", "schedule": "0 9 * * *" },
+    { "path": "/api/cron/cobranza", "schedule": "0 12 * * *" }
+  ]
 }

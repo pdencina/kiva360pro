@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { accesoFinanzas } from '@/lib/permisos'
 import { registrarAuditoriaFinanciera } from '@/lib/auditoria-financiera'
+import { generarDocumentoPendiente } from '@/lib/generar-documento-pendiente'
 
 function getAdmin() {
   return createAdminClient(
@@ -90,6 +91,10 @@ export async function POST(request: NextRequest) {
   if (pagoError || !pago) return NextResponse.json({ error: pagoError?.message || 'No se pudo registrar el pago' }, { status: 500 })
   const pagoId = (pago as any).id
 
+  const { data: familiaAlumno } = await admin.from('familias').select('nombre_apoderado, apellido_apoderado, email').eq('alumno_id', alumno_id).limit(1).single()
+  const receptorNombre = `${(familiaAlumno as any)?.nombre_apoderado ?? ''} ${(familiaAlumno as any)?.apellido_apoderado ?? ''}`.trim() || 'Apoderado'
+  const receptorEmail = (familiaAlumno as any)?.email ?? null
+
   // Registrar cada aplicación y actualizar el cobro/cobro_sesion correspondiente
   for (const ap of aplicaciones) {
     await admin.from('pago_aplicaciones').insert({
@@ -101,17 +106,34 @@ export async function POST(request: NextRequest) {
     })
 
     if (ap.origen === 'mensualidad') {
-      const { data: cobro } = await admin.from('cobros').select('monto, monto_pagado').eq('id', ap.id).single()
-      const nuevoMontoPagado = ((cobro as any)?.monto_pagado ?? 0) + ap.montoAplicado
-      const nuevoEstado = nuevoMontoPagado >= (cobro as any)?.monto ? 'pagado' : 'parcial'
+      const { data: cobro } = await admin.from('cobros').select('monto, monto_pagado, familia_id, concepto:conceptos_cobro(nombre)').eq('id', ap.id).single()
+      const c = cobro as any
+      const nuevoMontoPagado = (c?.monto_pagado ?? 0) + ap.montoAplicado
+      const nuevoEstado = nuevoMontoPagado >= c?.monto ? 'pagado' : 'parcial'
       await admin.from('cobros').update({
         monto_pagado: nuevoMontoPagado, estado: nuevoEstado, medio_pago,
         fecha_pago: nuevoEstado === 'pagado' ? new Date().toISOString().split('T')[0] : null,
       }).eq('id', ap.id)
+
+      if (nuevoEstado === 'pagado') {
+        await generarDocumentoPendiente({
+          admin, colegioId: usuario.colegio_id, alumnoId: alumno_id, familiaId: c?.familia_id ?? null,
+          cobroId: ap.id, montoTotal: c?.monto, descripcion: c?.concepto?.nombre ?? 'Mensualidad',
+          receptorNombre, receptorEmail,
+        }).catch(err => console.error('Error generando documento pendiente:', err))
+      }
     } else {
+      const { data: cobroSesion } = await admin.from('cobros_sesion').select('monto_final, descripcion, familia_id').eq('id', ap.id).single()
+      const cs = cobroSesion as any
       await admin.from('cobros_sesion').update({
         estado: 'pagado', medio_pago, fecha_pago: new Date().toISOString().split('T')[0], pagado_por: user.id,
       }).eq('id', ap.id)
+
+      await generarDocumentoPendiente({
+        admin, colegioId: usuario.colegio_id, alumnoId: alumno_id, familiaId: cs?.familia_id ?? null,
+        cobroSesionId: ap.id, montoTotal: cs?.monto_final, descripcion: cs?.descripcion ?? 'Sesión terapéutica',
+        receptorNombre, receptorEmail,
+      }).catch(err => console.error('Error generando documento pendiente:', err))
     }
   }
 
