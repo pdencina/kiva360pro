@@ -8,6 +8,7 @@ import { formatMonto } from '@/lib/utils'
 interface Sesion {
   id: string; fecha: string; hora_inicio: string; hora_fin: string
   tipo_sesion: string; modalidad: string; estado: string; observaciones: string | null
+  tarifa_id?: string | null
   grupo_recurrencia: string | null
   alumno: { id: string; nombre: string; apellido: string; curso: string }
   profesional: { id: string; nombre: string; apellido: string }
@@ -34,6 +35,7 @@ interface Props {
   profesionales: { id: string; nombre: string; apellido: string; rol: string }[]
   currentUserId: string
   solicitudesPendientes?: number
+  tarifas?: { id: string; nombre: string }[]
 }
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -77,7 +79,7 @@ function timeToY(time: string): number {
   return ((h * 60 + m) - START_HOUR * 60) / 60 * HOUR_HEIGHT
 }
 
-export default function AgendaClient({ alumnos, profesionales, currentUserId, solicitudesPendientes = 0 }: Props) {
+export default function AgendaClient({ alumnos, profesionales, currentUserId, solicitudesPendientes = 0, tarifas = [] }: Props) {
   const [currentWeek, setCurrentWeek] = useState(new Date())
   const [sesiones, setSesiones] = useState<Sesion[]>([])
   const [loading, setLoading] = useState(true)
@@ -92,7 +94,7 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
   // Popup
   const [showPopup, setShowPopup] = useState(false)
   const [popupData, setPopupData] = useState({ fecha: '', startTime: '', endTime: '' })
-  const [popupForm, setPopupForm] = useState({ alumno_id: '', profesional_id: '', tipo_sesion: 'individual', modalidad: 'presencial' })
+  const [popupForm, setPopupForm] = useState({ alumno_id: '', profesional_id: '', tarifa_id: '', tipo_sesion: 'individual', modalidad: 'presencial' })
   const [creating, setCreating] = useState(false)
 
   // Drop indicator
@@ -102,7 +104,7 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
   const [selected, setSelected] = useState<Sesion | null>(null)
   const [editMode, setEditMode] = useState(false)
   const [editForm, setEditForm] = useState({
-    fecha: '', hora_inicio: '', hora_fin: '', alumno_id: '', profesional_id: '',
+    fecha: '', hora_inicio: '', hora_fin: '', alumno_id: '', profesional_id: '', tarifa_id: '',
     tipo_sesion: 'individual', modalidad: 'presencial', estado: 'programada', observaciones: '',
   })
   const [saving, setSaving] = useState(false)
@@ -163,7 +165,7 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
     const endTime = yToTime(maxY)
 
     setPopupData({ fecha: dragDate, startTime, endTime })
-    setPopupForm({ alumno_id: '', profesional_id: '', tipo_sesion: 'individual', modalidad: 'presencial' })
+    setPopupForm({ alumno_id: '', profesional_id: '', tarifa_id: '', tipo_sesion: 'individual', modalidad: 'presencial' })
     setShowPopup(true)
     setDragging(false)
   }
@@ -203,6 +205,7 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
         body: JSON.stringify({
           alumno_id: popupForm.alumno_id,
           profesional_id: popupForm.profesional_id,
+          tarifa_id: popupForm.tarifa_id || undefined,
           fecha: popupData.fecha,
           hora_inicio: popupData.startTime,
           hora_fin: popupData.endTime,
@@ -258,7 +261,7 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
     setEditMode(false)
     setEditForm({
       fecha: s.fecha, hora_inicio: s.hora_inicio.slice(0, 5), hora_fin: s.hora_fin.slice(0, 5),
-      alumno_id: s.alumno.id, profesional_id: s.profesional.id,
+      alumno_id: s.alumno.id, profesional_id: s.profesional.id, tarifa_id: s.tarifa_id ?? '',
       tipo_sesion: s.tipo_sesion, modalidad: s.modalidad, estado: s.estado,
       observaciones: s.observaciones ?? '',
     })
@@ -285,6 +288,7 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
           hora_fin: editForm.hora_fin,
           alumno_id: editForm.alumno_id,
           profesional_id: editForm.profesional_id,
+          tarifa_id: editForm.tarifa_id || null,
           tipo_sesion: editForm.tipo_sesion,
           modalidad: editForm.modalidad,
           estado: editForm.estado,
@@ -293,7 +297,13 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
       })
       if (!res.ok) throw new Error((await res.json()).error)
       const data = await res.json()
-      if (data.cobro_generado) {
+      if (data.plan_reverso_error) {
+        toast.error('La sesión se actualizó, pero no se pudo devolver al plan. Revísalo en Cobros por sesión → Planes.')
+      } else if (data.plan_revertido) {
+        toast.success('Sesión actualizada — se devolvió la sesión al plan del paciente')
+      } else if (data.cobro_generado?.cubierto_por_plan) {
+        toast.success(`Sesión completada — descontada del plan (cubierto ${formatMonto(data.cobro_generado.monto_cubierto_plan)}, saldo $0)`)
+      } else if (data.cobro_generado) {
         toast.success(`Sesión completada — cobro de ${formatMonto(data.cobro_generado.monto_final)} generado automáticamente`)
       } else {
         toast.success('Sesión actualizada')
@@ -333,7 +343,7 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
               <span className="absolute -top-1.5 -right-1.5 bg-[var(--ar-danger)] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{solicitudesPendientes}</span>
             )}
           </Link>
-          <button onClick={() => { setPopupData({ fecha: today, startTime: '09:00', endTime: '09:45' }); setPopupForm({ alumno_id: '', profesional_id: '', tipo_sesion: 'individual', modalidad: 'presencial' }); setShowPopup(true) }} className="btn-primary">
+          <button onClick={() => { setPopupData({ fecha: today, startTime: '09:00', endTime: '09:45' }); setPopupForm({ alumno_id: '', profesional_id: '', tarifa_id: '', tipo_sesion: 'individual', modalidad: 'presencial' }); setShowPopup(true) }} className="btn-primary">
             <i className="ti ti-plus text-[14px]" aria-hidden="true"/> Nueva sesión
           </button>
         </div>
@@ -537,6 +547,13 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
                 <option value="">Seleccionar profesional...</option>
                 {profesionales.map(p => <option key={p.id} value={p.id}>{p.nombre} {p.apellido}</option>)}
               </select>
+              {/* Prestación (define contra qué plan puede consumirse) */}
+              {tarifas.length > 0 && (
+                <select value={popupForm.tarifa_id} onChange={e => setPopupForm({...popupForm, tarifa_id: e.target.value})} className="select-base w-full text-[12px]">
+                  <option value="">Prestación (opcional)...</option>
+                  {tarifas.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                </select>
+              )}
               {/* Tipo + Modalidad */}
               <div className="grid grid-cols-2 gap-2">
                 <select value={popupForm.tipo_sesion} onChange={e => setPopupForm({...popupForm, tipo_sesion: e.target.value})} className="select-base w-full text-[12px]">
@@ -650,6 +667,12 @@ export default function AgendaClient({ alumnos, profesionales, currentUserId, so
                     <option value="">Seleccionar profesional...</option>
                     {profesionales.map(p => <option key={p.id} value={p.id}>{p.nombre} {p.apellido}</option>)}
                   </select>
+                  {tarifas.length > 0 && (
+                    <select value={editForm.tarifa_id} onChange={e => setEditForm({...editForm, tarifa_id: e.target.value})} className="select-base w-full text-[12px]">
+                      <option value="">Prestación (opcional)...</option>
+                      {tarifas.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                    </select>
+                  )}
                   <div className="grid grid-cols-2 gap-2">
                     <select value={editForm.tipo_sesion} onChange={e => setEditForm({...editForm, tipo_sesion: e.target.value})} className="select-base w-full text-[12px]">
                       <option value="individual">Individual</option><option value="grupal">Grupal</option>

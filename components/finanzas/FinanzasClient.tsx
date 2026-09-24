@@ -233,7 +233,9 @@ export default function FinanzasClient({ kpis, deuda, topConceptos, mesActual, c
                 return (
                   <tr key={key} className="table-row">
                     <td>
-                      <input type="checkbox" checked={seleccionados.has(key)} onChange={() => toggleSeleccion(d)} />
+                      {d.origen === 'plan'
+                        ? <span title="El plan se paga desde Cobros por sesión → Planes" className="text-[var(--ar-muted)]">·</span>
+                        : <input type="checkbox" checked={seleccionados.has(key)} onChange={() => toggleSeleccion(d)} />}
                     </td>
                     <td>
                       <div className="font-medium text-[var(--ar-text)]">{d.alumno?.nombre} {d.alumno?.apellido}</div>

@@ -12,6 +12,54 @@ function getAdmin() {
   )
 }
 
+type AdminClient = ReturnType<typeof getAdmin>
+
+// Campos que el cliente puede modificar en una sesión (antes se aceptaba cualquier campo).
+const CAMPOS_EDITABLES = [
+  'fecha', 'hora_inicio', 'hora_fin', 'alumno_id', 'profesional_id', 'plan_id', 'tipo_sesion',
+  'modalidad', 'estado', 'observaciones', 'motivo_cancelacion', 'tarifa_id',
+] as const
+
+// Aislamiento multi-tenant: paciente, profesional y prestación deben ser de este centro.
+async function validarTenant(
+  admin: AdminClient, colegioId: string,
+  ids: { alumno_id?: string | null; profesional_id?: string | null; tarifa_id?: string | null },
+): Promise<string | null> {
+  if (ids.alumno_id) {
+    const { data } = await admin.from('alumnos').select('id').eq('id', ids.alumno_id).eq('colegio_id', colegioId).maybeSingle()
+    if (!data) return 'El paciente no existe en este centro'
+  }
+  if (ids.profesional_id) {
+    const { data } = await admin.from('usuarios').select('id').eq('id', ids.profesional_id).eq('colegio_id', colegioId).maybeSingle()
+    if (!data) return 'El profesional no existe en este centro'
+  }
+  if (ids.tarifa_id) {
+    const { data } = await admin.from('tarifas_sesion').select('id').eq('id', ids.tarifa_id).eq('colegio_id', colegioId).maybeSingle()
+    if (!data) return 'La prestación no existe en este centro'
+  }
+  return null
+}
+
+// Si la sesión no tiene prestación, se usa la única tarifa activa de ese tipo de sesión
+// (si hay 0 o más de 1 no se adivina: el cobro queda para gestión manual).
+async function tarifaUnicaPorTipo(admin: AdminClient, colegioId: string, tipoSesion: string): Promise<string | null> {
+  const { data } = await admin.from('tarifas_sesion').select('id').eq('colegio_id', colegioId).eq('tipo_sesion', tipoSesion).eq('activo', true)
+  return data && data.length === 1 ? (data[0] as { id: string }).id : null
+}
+
+// Devuelve a su plan las unidades consumidas por una atención de agenda (auditado, sin borrar nada).
+async function revertirConsumosDeAgenda(admin: AdminClient, colegioId: string, agendaSesionId: string, userId: string, motivo: string): Promise<{ revertidos: number; errores: number }> {
+  const { data: consumos } = await admin.from('plan_consumos').select('id')
+    .eq('colegio_id', colegioId).eq('agenda_sesion_id', agendaSesionId).eq('estado', 'consumido')
+  let revertidos = 0
+  let errores = 0
+  for (const c of (consumos ?? []) as { id: string }[]) {
+    const { error } = await admin.rpc('revertir_consumo_plan', { p_colegio: colegioId, p_consumo: c.id, p_user: userId, p_motivo: motivo })
+    if (error) { errores++; console.error('Error revirtiendo consumo de plan:', error.message) } else revertidos++
+  }
+  return { revertidos, errores }
+}
+
 // GET: Listar sesiones agendadas (filtradas por semana/fecha/profesional)
 export async function GET(request: NextRequest) {
   const supabase = createClient()
@@ -71,12 +119,15 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const {
     alumno_id, profesional_id, plan_id, fecha, hora_inicio, hora_fin,
-    tipo_sesion, modalidad, observaciones, recurrencia, recurrencia_fin
+    tipo_sesion, modalidad, observaciones, recurrencia, recurrencia_fin, tarifa_id
   } = body
 
   if (!alumno_id || !profesional_id || !fecha || !hora_inicio || !hora_fin) {
     return NextResponse.json({ error: 'Campos requeridos: alumno_id, profesional_id, fecha, hora_inicio, hora_fin' }, { status: 400 })
   }
+
+  const errorTenant = await validarTenant(admin, usuario.colegio_id, { alumno_id, profesional_id, tarifa_id })
+  if (errorTenant) return NextResponse.json({ error: errorTenant }, { status: 400 })
 
   // Generate recurring sessions if needed
   const sesiones: any[] = []
@@ -88,6 +139,7 @@ export async function POST(request: NextRequest) {
       alumno_id,
       profesional_id,
       plan_id: plan_id || null,
+      tarifa_id: tarifa_id || null,
       fecha: sessionDate,
       hora_inicio,
       hora_fin,
@@ -138,10 +190,24 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { id, ...updates } = body
+  const id = body.id as string | undefined
   if (!id) return NextResponse.json({ error: 'id requerido' }, { status: 400 })
 
-  const { data: sesionAnterior } = await admin.from('agenda_sesiones').select('estado, tipo_sesion, alumno_id, profesional_id, fecha').eq('id', id).eq('colegio_id', usuario.colegio_id).single()
+  const updates: Record<string, unknown> = {}
+  for (const campo of CAMPOS_EDITABLES) {
+    if (campo in body) updates[campo] = body[campo]
+  }
+
+  const errorTenant = await validarTenant(admin, usuario.colegio_id, {
+    alumno_id: updates.alumno_id as string | undefined,
+    profesional_id: updates.profesional_id as string | undefined,
+    tarifa_id: updates.tarifa_id as string | null | undefined,
+  })
+  if (errorTenant) return NextResponse.json({ error: errorTenant }, { status: 400 })
+
+  const { data: sesionAnterior } = await admin.from('agenda_sesiones').select('estado').eq('id', id).eq('colegio_id', usuario.colegio_id).single()
+  if (!sesionAnterior) return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 404 })
+  const estadoAnterior = (sesionAnterior as { estado: string }).estado
 
   const { data, error } = await admin
     .from('agenda_sesiones')
@@ -152,37 +218,34 @@ export async function PATCH(request: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  const sesion = data as {
+    tipo_sesion: string; alumno_id: string; profesional_id: string; fecha: string; tarifa_id: string | null
+  }
 
-  // Automatización: al marcar una sesión como completada (atención realizada),
-  // generar el cobro correspondiente si hay una única tarifa activa para ese
-  // tipo de sesión — sin adivinar el monto si hay ambigüedad o ninguna tarifa.
-  let cobroGenerado: any = null
-  const anterior = sesionAnterior as any
-  if (updates.estado === 'completada' && anterior && anterior.estado !== 'completada') {
-    const { data: yaExiste } = await admin.from('cobros_sesion').select('id').eq('agenda_sesion_id', id).maybeSingle()
+  // Automatización 1: al completarse la atención se genera su cobro. Si el paciente tiene un plan
+  // vigente que incluya la prestación, la atención CONSUME el plan (sin generar ingreso nuevo).
+  // Solo se usa la prestación de la sesión, o la única tarifa activa de ese tipo (no se adivina).
+  let cobroGenerado: unknown = null
+  if (updates.estado === 'completada' && estadoAnterior !== 'completada') {
+    const { data: yaExiste } = await admin.from('cobros_sesion').select('id').eq('agenda_sesion_id', id).neq('estado', 'anulado').maybeSingle()
 
     if (!yaExiste) {
-      const { data: tarifasAplicables } = await admin
-        .from('tarifas_sesion')
-        .select('id')
-        .eq('colegio_id', usuario.colegio_id)
-        .eq('tipo_sesion', anterior.tipo_sesion)
-        .eq('activo', true)
-
-      if (tarifasAplicables && tarifasAplicables.length === 1) {
+      const tarifaId = sesion.tarifa_id ?? await tarifaUnicaPorTipo(admin, usuario.colegio_id, sesion.tipo_sesion)
+      if (tarifaId) {
         try {
-          const { cobro } = await generarCobroSesion({
+          const { cobro, paqueteAplicado, repetido } = await generarCobroSesion({
             admin, colegioId: usuario.colegio_id,
-            alumnoId: anterior.alumno_id, profesionalId: anterior.profesional_id,
-            fechaSesion: anterior.fecha, tarifaId: (tarifasAplicables[0] as any).id,
-            agendaSesionId: id,
+            alumnoId: sesion.alumno_id, profesionalId: sesion.profesional_id,
+            fechaSesion: sesion.fecha, tarifaId, agendaSesionId: id, userId: user.id,
           })
-          cobroGenerado = cobro
-          await registrarAuditoriaFinanciera({
-            admin, colegioId: usuario.colegio_id, usuarioId: user.id,
-            accion: 'cobro_generado', entidad: 'cobros_sesion', entidadId: cobro.id,
-            valorNuevo: { origen: 'agenda_completada', agenda_sesion_id: id, monto_final: cobro.monto_final },
-          })
+          if (!repetido) {
+            cobroGenerado = { ...cobro, cubierto_por_plan: paqueteAplicado }
+            await registrarAuditoriaFinanciera({
+              admin, colegioId: usuario.colegio_id, usuarioId: user.id,
+              accion: 'cobro_generado', entidad: 'cobros_sesion', entidadId: cobro.id,
+              valorNuevo: { origen: 'agenda_completada', agenda_sesion_id: id, monto: cobro.monto, monto_final: cobro.monto_final, cubierto_plan: cobro.monto_cubierto_plan },
+            })
+          }
         } catch {
           // Sin tarifa válida o error al generar: se deja para gestión manual
         }
@@ -190,7 +253,17 @@ export async function PATCH(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ...data, cobro_generado: cobroGenerado })
+  // Automatización 2 (reverso): si la atención deja de estar "completada" (no asistió, cancelada,
+  // corregida), la sesión vuelve al plan y el cobro queda anulado. No se borra nada.
+  let planRevertido = false
+  let planReversoError = false
+  if (estadoAnterior === 'completada' && typeof updates.estado === 'string' && updates.estado !== 'completada') {
+    const r = await revertirConsumosDeAgenda(admin, usuario.colegio_id, id, user.id, `Atención cambiada a "${updates.estado}" en la agenda`)
+    planRevertido = r.revertidos > 0
+    planReversoError = r.errores > 0
+  }
+
+  return NextResponse.json({ ...data, cobro_generado: cobroGenerado, plan_revertido: planRevertido, plan_reverso_error: planReversoError })
 }
 
 // DELETE: Eliminar sesión o serie
@@ -222,6 +295,8 @@ export async function DELETE(request: NextRequest) {
         .in('estado', ['programada', 'confirmada'])
     }
   } else {
+    // Si la atención había consumido un plan, la sesión vuelve al plan antes de eliminarla.
+    await revertirConsumosDeAgenda(admin, usuario.colegio_id, id, user.id, 'Atención eliminada de la agenda')
     await admin.from('agenda_sesiones').delete().eq('id', id).eq('colegio_id', usuario.colegio_id)
   }
 

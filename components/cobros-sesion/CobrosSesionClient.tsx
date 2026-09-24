@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import type { PaqueteCatalogo, PlanVendidoLista } from '@/lib/planes'
+import PlanesModal from './PlanesModal'
 
 interface Cobro {
   id: string; fecha_sesion: string; descripcion: string
   monto: number; descuento: number; monto_final: number; estado: string
+  monto_cubierto_plan?: number; paquete_vendido_id?: string | null
   fecha_pago: string | null; medio_pago: string | null
   alumno: { id: string; nombre: string; apellido: string; curso: string }
   profesional: { id: string; nombre: string; apellido: string }
@@ -17,25 +20,13 @@ interface Tarifa {
   tipo_sesion: string; duracion_min: number; monto: number
 }
 
-interface Paquete {
-  id: string; nombre: string; cantidad: number; precio_total: number; descuento_pct: number
-  tarifa: { id: string; nombre: string; monto: number } | null
-}
-
-interface PaqueteVendido {
-  id: string; sesiones_total: number; sesiones_usadas: number; monto_pagado: number
-  estado_pago: string; fecha_vencimiento: string | null
-  paquete: { nombre: string; descuento_pct: number } | null
-  alumno: { id: string; nombre: string; apellido: string; curso: string }
-}
-
 interface Props {
   cobros: Cobro[]
   tarifas: Tarifa[]
   alumnos: { id: string; nombre: string; apellido: string; curso: string }[]
   profesionales: { id: string; nombre: string; apellido: string }[]
-  paquetes: Paquete[]
-  paquetesVendidos: PaqueteVendido[]
+  paquetes: PaqueteCatalogo[]
+  paquetesVendidos: PlanVendidoLista[]
 }
 
 const ESTADO_LABELS: Record<string, { label: string; class: string }> = {
@@ -143,8 +134,14 @@ export default function CobrosSesionClient({ cobros, tarifas, alumnos, profesion
                 <td className="text-[12px] font-semibold text-right">
                   ${c.monto_final.toLocaleString('es-CL')}
                   {c.descuento > 0 && <span className="text-[10px] text-emerald-600 ml-1">(-${c.descuento.toLocaleString('es-CL')})</span>}
+                  {!!c.paquete_vendido_id && (
+                    <div className="text-[10px] font-normal text-[#5B3E9E]">Cubierto por plan: ${(c.monto_cubierto_plan ?? 0).toLocaleString('es-CL')}</div>
+                  )}
                 </td>
-                <td><span className={`tag ${ESTADO_LABELS[c.estado]?.class ?? 'tag-gray'}`}>{ESTADO_LABELS[c.estado]?.label ?? c.estado}</span></td>
+                <td>
+                  <span className={`tag ${ESTADO_LABELS[c.estado]?.class ?? 'tag-gray'}`}>{ESTADO_LABELS[c.estado]?.label ?? c.estado}</span>
+                  {!!c.paquete_vendido_id && c.estado !== 'anulado' && <span className="tag tag-blue ml-1">Plan</span>}
+                </td>
                 <td className="text-center">
                   {c.estado === 'pendiente' && (
                     <button onClick={() => marcarPagado(c.id)} className="text-[10px] text-emerald-600 font-semibold hover:underline">
@@ -161,7 +158,7 @@ export default function CobrosSesionClient({ cobros, tarifas, alumnos, profesion
       {/* Modals */}
       {showCobro && <ModalNuevoCobro tarifas={tarifas} alumnos={alumnos} profesionales={profesionales} onClose={() => setShowCobro(false)} />}
       {showTarifa && <ModalTarifas tarifas={tarifas} onClose={() => setShowTarifa(false)} />}
-      {showPaquetes && <ModalPaquetes paquetes={paquetes} paquetesVendidos={paquetesVendidos} tarifas={tarifas} alumnos={alumnos} onClose={() => setShowPaquetes(false)} />}
+      {showPaquetes && <PlanesModal paquetes={paquetes} vendidos={paquetesVendidos} tarifas={tarifas} alumnos={alumnos} onClose={() => setShowPaquetes(false)} />}
     </div>
   )
 }
@@ -300,170 +297,6 @@ function ModalTarifas({ tarifas, onClose }: { tarifas: Tarifa[]; onClose: () => 
             <button type="submit" disabled={saving} className="btn-primary text-[12px]">{saving ? 'Creando...' : 'Crear tarifa'}</button>
           </div>
         </form>
-      </div>
-    </div>
-  )
-}
-
-// ─── MODAL: PAQUETES (catálogo + venta) ───
-function ModalPaquetes({ paquetes, paquetesVendidos, tarifas, alumnos, onClose }: {
-  paquetes: Paquete[]; paquetesVendidos: PaqueteVendido[]; tarifas: Tarifa[]
-  alumnos: Props['alumnos']; onClose: () => void
-}) {
-  const [tab, setTab] = useState<'vender' | 'catalogo'>('vender')
-  const [saving, setSaving] = useState(false)
-
-  const [nuevoForm, setNuevoForm] = useState({ nombre: '', tarifa_id: '', cantidad: '10', precio_total: '', descuento_pct: '0' })
-  const [ventaForm, setVentaForm] = useState({ paquete_id: '', alumno_id: '', marcar_pagado: true })
-
-  async function crearPaquete(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
-    try {
-      const res = await fetch('/api/paquetes-sesion', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...nuevoForm,
-          tarifa_id: nuevoForm.tarifa_id || null,
-          cantidad: parseInt(nuevoForm.cantidad),
-          precio_total: parseInt(nuevoForm.precio_total),
-          descuento_pct: parseInt(nuevoForm.descuento_pct),
-        }),
-      })
-      if (!res.ok) throw new Error((await res.json()).error)
-      toast.success('Paquete creado en el catálogo')
-      window.location.reload()
-    } catch (err: any) { toast.error(err.message) } finally { setSaving(false) }
-  }
-
-  async function venderPaquete(e: React.FormEvent) {
-    e.preventDefault()
-    if (!ventaForm.paquete_id || !ventaForm.alumno_id) { toast.error('Selecciona paquete y alumno'); return }
-    setSaving(true)
-    try {
-      const res = await fetch('/api/paquetes-vendidos', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ventaForm),
-      })
-      if (!res.ok) throw new Error((await res.json()).error)
-      toast.success('Paquete vendido')
-      window.location.reload()
-    } catch (err: any) { toast.error(err.message) } finally { setSaving(false) }
-  }
-
-  async function marcarPagado(id: string) {
-    const res = await fetch(`/api/paquetes-vendidos/${id}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accion: 'marcar_pagado' }),
-    })
-    if (res.ok) { toast.success('Marcado como pagado'); window.location.reload() }
-    else toast.error('Error al actualizar')
-  }
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content max-w-2xl" onClick={e => e.stopPropagation()}>
-        <div className="px-6 py-4 border-b border-[var(--ar-border)] flex items-center justify-between">
-          <div>
-            <h3 className="text-[15px] font-bold text-[var(--ar-text)]">Planes prepagados</h3>
-            <p className="text-[11px] text-[var(--ar-muted)] mt-1">Vende packs de sesiones con descuento y sigue su uso</p>
-          </div>
-          <button onClick={onClose} className="text-[var(--ar-muted)] hover:text-[var(--ar-text)] text-xl">×</button>
-        </div>
-
-        <div className="flex gap-1 px-6 pt-3 border-b border-[var(--ar-border)]">
-          <button onClick={() => setTab('vender')} className={`px-3 py-2 text-[12px] font-medium border-b-2 -mb-px transition-colors ${tab === 'vender' ? 'border-[var(--ar-navy)] text-[var(--ar-text)]' : 'border-transparent text-[var(--ar-muted)]'}`}>Vendidos</button>
-          <button onClick={() => setTab('catalogo')} className={`px-3 py-2 text-[12px] font-medium border-b-2 -mb-px transition-colors ${tab === 'catalogo' ? 'border-[var(--ar-navy)] text-[var(--ar-text)]' : 'border-transparent text-[var(--ar-muted)]'}`}>Catálogo</button>
-        </div>
-
-        {tab === 'vender' ? (
-          <>
-            <div className="px-6 py-4 max-h-[280px] overflow-y-auto">
-              {paquetesVendidos.length === 0 ? (
-                <p className="text-[12px] text-[var(--ar-muted)] text-center py-4">Aún no se ha vendido ningún paquete</p>
-              ) : (
-                <div className="space-y-2">
-                  {paquetesVendidos.map(pv => (
-                    <div key={pv.id} className="flex items-center justify-between p-3 rounded-lg bg-[#f9f7f5]">
-                      <div>
-                        <div className="text-[12px] font-medium text-[var(--ar-text)]">{pv.alumno.nombre} {pv.alumno.apellido} — {pv.paquete?.nombre}</div>
-                        <div className="text-[10px] text-[var(--ar-muted)]">{pv.sesiones_usadas}/{pv.sesiones_total} sesiones usadas</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`tag ${pv.estado_pago === 'pagado' ? 'tag-ok' : 'tag-pend'}`}>{pv.estado_pago === 'pagado' ? 'Pagado' : 'Pendiente'}</span>
-                        {pv.estado_pago !== 'pagado' && (
-                          <button onClick={() => marcarPagado(pv.id)} className="text-[10px] text-emerald-600 font-semibold hover:underline">Marcar pagado</button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <form onSubmit={venderPaquete} className="px-6 py-4 border-t border-[var(--ar-border)] space-y-3">
-              <div className="text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-wider">Vender paquete</div>
-              {paquetes.length === 0 ? (
-                <p className="text-[11px] text-[var(--ar-muted)]">Primero crea un paquete en el Catálogo.</p>
-              ) : (
-                <div className="grid grid-cols-2 gap-3">
-                  <select value={ventaForm.paquete_id} onChange={e => setVentaForm({...ventaForm, paquete_id: e.target.value})} className="select-base text-[12px]" required>
-                    <option value="">Paquete...</option>
-                    {paquetes.map(p => <option key={p.id} value={p.id}>{p.nombre} — ${p.precio_total.toLocaleString('es-CL')}</option>)}
-                  </select>
-                  <select value={ventaForm.alumno_id} onChange={e => setVentaForm({...ventaForm, alumno_id: e.target.value})} className="select-base text-[12px]" required>
-                    <option value="">Alumno...</option>
-                    {alumnos.map(a => <option key={a.id} value={a.id}>{a.apellido}, {a.nombre}</option>)}
-                  </select>
-                </div>
-              )}
-              <label className="flex items-center gap-2 text-[11px] text-[var(--ar-text)]">
-                <input type="checkbox" checked={ventaForm.marcar_pagado} onChange={e => setVentaForm({...ventaForm, marcar_pagado: e.target.checked})} />
-                Ya se pagó (si no, queda pendiente de cobro)
-              </label>
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={onClose} className="btn-secondary text-[12px]">Cerrar</button>
-                <button type="submit" disabled={saving || paquetes.length === 0} className="btn-primary text-[12px] disabled:opacity-50">{saving ? 'Vendiendo...' : 'Vender paquete'}</button>
-              </div>
-            </form>
-          </>
-        ) : (
-          <>
-            <div className="px-6 py-4 max-h-[280px] overflow-y-auto">
-              {paquetes.length === 0 ? (
-                <p className="text-[12px] text-[var(--ar-muted)] text-center py-4">No hay paquetes en el catálogo</p>
-              ) : (
-                <div className="space-y-2">
-                  {paquetes.map(p => (
-                    <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-[#f9f7f5]">
-                      <div>
-                        <div className="text-[12px] font-medium text-[var(--ar-text)]">{p.nombre}</div>
-                        <div className="text-[10px] text-[var(--ar-muted)]">{p.cantidad} sesiones{p.tarifa ? ` · ${p.tarifa.nombre}` : ''}{p.descuento_pct > 0 ? ` · ${p.descuento_pct}% desc.` : ''}</div>
-                      </div>
-                      <div className="text-[13px] font-bold text-[var(--ar-text)]">${p.precio_total.toLocaleString('es-CL')}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <form onSubmit={crearPaquete} className="px-6 py-4 border-t border-[var(--ar-border)] space-y-3">
-              <div className="text-[10px] font-bold text-[var(--ar-muted)] uppercase tracking-wider">Agregar paquete</div>
-              <div className="grid grid-cols-2 gap-3">
-                <input value={nuevoForm.nombre} onChange={e => setNuevoForm({...nuevoForm, nombre: e.target.value})} className="input-base text-[12px]" placeholder="Nombre (ej: Pack 10 Fono)" required />
-                <select value={nuevoForm.tarifa_id} onChange={e => setNuevoForm({...nuevoForm, tarifa_id: e.target.value})} className="select-base text-[12px]">
-                  <option value="">Sin tarifa asociada</option>
-                  {tarifas.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                </select>
-                <input type="number" value={nuevoForm.cantidad} onChange={e => setNuevoForm({...nuevoForm, cantidad: e.target.value})} className="input-base text-[12px]" placeholder="N° de sesiones" required />
-                <input type="number" value={nuevoForm.precio_total} onChange={e => setNuevoForm({...nuevoForm, precio_total: e.target.value})} className="input-base text-[12px]" placeholder="Precio total CLP" required />
-                <input type="number" value={nuevoForm.descuento_pct} onChange={e => setNuevoForm({...nuevoForm, descuento_pct: e.target.value})} className="input-base text-[12px]" placeholder="% descuento vs. tarifa normal" />
-              </div>
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={onClose} className="btn-secondary text-[12px]">Cerrar</button>
-                <button type="submit" disabled={saving} className="btn-primary text-[12px]">{saving ? 'Creando...' : 'Crear paquete'}</button>
-              </div>
-            </form>
-          </>
-        )}
       </div>
     </div>
   )

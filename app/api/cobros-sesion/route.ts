@@ -84,12 +84,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { cobro } = await generarCobroSesion({
+    const { cobro, paqueteAplicado, repetido } = await generarCobroSesion({
       admin, colegioId: usuario.colegio_id, alumnoId: alumno_id, profesionalId: profesional_id,
       fechaSesion: fecha_sesion, tarifaId: tarifa_id, montoOverride: monto_override, descuentoManual: descuento,
-      agendaSesionId: agenda_sesion_id, sesionTerapeuticaId: sesion_terapeutica_id,
+      agendaSesionId: agenda_sesion_id, sesionTerapeuticaId: sesion_terapeutica_id, userId: user.id,
     })
-    return NextResponse.json(cobro, { status: 201 })
+    return NextResponse.json({ ...cobro, cubierto_por_plan: paqueteAplicado }, { status: repetido ? 200 : 201 })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 })
   }
@@ -111,6 +111,18 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json()
   const { id, estado, medio_pago, comprobante_url } = body
   if (!id) return NextResponse.json({ error: 'id requerido' }, { status: 400 })
+  if (!['pendiente', 'pagado', 'parcial', 'anulado', 'condonado'].includes(estado)) {
+    return NextResponse.json({ error: 'estado inválido' }, { status: 400 })
+  }
+
+  // Una atención cubierta por un plan la administra el plan: no se cobra ni se anula a mano
+  // (se revierte el consumo desde el detalle del plan, que devuelve la sesión y deja auditoría).
+  const { data: actual } = await admin.from('cobros_sesion').select('paquete_vendido_id, estado')
+    .eq('id', id).eq('colegio_id', usuario.colegio_id).single()
+  if (!actual) return NextResponse.json({ error: 'Cobro no encontrado' }, { status: 404 })
+  if ((actual as { paquete_vendido_id: string | null }).paquete_vendido_id) {
+    return NextResponse.json({ error: 'Esta atención está cubierta por un plan. Para corregirla, revierte el consumo desde el detalle del plan.' }, { status: 409 })
+  }
 
   const updates: any = { estado }
   if (estado === 'pagado') {

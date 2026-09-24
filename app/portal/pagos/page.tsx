@@ -62,7 +62,7 @@ export default async function PortalPagosPage() {
     admin.from('paquetes_vendidos')
       .select('*, paquete:paquetes_sesion(nombre), alumno:alumnos(nombre, apellido)')
       .in('alumno_id', alumnoIds)
-      .eq('activo', true)
+      .is('cancelado_at', null)
       .order('created_at', { ascending: false }),
   ])
 

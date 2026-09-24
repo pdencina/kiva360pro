@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
   const itemsValidos = [
     ...((cobros as any[]) ?? []).map(c => ({ origen: 'mensualidad' as const, id: c.id, saldo: c.monto - c.monto_pagado, fecha: c.fecha_vencimiento, alumnoId: c.alumno_id, colegioId: c.colegio_id })),
-    ...((cobrosSesion as any[]) ?? []).map(c => ({ origen: 'prestacion' as const, id: c.id, saldo: c.estado === 'pagado' ? 0 : c.monto_final, fecha: c.fecha_sesion, alumnoId: c.alumno_id, colegioId: c.colegio_id })),
+    ...((cobrosSesion as any[]) ?? []).map(c => ({ origen: 'prestacion' as const, id: c.id, saldo: ['pagado', 'anulado', 'condonado'].includes(c.estado) ? 0 : c.monto_final, fecha: c.fecha_sesion, alumnoId: c.alumno_id, colegioId: c.colegio_id })),
   ].filter(i => i.saldo > 0)
 
   if (itemsValidos.some(i => i.alumnoId !== alumno_id)) {

@@ -52,10 +52,10 @@ export async function POST(request: NextRequest) {
   if (!accesoFinanzas(usuario?.rol)) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
 
   const body = await request.json()
-  const { cobro_id, cobro_sesion_id, tipo, afecto_iva } = body
+  const { cobro_id, cobro_sesion_id, paquete_vendido_id, tipo, afecto_iva } = body
 
-  if (!cobro_id && !cobro_sesion_id) {
-    return NextResponse.json({ error: 'Debes indicar cobro_id o cobro_sesion_id' }, { status: 400 })
+  if (!cobro_id && !cobro_sesion_id && !paquete_vendido_id) {
+    return NextResponse.json({ error: 'Debes indicar cobro_id, cobro_sesion_id o paquete_vendido_id' }, { status: 400 })
   }
   if (!['boleta', 'factura'].includes(tipo)) {
     return NextResponse.json({ error: 'tipo debe ser boleta o factura' }, { status: 400 })
@@ -63,7 +63,9 @@ export async function POST(request: NextRequest) {
 
   // Evitar duplicar: si ya existe un documento vigente (no anulado) para este origen, no crear otro
   let dupQuery = admin.from('documentos_tributarios').select('id').neq('estado', 'anulado')
-  dupQuery = cobro_id ? dupQuery.eq('cobro_id', cobro_id) : dupQuery.eq('cobro_sesion_id', cobro_sesion_id)
+  dupQuery = cobro_id
+    ? dupQuery.eq('cobro_id', cobro_id)
+    : cobro_sesion_id ? dupQuery.eq('cobro_sesion_id', cobro_sesion_id) : dupQuery.eq('paquete_vendido_id', paquete_vendido_id)
   const { data: existente } = await dupQuery.maybeSingle()
   if (existente) {
     return NextResponse.json({ error: 'Ya existe un documento para este cobro' }, { status: 409 })
@@ -82,16 +84,32 @@ export async function POST(request: NextRequest) {
     descripcion = c.concepto?.nombre ?? 'Mensualidad'
     receptorNombre = `${c.familia?.nombre_apoderado ?? ''} ${c.familia?.apellido_apoderado ?? ''}`.trim() || 'Apoderado'
     receptorEmail = c.familia?.email ?? null
-  } else {
+  } else if (cobro_sesion_id) {
     const { data } = await admin.from('cobros_sesion').select('*, alumno:alumnos(nombre, apellido), familia:familias(nombre_apoderado, apellido_apoderado, email, rut)').eq('id', cobro_sesion_id).eq('colegio_id', usuario.colegio_id).single()
     if (!data) return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 404 })
     const cs = data as any
+    if (cs.paquete_vendido_id || cs.monto_final <= 0) {
+      return NextResponse.json({ error: 'Esta atención fue cubierta por un plan: el documento corresponde a la venta del plan, no a cada sesión.' }, { status: 409 })
+    }
     alumnoId = cs.alumno_id
     familiaId = cs.familia_id
     montoTotal = cs.monto_final
     descripcion = cs.descripcion
     receptorNombre = `${cs.familia?.nombre_apoderado ?? ''} ${cs.familia?.apellido_apoderado ?? ''}`.trim() || 'Apoderado'
     receptorEmail = cs.familia?.email ?? null
+  } else {
+    const { data } = await admin.from('paquetes_vendidos').select('*, paquete:paquetes_sesion(nombre), familia:familias(nombre_apoderado, apellido_apoderado, email)').eq('id', paquete_vendido_id).eq('colegio_id', usuario.colegio_id).single()
+    if (!data) return NextResponse.json({ error: 'Plan no encontrado' }, { status: 404 })
+    const pv = data as any
+    if (!pv.monto_pagado || pv.monto_pagado <= 0) {
+      return NextResponse.json({ error: 'El plan aún no tiene pagos: no hay nada que documentar.' }, { status: 409 })
+    }
+    alumnoId = pv.alumno_id
+    familiaId = pv.familia_id
+    montoTotal = pv.monto_pagado
+    descripcion = `Plan: ${pv.paquete?.nombre ?? 'Plan de sesiones'}`
+    receptorNombre = `${pv.familia?.nombre_apoderado ?? ''} ${pv.familia?.apellido_apoderado ?? ''}`.trim() || 'Apoderado'
+    receptorEmail = pv.familia?.email ?? null
   }
 
   const { data: colegio } = await admin.from('colegios').select('proveedor_facturacion').eq('id', usuario.colegio_id).single()
@@ -115,6 +133,7 @@ export async function POST(request: NextRequest) {
     familia_id: familiaId,
     cobro_id: cobro_id || null,
     cobro_sesion_id: cobro_sesion_id || null,
+    paquete_vendido_id: paquete_vendido_id || null,
     tipo,
     folio: resultado.folio,
     monto_neto: montoNeto,
@@ -132,7 +151,7 @@ export async function POST(request: NextRequest) {
   await registrarAuditoriaFinanciera({
     admin, colegioId: usuario.colegio_id, usuarioId: user.id,
     accion: 'documento_emitido', entidad: 'documentos_tributarios', entidadId: (documento as any).id,
-    valorNuevo: { tipo, monto_total: montoTotal, estado: resultado.estado, cobro_id, cobro_sesion_id },
+    valorNuevo: { tipo, monto_total: montoTotal, estado: resultado.estado, cobro_id, cobro_sesion_id, paquete_vendido_id },
   })
 
   return NextResponse.json(documento, { status: 201 })

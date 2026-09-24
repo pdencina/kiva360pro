@@ -37,7 +37,11 @@ export default function DocumentosTributariosClient({ pendientes, documentos, co
     if (!emitiendo) return
     setProcesando(true)
     try {
-      const origen = emitiendo.origen === 'mensualidad' ? { cobro_id: emitiendo.cobro_id } : { cobro_sesion_id: emitiendo.cobro_sesion_id }
+      const origen = emitiendo.origen === 'mensualidad'
+        ? { cobro_id: emitiendo.cobro_id }
+        : emitiendo.origen === 'plan'
+          ? { paquete_vendido_id: emitiendo.paquete_vendido_id }
+          : { cobro_sesion_id: emitiendo.cobro_sesion_id }
       const res = await fetch('/api/documentos-tributarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -45,10 +45,12 @@ export default async function DocumentosTributariosPage() {
   const conDocumento = new Set(
     ((documentos as any[]) ?? [])
       .filter(d => d.estado !== 'anulado')
-      .map(d => d.cobro_id || d.cobro_sesion_id)
+      .map(d => d.cobro_id || d.cobro_sesion_id || d.paquete_vendido_id)
   )
 
-  const pendientesDeEmision = ((pagados as any[]) ?? []).filter(p => !conDocumento.has(p.cobro_id || p.cobro_sesion_id))
+  // monto_pagado > 0 excluye las atenciones cubiertas por un plan (no son ingreso: el documento
+  // corresponde a la venta del plan, que sí aparece aquí como origen 'plan').
+  const pendientesDeEmision = ((pagados as any[]) ?? []).filter(p => !conDocumento.has(p.cobro_id || p.cobro_sesion_id || p.paquete_vendido_id))
 
   return (
     <DocumentosTributariosClient

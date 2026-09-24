@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
     if (!cobroSesion) return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 404 })
     const cs = cobroSesion as any
     if (cs.estado === 'pagado') return NextResponse.json({ error: 'Esta sesión ya está pagada' }, { status: 400 })
+    if (cs.estado === 'anulado' || cs.estado === 'condonado') return NextResponse.json({ error: 'Esta sesión no tiene saldo por pagar' }, { status: 400 })
     if (cs.monto_final <= 0) return NextResponse.json({ error: 'No hay monto pendiente' }, { status: 400 })
     amount = cs.monto_final
     origenId = cobro_sesion_id

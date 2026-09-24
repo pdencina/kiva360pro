@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { estadoPlan, sesionesDisponibles, formatFechaCorta, ESTADO_PLAN_LABEL, ESTADO_PLAN_TAG } from '@/lib/planes'
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
@@ -349,17 +350,25 @@ export default function PortalPagosClient({ cobros, cobrosSesion = [], documento
           <div className="space-y-2">
             {paquetesVendidos.map((pv: any) => {
               const pct = pv.sesiones_total > 0 ? Math.round((pv.sesiones_usadas / pv.sesiones_total) * 100) : 0
+              const estado = estadoPlan(pv)
+              const pagado = pv.estado_pago === 'pagado'
               return (
                 <div key={pv.id} className="bg-white border border-[var(--ar-border)] rounded-xl p-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <div className="text-[13px] font-medium text-[#1B3A5C]">{pv.paquete?.nombre ?? 'Paquete de sesiones'}</div>
+                      <div className="text-[13px] font-medium text-[#1B3A5C]">{pv.paquete?.nombre ?? 'Plan de sesiones'}</div>
                       <div className="text-[11px] text-[#9ca3af]">{pv.alumno?.nombre} {pv.alumno?.apellido}</div>
                     </div>
-                    <span className="text-[12px] font-bold text-[#1B3A5C]">{pv.sesiones_usadas}/{pv.sesiones_total} sesiones</span>
+                    <div className="text-right">
+                      <span className={`tag ${pagado ? ESTADO_PLAN_TAG[estado] : 'tag-pend'}`}>{pagado ? ESTADO_PLAN_LABEL[estado] : 'Pago pendiente'}</span>
+                    </div>
                   </div>
                   <div className="h-2 bg-[#f0f4f8] rounded-full overflow-hidden">
                     <div className="h-full bg-[#5B3E9E] rounded-full" style={{ width: `${pct}%` }}/>
+                  </div>
+                  <div className="flex items-center justify-between mt-2 text-[11px] text-[#6b7280]">
+                    <span><strong className="text-[#1B3A5C]">{pv.sesiones_usadas} / {pv.sesiones_total}</strong> utilizadas · {sesionesDisponibles(pv)} disponibles</span>
+                    <span>{pv.fecha_vencimiento ? `Vence: ${formatFechaCorta(pv.fecha_vencimiento)}` : 'Sin vencimiento'}</span>
                   </div>
                 </div>
               )

@@ -30,10 +30,12 @@ export default async function AgendaPage() {
   let solicitudesQuery = admin.from('reservas_publicas').select('*', { count: 'exact', head: true }).eq('colegio_id', colegioId).eq('estado', 'pendiente')
   if (usuario.rol === 'tutor') solicitudesQuery = solicitudesQuery.eq('profesional_id', user.id)
 
-  const [{ data: alumnos }, { data: profesionales }, { count: solicitudesPendientes }] = await Promise.all([
+  const [{ data: alumnos }, { data: profesionales }, { count: solicitudesPendientes }, { data: tarifas }] = await Promise.all([
     admin.from('alumnos').select('id, nombre, apellido, curso').eq('colegio_id', colegioId).eq('activo', true).order('apellido'),
     admin.from('usuarios').select('id, nombre, apellido, rol').eq('colegio_id', colegioId).eq('activo', true).in('rol', ['tutor', 'admin', 'pastor_campus']).order('apellido'),
     solicitudesQuery,
+    // Solo id y nombre: la agenda necesita saber la prestación, no su precio
+    admin.from('tarifas_sesion').select('id, nombre').eq('colegio_id', colegioId).eq('activo', true).order('nombre'),
   ])
 
   return (
@@ -42,6 +44,7 @@ export default async function AgendaPage() {
       profesionales={(profesionales as any[]) ?? []}
       currentUserId={user.id}
       solicitudesPendientes={solicitudesPendientes ?? 0}
+      tarifas={(tarifas as { id: string; nombre: string }[]) ?? []}
     />
   )
 }

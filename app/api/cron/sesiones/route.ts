@@ -43,37 +43,46 @@ async function ejecutarCronSesiones(request: NextRequest) {
   // =====================
   const { data: sesionesVencidas } = await admin
     .from('agenda_sesiones')
-    .select('id, colegio_id, tipo_sesion, alumno_id, profesional_id, fecha')
+    .select('id, colegio_id, tipo_sesion, alumno_id, profesional_id, fecha, tarifa_id')
     .in('estado', ['programada', 'confirmada'])
     .lt('fecha', hoyStr)
 
   for (const sesion of (sesionesVencidas ?? [])) {
-    const s = sesion as any
+    const s = sesion as {
+      id: string; colegio_id: string; tipo_sesion: string; alumno_id: string
+      profesional_id: string; fecha: string; tarifa_id: string | null
+    }
 
-    await admin.from('agenda_sesiones').update({ estado: 'completada' }).eq('id', s.id)
+    // El UPDATE con guard de estado hace la operación idempotente si el cron se ejecuta dos veces.
+    const { data: completada } = await admin.from('agenda_sesiones').update({ estado: 'completada' })
+      .eq('id', s.id).in('estado', ['programada', 'confirmada']).select('id').maybeSingle()
+    if (!completada) continue
     resultados.sesiones_completadas++
 
-    const { data: yaExiste } = await admin.from('cobros_sesion').select('id').eq('agenda_sesion_id', s.id).maybeSingle()
+    const { data: yaExiste } = await admin.from('cobros_sesion').select('id').eq('agenda_sesion_id', s.id).neq('estado', 'anulado').maybeSingle()
     if (yaExiste) continue
 
-    const { data: tarifasAplicables } = await admin
-      .from('tarifas_sesion')
-      .select('id')
-      .eq('colegio_id', s.colegio_id)
-      .eq('tipo_sesion', s.tipo_sesion)
-      .eq('activo', true)
+    // Prestación de la sesión o, si no tiene, la única tarifa activa de ese tipo (no se adivina).
+    let tarifaId = s.tarifa_id
+    if (!tarifaId) {
+      const { data: tarifasAplicables } = await admin
+        .from('tarifas_sesion').select('id')
+        .eq('colegio_id', s.colegio_id).eq('tipo_sesion', s.tipo_sesion).eq('activo', true)
+      if (tarifasAplicables && tarifasAplicables.length === 1) tarifaId = (tarifasAplicables[0] as { id: string }).id
+    }
 
-    if (tarifasAplicables && tarifasAplicables.length === 1) {
+    if (tarifaId) {
       try {
-        const { cobro } = await generarCobroSesion({
+        const { cobro, repetido } = await generarCobroSesion({
           admin, colegioId: s.colegio_id, alumnoId: s.alumno_id, profesionalId: s.profesional_id,
-          fechaSesion: s.fecha, tarifaId: (tarifasAplicables[0] as any).id, agendaSesionId: s.id,
+          fechaSesion: s.fecha, tarifaId, agendaSesionId: s.id, userId: null,
         })
+        if (repetido) continue
         resultados.cobros_generados++
         await registrarAuditoriaFinanciera({
           admin, colegioId: s.colegio_id, usuarioId: null,
           accion: 'cobro_generado', entidad: 'cobros_sesion', entidadId: cobro.id,
-          valorNuevo: { origen: 'cron_auto_completar', agenda_sesion_id: s.id, monto_final: cobro.monto_final },
+          valorNuevo: { origen: 'cron_auto_completar', agenda_sesion_id: s.id, monto: cobro.monto, monto_final: cobro.monto_final, cubierto_plan: cobro.monto_cubierto_plan },
         })
       } catch (err) {
         console.error('Error generando cobro automático para sesión', s.id, err)

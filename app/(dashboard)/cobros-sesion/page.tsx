@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import CobrosSesionClient from '@/components/cobros-sesion/CobrosSesionClient'
+import { enriquecerPlan, type PlanRow } from '@/lib/planes'
 
 export const metadata = { title: 'Cobros por sesión' }
 
@@ -33,8 +34,8 @@ export default async function CobrosSesionPage() {
     admin.from('tarifas_sesion').select('*').eq('colegio_id', colegioId).eq('activo', true).order('nombre'),
     admin.from('alumnos').select('id, nombre, apellido, curso').eq('colegio_id', colegioId).eq('activo', true).order('apellido'),
     admin.from('usuarios').select('id, nombre, apellido').eq('colegio_id', colegioId).eq('activo', true).in('rol', ['tutor', 'admin', 'pastor_campus']).order('apellido'),
-    admin.from('paquetes_sesion').select('*, tarifa:tarifas_sesion(id, nombre, monto)').eq('colegio_id', colegioId).eq('activo', true).order('nombre'),
-    admin.from('paquetes_vendidos').select('*, paquete:paquetes_sesion(nombre, descuento_pct), alumno:alumnos(id, nombre, apellido, curso)').eq('colegio_id', colegioId).eq('activo', true).order('created_at', { ascending: false }),
+    admin.from('paquetes_sesion').select('*, prestaciones:paquete_prestaciones(id, tarifa_id, cantidad, tarifa:tarifas_sesion(id, nombre, monto))').eq('colegio_id', colegioId).eq('activo', true).order('nombre'),
+    admin.from('paquetes_vendidos').select('*, paquete:paquetes_sesion(nombre), alumno:alumnos(id, nombre, apellido, curso)').eq('colegio_id', colegioId).order('created_at', { ascending: false }),
   ])
 
   return (
@@ -44,7 +45,7 @@ export default async function CobrosSesionPage() {
       alumnos={(alumnos as any[]) ?? []}
       profesionales={(profesionales as any[]) ?? []}
       paquetes={(paquetes as any[]) ?? []}
-      paquetesVendidos={(paquetesVendidos as any[]) ?? []}
+      paquetesVendidos={((paquetesVendidos ?? []) as unknown as PlanRow[]).map(enriquecerPlan) as any[]}
     />
   )
 }
